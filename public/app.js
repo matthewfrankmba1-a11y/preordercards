@@ -4,13 +4,6 @@ const statusEl = document.getElementById('status');
 const sourceNoteEl = document.getElementById('source-note');
 const cardTemplate = document.getElementById('release-card-template');
 
-const PRODUCT_TYPE_LABELS = {
-  value: 'Value',
-  mega: 'Mega',
-  hobby: 'Hobby',
-  hobby_case: 'Hobby Case',
-};
-
 // Generic, original icon per sport (mirrors the header montage) — used to build
 // a placeholder product image since we don't have licensed Topps box photography.
 const SPORT_ICONS = {
@@ -169,13 +162,6 @@ function buildCard(release) {
   }
 
   const form = node.querySelector('.signup-form');
-  const productTypeSelect = form.querySelector('.product-type-select');
-  for (const [value, label] of Object.entries(PRODUCT_TYPE_LABELS)) {
-    const opt = document.createElement('option');
-    opt.value = value;
-    opt.textContent = label;
-    productTypeSelect.appendChild(opt);
-  }
   const toggleBtns = form.querySelectorAll('.toggle-btn');
   const input = form.querySelector('.contact-input');
   const message = form.querySelector('.form-message');
@@ -217,7 +203,6 @@ function buildCard(release) {
           contactType,
           contactValue: value,
           quantity: Number(quantitySelect.value),
-          productType: productTypeSelect.value,
         }),
       });
       const data = await res.json();

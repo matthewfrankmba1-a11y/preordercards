@@ -9,7 +9,6 @@ const PORT = process.env.PORT || 3000;
 const RELEASES_PATH = path.join(__dirname, 'data', 'releases.json');
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PRODUCT_TYPES = ['value', 'mega', 'hobby', 'hobby_case'];
 
 app.use(helmet());
 app.use(express.json({ limit: '10kb' }));
@@ -56,13 +55,12 @@ app.get('/api/releases', (req, res) => {
 });
 
 app.post('/api/interest', rateLimit, (req, res) => {
-  const { releaseId, contactType, contactValue, quantity, productType } = req.body || {};
+  const { releaseId, contactType, contactValue, quantity } = req.body || {};
 
   if (
     typeof releaseId !== 'string' ||
     typeof contactType !== 'string' ||
-    typeof contactValue !== 'string' ||
-    typeof productType !== 'string'
+    typeof contactValue !== 'string'
   ) {
     return res.status(400).json({ error: 'Missing or invalid fields.' });
   }
@@ -71,10 +69,6 @@ app.post('/api/interest', rateLimit, (req, res) => {
   const release = data.releases.find((r) => r.id === releaseId);
   if (!release) {
     return res.status(404).json({ error: 'Unknown release.' });
-  }
-
-  if (!PRODUCT_TYPES.includes(productType)) {
-    return res.status(400).json({ error: 'productType must be one of value, mega, hobby, hobby_case.' });
   }
 
   const qty = Number(quantity);
@@ -104,7 +98,6 @@ app.post('/api/interest', rateLimit, (req, res) => {
     contactType,
     contactValue: normalizedValue,
     quantity: qty,
-    productType,
   });
 
   const counts = Object.fromEntries(countByRelease.all().map((r) => [r.releaseId, r.count]));

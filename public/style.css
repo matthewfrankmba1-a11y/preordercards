@@ -294,12 +294,6 @@ body {
   gap: 0.5rem;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-}
-
 .form-field {
   display: flex;
   flex-direction: column;
@@ -400,6 +394,14 @@ body {
   color: var(--muted);
   font-size: 0.8rem;
   text-align: center;
+}
+
+.disclaimer {
+  max-width: 640px;
+  margin: 0.75rem auto 0;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  opacity: 0.8;
 }
 
 @media (prefers-color-scheme: dark) {

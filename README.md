@@ -2,8 +2,9 @@
 
 A small full-stack app that lists upcoming Topps trading card releases,
 grouped by date, with a "Register Interest" form so visitors can flag
-which product, quantity, and configuration they want — no payment info
-collected, just contact details.
+which product and quantity they want — no payment info collected, just
+contact details. The site is an independent tracker, not affiliated with
+Topps or any league/brand referenced in the data (see the footer disclaimer).
 
 ## Stack
 
@@ -54,20 +55,17 @@ dates frequently, so treat this file as a starting point:
   "releaseId": "2026-topps-chrome-baseball-hobby",
   "contactType": "email",
   "contactValue": "you@example.com",
-  "quantity": 2,
-  "productType": "hobby"
+  "quantity": 2
 }
 ```
 
 - `quantity` is a whole number from 1–10.
-- `productType` is one of `value`, `mega`, `hobby`, `hobby_case`.
 
 Registrations are validated and stored in a local SQLite database
 (`data/preorders.db`, gitignored — it contains personal contact info and
-should never be committed). A person can register once per release *per
-product type* — resubmitting the same release/contact/type updates the
-quantity instead of erroring. A simple in-memory rate limiter caps
-requests per IP.
+should never be committed). A person can register once per release —
+resubmitting updates the quantity instead of erroring. A simple in-memory
+rate limiter caps requests per IP.
 
 This app does not send any notifications yet — it only captures interest.
 Wiring up actual email/SMS delivery (e.g. via an email provider or Twilio)
