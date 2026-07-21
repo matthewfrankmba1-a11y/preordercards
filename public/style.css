@@ -13,6 +13,11 @@
 
 * { box-sizing: border-box; }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -27,22 +32,104 @@ body {
 }
 
 .site-header {
+  position: relative;
+  overflow: hidden;
+  min-height: 340px;
+  display: flex;
+  align-items: flex-end;
   background: linear-gradient(135deg, var(--navy), var(--navy-light));
   color: #fff;
-  padding: 2.5rem 0 2rem;
+}
+
+.montage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0;
+  padding-top: 1.75rem;
+}
+
+.tile {
+  width: 142px;
+  height: 190px;
+  margin-left: -22px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: #fff;
+  transition: transform 0.25s ease;
+}
+
+.tile:first-child {
+  margin-left: 0;
+}
+
+.montage .tile:hover {
+  transform: translateY(-14px) rotate(0deg) scale(1.06) !important;
+  z-index: 5;
+}
+
+.tile-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.tile-baseball { background: linear-gradient(160deg, #d62828, #6a040f); }
+.tile-basketball { background: linear-gradient(160deg, #f77f00, #a63c06); }
+.tile-football { background: linear-gradient(160deg, #6a9c1f, #294a0a); }
+.tile-mma { background: linear-gradient(160deg, #343a40, #101214); }
+.tile-soccer { background: linear-gradient(160deg, #0077b6, #023e8a); }
+.tile-entertainment { background: linear-gradient(160deg, #9d4edd, #ff006e); }
+
+.header-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(11, 31, 58, 0.1) 0%,
+    rgba(11, 31, 58, 0.55) 55%,
+    rgba(11, 31, 58, 0.95) 100%
+  );
+  pointer-events: none;
+}
+
+.header-content {
+  position: relative;
+  z-index: 2;
+  padding: 2rem 1.5rem 2.25rem;
 }
 
 .site-header h1 {
   margin: 0 0 0.5rem;
-  font-size: 2rem;
+  font-size: 2.1rem;
   letter-spacing: -0.02em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .tagline {
   margin: 0;
-  color: #cfd7e6;
+  color: #e3e8f2;
   max-width: 640px;
   line-height: 1.5;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 640px) {
+  .site-header { min-height: 260px; }
+  .tile { width: 92px; height: 128px; margin-left: -26px; border-radius: 10px; }
+  .tile svg { width: 36px; height: 36px; }
+  .tile-label { font-size: 0.6rem; }
 }
 
 .controls {
