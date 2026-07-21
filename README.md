@@ -67,6 +67,21 @@ should never be committed). A person can register once per release —
 resubmitting updates the quantity instead of erroring. A simple in-memory
 rate limiter caps requests per IP.
 
-This app does not send any notifications yet — it only captures interest.
-Wiring up actual email/SMS delivery (e.g. via an email provider or Twilio)
-would be the next step before using this in production.
+## Discord alerts
+
+Copy `.env.example` to `.env` and set `DISCORD_WEBHOOK_URL` to a Discord
+channel webhook URL (Channel Settings → Integrations → Webhooks → New
+Webhook → Copy URL). Every successful registration posts an embed with the
+release, quantity, and contact info to that channel.
+
+- `.env` is gitignored — never commit it. Treat the webhook URL as a secret:
+  anyone who has it can post messages into your Discord channel.
+- The webhook call happens server-side only (never in frontend JS) and is
+  fire-and-forget — if Discord is unreachable, the registration still
+  succeeds and the error is just logged to the server console.
+- If `DISCORD_WEBHOOK_URL` isn't set, this feature is silently skipped.
+
+This app does not send anything to the person who registered yet (no
+confirmation email/SMS) — it only alerts you. Wiring up outbound
+email/SMS (e.g. via an email provider or Twilio) would be the next step
+before using this in production.

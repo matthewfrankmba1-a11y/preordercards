@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
@@ -7,8 +9,37 @@ const { upsertInterest, countByRelease } = require('./db');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const RELEASES_PATH = path.join(__dirname, 'data', 'releases.json');
+const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Fire-and-forget Discord alert — never let a webhook hiccup block or fail the signup itself.
+async function notifyDiscord(release, { contactType, contactValue, quantity }) {
+  if (!DISCORD_WEBHOOK_URL) return;
+  try {
+    await fetch(DISCORD_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        embeds: [
+          {
+            title: 'New interest registration',
+            color: 0xd21f3c,
+            fields: [
+              { name: 'Release', value: release.title },
+              { name: 'Release date', value: release.releaseDate, inline: true },
+              { name: 'Quantity', value: String(quantity), inline: true },
+              { name: contactType === 'email' ? 'Email' : 'Phone', value: contactValue },
+            ],
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      }),
+    });
+  } catch (err) {
+    console.error('Discord webhook failed:', err.message);
+  }
+}
 
 app.use(helmet());
 app.use(express.json({ limit: '10kb' }));
@@ -99,6 +130,8 @@ app.post('/api/interest', rateLimit, (req, res) => {
     contactValue: normalizedValue,
     quantity: qty,
   });
+
+  notifyDiscord(release, { contactType, contactValue: normalizedValue, quantity: qty });
 
   const counts = Object.fromEntries(countByRelease.all().map((r) => [r.releaseId, r.count]));
   res.status(201).json({ success: true, interestCount: counts[releaseId] || 1 });
