@@ -1,0 +1,5 @@
+node_modules/
+data/preorders.db
+data/preorders.db-shm
+data/preorders.db-wal
+.DS_Store

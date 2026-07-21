@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Topps Release Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <h1>Topps Release Tracker</h1>
+      <p class="tagline">Upcoming Topps trading card releases, organized by date. Sign up to get notified when preorders open.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="controls">
+      <label for="sport-filter">Filter by sport</label>
+      <select id="sport-filter">
+        <option value="all">All sports</option>
+      </select>
+    </div>
+
+    <div id="status" class="status" hidden></div>
+    <div id="releases" class="releases"></div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p id="source-note"></p>
+    </div>
+  </footer>
+
+  <template id="release-card-template">
+    <article class="card">
+      <div class="card-header">
+        <span class="badge sport-badge"></span>
+        <span class="badge format-badge"></span>
+      </div>
+      <h3 class="card-title"></h3>
+      <p class="card-date"></p>
+      <p class="card-desc"></p>
+      <p class="card-preorder-note"></p>
+      <p class="card-count"></p>
+
+      <form class="signup-form">
+        <div class="contact-toggle">
+          <button type="button" class="toggle-btn active" data-type="email">Email</button>
+          <button type="button" class="toggle-btn" data-type="phone">Phone</button>
+        </div>
+        <div class="signup-row">
+          <input type="text" class="contact-input" placeholder="you@example.com" autocomplete="email" />
+          <button type="submit" class="notify-btn">Notify Me</button>
+        </div>
+        <p class="form-message" role="status"></p>
+      </form>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>

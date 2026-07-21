@@ -1,0 +1,167 @@
+{
+  "lastUpdated": "2026-07-21",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat) as of 2026-07-21. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "releases": [
+    {
+      "id": "2026-topps-chrome-baseball-hobby",
+      "title": "2026 Topps Chrome Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-22",
+      "description": "Flagship Chrome baseball release featuring refractors and rookie chrome parallels."
+    },
+    {
+      "id": "2026-topps-chrome-baseball-jumbo",
+      "title": "2026 Topps Chrome Baseball Jumbo Box",
+      "sport": "Baseball",
+      "format": "Jumbo Box",
+      "releaseDate": "2026-07-22",
+      "description": "Jumbo configuration of Topps Chrome Baseball with additional cards per box."
+    },
+    {
+      "id": "2026-topps-chrome-disney-sapphire",
+      "title": "2026 Topps Chrome Disney Sapphire Edition",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-22",
+      "description": "Sapphire-edition Chrome set spotlighting Disney characters and moments."
+    },
+    {
+      "id": "2025-26-topps-inception-basketball",
+      "title": "2025-26 Topps Inception Basketball",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-23",
+      "description": "On-card autographs and premium rookie patches from the 2025-26 NBA season."
+    },
+    {
+      "id": "2026-topps-flagship-football-preorder",
+      "title": "2026 Topps Flagship Football",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-24",
+      "description": "Preorders open for the flagship Topps NFL release.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-mint-marvel",
+      "title": "2026 Topps Mint Marvel",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-28",
+      "description": "Coin-embedded Mint format applied to the Marvel Comics universe."
+    },
+    {
+      "id": "2026-topps-chrome-black-basketball",
+      "title": "2026 Topps Chrome Black Basketball",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-28",
+      "description": "Low-print-run Chrome Black basketball set with numbered parallels."
+    },
+    {
+      "id": "2026-topps-tribute-baseball",
+      "title": "2026 Topps Tribute Baseball",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-29",
+      "description": "High-end baseball release built around on-card autographs and relics."
+    },
+    {
+      "id": "2025-26-topps-inception-uefa",
+      "title": "2025/26 Topps Inception UEFA Club Competitions",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-30",
+      "description": "Inception-brand soccer release covering UEFA club competitions."
+    },
+    {
+      "id": "2026-topps-ufc-freedom-250",
+      "title": "Topps UFC Freedom 250",
+      "sport": "MMA",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-31",
+      "description": "UFC-licensed release themed around the Freedom 250 card design."
+    },
+    {
+      "id": "2026-topps-pristine",
+      "title": "2026 Topps Pristine",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-12",
+      "description": "Premium on-card autograph baseball product with refractor parallels."
+    },
+    {
+      "id": "2026-topps-ufc-stadium-club",
+      "title": "2026 Topps UFC Stadium Club Hobby Box",
+      "sport": "MMA",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-14",
+      "description": "Stadium Club design language applied to the UFC roster."
+    },
+    {
+      "id": "2026-topps-five-star-baseball",
+      "title": "2026 Topps Five Star Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-26",
+      "description": "Ultra-premium, low-print-run baseball release with booklet autographs."
+    },
+    {
+      "id": "2026-topps-x-kaws-mlb",
+      "title": "2026 Topps x KAWS MLB",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-28",
+      "description": "Designer collaboration between Topps and artist KAWS for MLB-licensed cards."
+    },
+    {
+      "id": "2026-topps-update-series-baseball",
+      "title": "2026 Topps Update Series Baseball Retail Box",
+      "sport": "Baseball",
+      "format": "Retail Box",
+      "releaseDate": "2026-10-16",
+      "description": "Traded players, rookies, and season highlights rounding out the flagship set."
+    },
+    {
+      "id": "2026-topps-stadium-club-baseball",
+      "title": "2026 Topps Stadium Club Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-06",
+      "description": "Photography-forward baseball release known for chrome and rainbow foil parallels."
+    },
+    {
+      "id": "2026-topps-gilded-collection-baseball",
+      "title": "2026 Topps Gilded Collection Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-22",
+      "description": "High-end metal-framed baseball release with gilded parallels."
+    },
+    {
+      "id": "2026-topps-archives-baseball",
+      "title": "2026 Topps Archives Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-12-12",
+      "description": "Retro-styled baseball release reviving classic Topps designs."
+    },
+    {
+      "id": "2026-27-topps-midnight-basketball",
+      "title": "2026-27 Topps Midnight Basketball Hobby 8-Box Case",
+      "sport": "Basketball",
+      "format": "8-Box Case",
+      "releaseDate": "2027-01-29",
+      "description": "Case-only Midnight basketball release for the 2026-27 NBA season."
+    },
+    {
+      "id": "2026-bowmans-best-baseball",
+      "title": "2026 Bowman's Best Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2027-03-11",
+      "description": "Prospect-focused Bowman's Best release with refractor autographs."
+    }
+  ]
+}
