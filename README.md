@@ -1,14 +1,20 @@
 # Topps Release Tracker
 
 A small full-stack app that lists upcoming Topps trading card releases,
-grouped by date, with a "Notify Me" form so visitors can preorder-signup
-with their email or phone number.
+grouped by date, with a "Register Interest" form so visitors can flag
+which product, quantity, and configuration they want — no payment info
+collected, just contact details.
 
 ## Stack
 
 - Node.js + Express (server, API)
-- better-sqlite3 (stores preorder signups locally in `data/preorders.db`)
+- better-sqlite3 (stores interest registrations locally in `data/preorders.db`)
 - Vanilla HTML/CSS/JS frontend (no build step)
+
+Product images are generic, generated placeholders (gradient + icon per
+sport, reusing the header montage art) rather than real Topps box
+photography — the site has no license to reproduce actual product images
+or Marvel/Disney/league character art.
 
 ## Running it
 
@@ -39,14 +45,30 @@ dates frequently, so treat this file as a starting point:
 - Update the top-level `lastUpdated` field when you refresh the data.
 - Always confirm against topps.com or your retailer before relying on a date.
 
-## Preorder signups
+## Interest registrations
 
-`POST /api/preorder` accepts `{ releaseId, contactType: "email"|"phone", contactValue }`.
-Signups are validated and stored in a local SQLite database
+`POST /api/interest` accepts:
+
+```json
+{
+  "releaseId": "2026-topps-chrome-baseball-hobby",
+  "contactType": "email",
+  "contactValue": "you@example.com",
+  "quantity": 2,
+  "productType": "hobby"
+}
+```
+
+- `quantity` is a whole number from 1–10.
+- `productType` is one of `value`, `mega`, `hobby`, `hobby_case`.
+
+Registrations are validated and stored in a local SQLite database
 (`data/preorders.db`, gitignored — it contains personal contact info and
-should never be committed). Duplicate signups for the same release/contact
-are treated as a no-op. A simple in-memory rate limiter caps signups per IP.
+should never be committed). A person can register once per release *per
+product type* — resubmitting the same release/contact/type updates the
+quantity instead of erroring. A simple in-memory rate limiter caps
+requests per IP.
 
-This app does not send any notifications yet — it only captures signups.
+This app does not send any notifications yet — it only captures interest.
 Wiring up actual email/SMS delivery (e.g. via an email provider or Twilio)
 would be the next step before using this in production.

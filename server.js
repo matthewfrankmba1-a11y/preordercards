@@ -2,13 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const helmet = require('helmet');
-const { insertPreorder, countByRelease } = require('./db');
+const { upsertInterest, countByRelease } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const RELEASES_PATH = path.join(__dirname, 'data', 'releases.json');
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PRODUCT_TYPES = ['value', 'mega', 'hobby', 'hobby_case'];
 
 app.use(helmet());
 app.use(express.json({ limit: '10kb' }));
@@ -38,7 +39,7 @@ function rateLimit(req, res, next) {
   const now = Date.now();
   const hits = (hitsByIp.get(ip) || []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
   if (hits.length >= RATE_LIMIT_MAX) {
-    return res.status(429).json({ error: 'Too many signups from this address. Try again later.' });
+    return res.status(429).json({ error: 'Too many requests from this address. Try again later.' });
   }
   hits.push(now);
   hitsByIp.set(ip, hits);
@@ -49,15 +50,20 @@ app.get('/api/releases', (req, res) => {
   const data = loadReleases();
   const counts = Object.fromEntries(countByRelease.all().map((r) => [r.releaseId, r.count]));
   const releases = data.releases
-    .map((r) => ({ ...r, preorderCount: counts[r.id] || 0 }))
+    .map((r) => ({ ...r, interestCount: counts[r.id] || 0 }))
     .sort((a, b) => a.releaseDate.localeCompare(b.releaseDate));
   res.json({ lastUpdated: data.lastUpdated, sourceNote: data.sourceNote, releases });
 });
 
-app.post('/api/preorder', rateLimit, (req, res) => {
-  const { releaseId, contactType, contactValue } = req.body || {};
+app.post('/api/interest', rateLimit, (req, res) => {
+  const { releaseId, contactType, contactValue, quantity, productType } = req.body || {};
 
-  if (typeof releaseId !== 'string' || typeof contactType !== 'string' || typeof contactValue !== 'string') {
+  if (
+    typeof releaseId !== 'string' ||
+    typeof contactType !== 'string' ||
+    typeof contactValue !== 'string' ||
+    typeof productType !== 'string'
+  ) {
     return res.status(400).json({ error: 'Missing or invalid fields.' });
   }
 
@@ -65,6 +71,15 @@ app.post('/api/preorder', rateLimit, (req, res) => {
   const release = data.releases.find((r) => r.id === releaseId);
   if (!release) {
     return res.status(404).json({ error: 'Unknown release.' });
+  }
+
+  if (!PRODUCT_TYPES.includes(productType)) {
+    return res.status(400).json({ error: 'productType must be one of value, mega, hobby, hobby_case.' });
+  }
+
+  const qty = Number(quantity);
+  if (!Number.isInteger(qty) || qty < 1 || qty > 10) {
+    return res.status(400).json({ error: 'quantity must be a whole number between 1 and 10.' });
   }
 
   let normalizedValue;
@@ -84,15 +99,16 @@ app.post('/api/preorder', rateLimit, (req, res) => {
     return res.status(400).json({ error: 'contactType must be "email" or "phone".' });
   }
 
-  try {
-    insertPreorder.run({ releaseId, contactType, contactValue: normalizedValue });
-  } catch (err) {
-    if (err.code !== 'SQLITE_CONSTRAINT_UNIQUE') throw err;
-    // Already signed up for this release with this contact — treat as success.
-  }
+  upsertInterest.run({
+    releaseId,
+    contactType,
+    contactValue: normalizedValue,
+    quantity: qty,
+    productType,
+  });
 
   const counts = Object.fromEntries(countByRelease.all().map((r) => [r.releaseId, r.count]));
-  res.status(201).json({ success: true, preorderCount: counts[releaseId] || 1 });
+  res.status(201).json({ success: true, interestCount: counts[releaseId] || 1 });
 });
 
 app.listen(PORT, () => {
