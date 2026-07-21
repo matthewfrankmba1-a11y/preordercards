@@ -7,6 +7,11 @@ const helmet = require('helmet');
 const { upsertInterest, countByRelease } = require('./db');
 
 const app = express();
+// Render (and most PaaS hosts) put the app behind a reverse proxy. Without this,
+// req.ip returns the proxy's address for every request, so the rate limiter below
+// would count all visitors as one IP instead of limiting per real client.
+app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 3000;
 const RELEASES_PATH = path.join(__dirname, 'data', 'releases.json');
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;

@@ -1,7 +1,14 @@
+const fs = require('fs');
 const path = require('path');
 const Database = require('better-sqlite3');
 
-const db = new Database(path.join(__dirname, 'data', 'preorders.db'));
+// DATA_DIR lets production point the database at a persistent disk mount
+// (e.g. Render's /var/data) instead of the app's own bundle directory, which
+// gets wiped and replaced on every deploy.
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+fs.mkdirSync(DATA_DIR, { recursive: true });
+
+const db = new Database(path.join(DATA_DIR, 'preorders.db'));
 db.pragma('journal_mode = WAL');
 
 db.exec(`

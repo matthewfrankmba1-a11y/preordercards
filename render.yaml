@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: preordercards
+    runtime: node
+    plan: starter
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /var/data
+      - key: DISCORD_WEBHOOK_URL
+        sync: false
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1

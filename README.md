@@ -92,3 +92,22 @@ This app does not send anything to the person who registered yet (no
 confirmation email/SMS) — it only alerts you. Wiring up outbound
 email/SMS (e.g. via an email provider or Twilio) would be the next step
 before using this in production.
+
+## Deploying (Render)
+
+`render.yaml` defines the service as a Render Blueprint: a web service on
+the Starter plan (needed for persistent disk support — the free tier
+doesn't allow disks) with a 1GB disk mounted at `/var/data`.
+
+1. Push this repo to GitHub.
+2. In the Render dashboard: New → Blueprint → connect the repo. Render
+   reads `render.yaml` and provisions the service + disk.
+3. When prompted, set `DISCORD_WEBHOOK_URL` (this is the one value
+   `render.yaml` intentionally leaves blank — it's a secret).
+4. Once deployed, Settings → Custom Domains → add your domain. Render
+   shows you the DNS record(s) to create at your registrar.
+
+`DATA_DIR` (set to `/var/data` in `render.yaml`) tells `db.js` where to
+put `preorders.db` — pointing it at the mounted disk instead of the
+app's own directory means registrations survive redeploys. Locally,
+`DATA_DIR` is unset and it just uses `./data` as before.
