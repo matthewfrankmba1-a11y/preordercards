@@ -79,7 +79,9 @@ rate limiter caps requests per IP.
 Copy `.env.example` to `.env` and set `DISCORD_WEBHOOK_URL` to a Discord
 channel webhook URL (Channel Settings → Integrations → Webhooks → New
 Webhook → Copy URL). Every successful registration posts an embed with the
-release, quantity, and contact info to that channel.
+release, sport, quantity, and contact info to that channel. The embed
+title is prefixed with a sport-specific emoji (⚾🏀🏈🥊⚽🎬, `SPORT_EMOJI` in
+`server.js`) — unrecognized sports fall back to 📦.
 
 - `.env` is gitignored — never commit it. Treat the webhook URL as a secret:
   anyone who has it can post messages into your Discord channel.

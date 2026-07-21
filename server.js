@@ -18,9 +18,19 @@ const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const SPORT_EMOJI = {
+  Baseball: '⚾',
+  Basketball: '🏀',
+  Football: '🏈',
+  MMA: '🥊',
+  Soccer: '⚽',
+  Entertainment: '🎬',
+};
+
 // Fire-and-forget Discord alert — never let a webhook hiccup block or fail the signup itself.
 async function notifyDiscord(release, { contactType, contactValue, quantity }) {
   if (!DISCORD_WEBHOOK_URL) return;
+  const emoji = SPORT_EMOJI[release.sport] || '📦';
   try {
     await fetch(DISCORD_WEBHOOK_URL, {
       method: 'POST',
@@ -28,10 +38,11 @@ async function notifyDiscord(release, { contactType, contactValue, quantity }) {
       body: JSON.stringify({
         embeds: [
           {
-            title: 'New interest registration',
+            title: `${emoji} New interest registration`,
             color: 0xd21f3c,
             fields: [
               { name: 'Release', value: release.title },
+              { name: 'Sport', value: release.sport, inline: true },
               { name: 'Release date', value: release.releaseDate, inline: true },
               { name: 'Quantity', value: String(quantity), inline: true },
               { name: contactType === 'email' ? 'Email' : 'Phone', value: contactValue },
