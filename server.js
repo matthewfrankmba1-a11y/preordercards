@@ -50,6 +50,14 @@ function loadReleases() {
   return JSON.parse(raw);
 }
 
+function todayISO() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 function normalizePhone(value) {
   const trimmed = value.trim();
   const hasPlus = trimmed.startsWith('+');
@@ -100,6 +108,10 @@ app.post('/api/interest', rateLimit, (req, res) => {
   const release = data.releases.find((r) => r.id === releaseId);
   if (!release) {
     return res.status(404).json({ error: 'Unknown release.' });
+  }
+
+  if (release.releaseDate < todayISO()) {
+    return res.status(410).json({ error: 'This release has already shipped and is no longer accepting registrations.' });
   }
 
   const qty = Number(quantity);

@@ -3,6 +3,46 @@
   "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat) as of 2026-07-21. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
+      "id": "2026-topps-dynamic-duals-baseball",
+      "title": "2026 Topps Dynamic Duals Baseball",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-15",
+      "description": "Dual-focused baseball release pairing teammates and rivals on shared-card designs."
+    },
+    {
+      "id": "2026-topps-fanatics-fest-nyc-series-2-baseball",
+      "title": "2026 Topps Fanatics Fest NYC Series 2 Baseball",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-16",
+      "description": "Event-exclusive baseball release tied to Fanatics Fest NYC programming."
+    },
+    {
+      "id": "2026-topps-chrome-x-cactus-jack-baseball",
+      "title": "2026 Topps Chrome x Cactus Jack Baseball",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-16",
+      "description": "Chrome baseball release designed in collaboration with Travis Scott's Cactus Jack brand."
+    },
+    {
+      "id": "2026-topps-pristine-premier-league-soccer",
+      "title": "2026 Topps Pristine Premier League Soccer",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-16",
+      "description": "On-card autograph soccer release built around the English Premier League."
+    },
+    {
+      "id": "2025-26-topps-chrome-sapphire-uefa-womens-champions-league",
+      "title": "2025/26 Topps Chrome Sapphire UEFA Women's Champions League Soccer",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-17",
+      "description": "Sapphire-edition Chrome release covering the UEFA Women's Champions League."
+    },
+    {
       "id": "2026-topps-chrome-baseball-hobby",
       "title": "2026 Topps Chrome Baseball Hobby Box",
       "sport": "Baseball",

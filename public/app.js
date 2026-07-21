@@ -71,6 +71,14 @@ function formatGroupLabel(isoDate) {
   return d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 }
 
+function todayISO() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 async function loadReleases() {
   try {
     const res = await fetch('/api/releases');
@@ -135,25 +143,26 @@ function buildProductImage(release) {
 
 function buildCard(release) {
   const node = cardTemplate.content.cloneNode(true);
+  const card = node.querySelector('.card');
+  const isPast = release.releaseDate < todayISO();
 
   const productImage = buildProductImage(release);
-  const imageEl = node.querySelector('.product-image');
+  const imageEl = card.querySelector('.product-image');
   imageEl.className = productImage.className;
   imageEl.innerHTML = productImage.html;
 
-  node.querySelector('.sport-badge').textContent = release.sport;
-  node.querySelector('.format-badge').textContent = release.format;
-  node.querySelector('.card-title').textContent = release.title;
-  node.querySelector('.card-date').textContent = formatDate(release.releaseDate);
-  node.querySelector('.card-desc').textContent = release.description || '';
-  node.querySelector('.card-preorder-note').textContent = release.isPreorderOpenDate
+  card.querySelector('.sport-badge').textContent = release.sport;
+  card.querySelector('.format-badge').textContent = release.format;
+  card.querySelector('.card-title').textContent = release.title;
+  card.querySelector('.card-date').textContent = formatDate(release.releaseDate);
+  card.querySelector('.card-desc').textContent = release.description || '';
+  card.querySelector('.card-preorder-note').textContent = release.isPreorderOpenDate
     ? 'This date is when preorders open, not the ship date.'
     : '';
 
-  const countEl = node.querySelector('.card-count');
-  updateCountText(countEl, release.interestCount);
+  const countEl = card.querySelector('.card-count');
 
-  const quantitySelect = node.querySelector('.quantity-select');
+  const quantitySelect = card.querySelector('.quantity-select');
   for (let i = 1; i <= 10; i++) {
     const opt = document.createElement('option');
     opt.value = String(i);
@@ -161,66 +170,89 @@ function buildCard(release) {
     quantitySelect.appendChild(opt);
   }
 
-  const form = node.querySelector('.signup-form');
+  const form = card.querySelector('.signup-form');
   const toggleBtns = form.querySelectorAll('.toggle-btn');
   const input = form.querySelector('.contact-input');
   const message = form.querySelector('.form-message');
+  const submitBtn = form.querySelector('.notify-btn');
   let contactType = 'email';
 
-  toggleBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      toggleBtns.forEach((b) => b.classList.remove('active'));
-      btn.classList.add('active');
-      contactType = btn.dataset.type;
-      input.placeholder = contactType === 'email' ? 'you@example.com' : '(555) 555-5555';
-      input.autocomplete = contactType === 'email' ? 'email' : 'tel';
-      input.value = '';
-      message.textContent = '';
-      message.className = 'form-message';
-    });
-  });
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const value = input.value.trim();
-    if (!value) {
-      message.textContent = 'Enter a value first.';
-      message.className = 'form-message error';
-      return;
-    }
-
-    const submitBtn = form.querySelector('.notify-btn');
+  if (isPast) {
+    quantitySelect.disabled = true;
+    toggleBtns.forEach((b) => { b.disabled = true; });
+    input.disabled = true;
     submitBtn.disabled = true;
-    message.textContent = 'Submitting...';
-    message.className = 'form-message';
+    submitBtn.textContent = 'Sold Out';
+    countEl.textContent = 'This release has already shipped.';
+  } else {
+    updateCountText(countEl, release.interestCount);
 
-    try {
-      const res = await fetch('/api/interest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          releaseId: release.id,
-          contactType,
-          contactValue: value,
-          quantity: Number(quantitySelect.value),
-        }),
+    toggleBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        toggleBtns.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        contactType = btn.dataset.type;
+        input.placeholder = contactType === 'email' ? 'you@example.com' : '(555) 555-5555';
+        input.autocomplete = contactType === 'email' ? 'email' : 'tel';
+        input.value = '';
+        message.textContent = '';
+        message.className = 'form-message';
       });
-      const data = await res.json();
-      if (!res.ok) {
-        message.textContent = data.error || 'Something went wrong.';
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const value = input.value.trim();
+      if (!value) {
+        message.textContent = 'Enter a value first.';
         message.className = 'form-message error';
-      } else {
-        message.textContent = "You're registered! We'll be in touch.";
-        message.className = 'form-message success';
-        updateCountText(countEl, data.interestCount);
+        return;
       }
-    } catch (err) {
-      message.textContent = 'Network error. Please try again.';
-      message.className = 'form-message error';
-    } finally {
-      submitBtn.disabled = false;
-    }
-  });
+
+      submitBtn.disabled = true;
+      message.textContent = 'Submitting...';
+      message.className = 'form-message';
+
+      try {
+        const res = await fetch('/api/interest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            releaseId: release.id,
+            contactType,
+            contactValue: value,
+            quantity: Number(quantitySelect.value),
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          message.textContent = data.error || 'Something went wrong.';
+          message.className = 'form-message error';
+        } else {
+          message.textContent = "You're registered! We'll be in touch.";
+          message.className = 'form-message success';
+          updateCountText(countEl, data.interestCount);
+        }
+      } catch (err) {
+        message.textContent = 'Network error. Please try again.';
+        message.className = 'form-message error';
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  }
+
+  if (isPast) {
+    card.classList.add('sold-out');
+    const dim = document.createElement('div');
+    dim.className = 'card-dim';
+    while (card.firstChild) dim.appendChild(card.firstChild);
+    card.appendChild(dim);
+    const ribbon = document.createElement('div');
+    ribbon.className = 'sold-out-ribbon';
+    ribbon.textContent = 'Sold Out';
+    card.appendChild(ribbon);
+  }
 
   return node;
 }

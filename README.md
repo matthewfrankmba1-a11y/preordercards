@@ -46,6 +46,13 @@ dates frequently, so treat this file as a starting point:
 - Update the top-level `lastUpdated` field when you refresh the data.
 - Always confirm against topps.com or your retailer before relying on a date.
 
+Any release with a `releaseDate` in the past is automatically shown greyed
+out with a "Sold Out" stamp and a disabled registration form — this is
+computed from today's date at render/request time, not a flag you set
+manually. The `POST /api/interest` endpoint also rejects registrations for
+past releases server-side (HTTP 410), so this can't be bypassed by calling
+the API directly.
+
 ## Interest registrations
 
 `POST /api/interest` accepts:
