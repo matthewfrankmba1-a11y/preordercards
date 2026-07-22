@@ -86,12 +86,26 @@ function isSoldOut(release) {
   return release.releaseDate < todayISO() || release.soldOut === true;
 }
 
+// Cap how many sold-out cards ever appear at once, so the page doesn't read as
+// "mostly sold out" — only the most recent MAX_SOLD_OUT_SHOWN are kept; older
+// sold-out releases are dropped from the listing entirely.
+const MAX_SOLD_OUT_SHOWN = 4;
+
+function limitSoldOut(releases) {
+  const active = releases.filter((r) => !isSoldOut(r));
+  const soldOut = releases
+    .filter((r) => isSoldOut(r))
+    .sort((a, b) => b.releaseDate.localeCompare(a.releaseDate))
+    .slice(0, MAX_SOLD_OUT_SHOWN);
+  return [...active, ...soldOut];
+}
+
 async function loadReleases() {
   try {
     const res = await fetch('/api/releases');
     if (!res.ok) throw new Error('Request failed');
     const data = await res.json();
-    allReleases = data.releases;
+    allReleases = limitSoldOut(data.releases);
     sourceNoteEl.textContent = data.sourceNote
       ? `${data.sourceNote} Last updated ${data.lastUpdated}.`
       : '';
