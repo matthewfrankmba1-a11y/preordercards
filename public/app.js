@@ -144,7 +144,7 @@ function buildProductImage(release) {
 function buildCard(release) {
   const node = cardTemplate.content.cloneNode(true);
   const card = node.querySelector('.card');
-  const isPast = release.releaseDate < todayISO();
+  const isSoldOut = release.releaseDate < todayISO() || release.soldOut === true;
 
   const productImage = buildProductImage(release);
   const imageEl = card.querySelector('.product-image');
@@ -177,7 +177,7 @@ function buildCard(release) {
   const submitBtn = form.querySelector('.notify-btn');
   let contactType = 'email';
 
-  if (isPast) {
+  if (isSoldOut) {
     quantitySelect.disabled = true;
     toggleBtns.forEach((b) => { b.disabled = true; });
     input.disabled = true;
@@ -242,7 +242,7 @@ function buildCard(release) {
     });
   }
 
-  if (isPast) {
+  if (isSoldOut) {
     card.classList.add('sold-out');
     const dim = document.createElement('div');
     dim.className = 'card-dim';

@@ -49,9 +49,11 @@ dates frequently, so treat this file as a starting point:
 Any release with a `releaseDate` in the past is automatically shown greyed
 out with a "Sold Out" stamp and a disabled registration form — this is
 computed from today's date at render/request time, not a flag you set
-manually. The `POST /api/interest` endpoint also rejects registrations for
-past releases server-side (HTTP 410), so this can't be bypassed by calling
-the API directly.
+manually. Add `"soldOut": true` to a release to mark it sold out by hand
+before its date has passed (e.g. it sold out same-day). Both cases get
+identical treatment, and the `POST /api/interest` endpoint rejects
+registrations for either (HTTP 410) server-side, so it can't be bypassed
+by calling the API directly.
 
 ## Interest registrations
 

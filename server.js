@@ -182,7 +182,7 @@ app.post('/api/interest', rateLimit, (req, res) => {
     return res.status(404).json({ error: 'Unknown release.' });
   }
 
-  if (release.releaseDate < todayISO()) {
+  if (release.releaseDate < todayISO() || release.soldOut === true) {
     return res.status(410).json({ error: 'This release has already shipped and is no longer accepting registrations.' });
   }
 

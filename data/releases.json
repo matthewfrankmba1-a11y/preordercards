@@ -48,6 +48,7 @@
       "sport": "Baseball",
       "format": "Hobby Box",
       "releaseDate": "2026-07-22",
+      "soldOut": true,
       "description": "Flagship Chrome baseball release featuring refractors and rookie chrome parallels."
     },
     {
@@ -56,6 +57,7 @@
       "sport": "Baseball",
       "format": "Jumbo Box",
       "releaseDate": "2026-07-22",
+      "soldOut": true,
       "description": "Jumbo configuration of Topps Chrome Baseball with additional cards per box."
     },
     {
