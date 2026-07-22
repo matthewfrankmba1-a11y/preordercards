@@ -90,6 +90,23 @@ title is prefixed with a sport-specific emoji (⚾🏀🏈🥊⚽🎬, `SPORT_EM
   succeeds and the error is just logged to the server console.
 - If `DISCORD_WEBHOOK_URL` isn't set, this feature is silently skipped.
 
+## Confirmation emails
+
+Set `RESEND_API_KEY` (from [resend.com](https://resend.com), free up to
+3,000 emails/month) and `EMAIL_FROM` to send a confirmation email to
+anyone who registers with an email address (phone-only registrants have
+no address to send to, so they're skipped).
+
+- Sending from your own domain (e.g. `notifications@preordercards.com`)
+  requires verifying it in Resend's dashboard first (Domains → Add Domain
+  → add the SPF/DKIM DNS records it shows at your registrar). Until
+  verified, Resend will reject sends from that address.
+- Like the Discord alert, this is fire-and-forget server-side — a Resend
+  outage or missing API key never blocks or fails the registration itself,
+  it's just skipped/logged.
+- `RESEND_API_KEY` is a secret — never commit it, same as the Discord
+  webhook URL.
+
 This app does not send anything to the person who registered yet (no
 confirmation email/SMS) — it only alerts you. Wiring up outbound
 email/SMS (e.g. via an email provider or Twilio) would be the next step

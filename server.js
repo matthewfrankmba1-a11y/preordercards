@@ -15,8 +15,14 @@ app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 const RELEASES_PATH = path.join(__dirname, 'data', 'releases.json');
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const EMAIL_FROM = process.env.EMAIL_FROM || 'PreorderCards <notifications@preordercards.com>';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
 const SPORT_EMOJI = {
   Baseball: '⚾',
@@ -54,6 +60,49 @@ async function notifyDiscord(release, { contactType, contactValue, quantity }) {
     });
   } catch (err) {
     console.error('Discord webhook failed:', err.message);
+  }
+}
+
+// Fire-and-forget confirmation email — only possible when the person registered
+// with an email address (phone-only registrants have no address to send to).
+async function sendConfirmationEmail(release, { contactType, contactValue, quantity }) {
+  if (!RESEND_API_KEY || contactType !== 'email') return;
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: [contactValue],
+        subject: `You're registered: ${release.title}`,
+        text: [
+          `You've registered interest in ${release.title} (releasing ${release.releaseDate}), quantity ${quantity}.`,
+          '',
+          "No payment was collected — this just registers your interest. We'll be in touch when preorders open.",
+          '',
+          '— PreorderCards',
+          '',
+          'PreorderCards is an independent tracker and is not affiliated with Topps or any league/brand referenced.',
+        ].join('\n'),
+        html: `
+          <p>You've registered interest in <strong>${escapeHtml(release.title)}</strong>
+          (releasing ${release.releaseDate}), quantity ${quantity}.</p>
+          <p>No payment was collected — this just registers your interest. We'll be in touch
+          when preorders open.</p>
+          <p>— PreorderCards</p>
+          <p style="color:#888;font-size:12px">PreorderCards is an independent tracker and is
+          not affiliated with Topps or any league/brand referenced.</p>
+        `,
+      }),
+    });
+    if (!res.ok) {
+      console.error('Resend email failed:', res.status, await res.text());
+    }
+  } catch (err) {
+    console.error('Resend email failed:', err.message);
   }
 }
 
@@ -160,6 +209,7 @@ app.post('/api/interest', rateLimit, (req, res) => {
   });
 
   notifyDiscord(release, { contactType, contactValue: normalizedValue, quantity: qty });
+  sendConfirmationEmail(release, { contactType, contactValue: normalizedValue, quantity: qty });
 
   const counts = Object.fromEntries(countByRelease.all().map((r) => [r.releaseId, r.count]));
   res.status(201).json({ success: true, interestCount: counts[releaseId] || 1 });
