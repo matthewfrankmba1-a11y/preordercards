@@ -234,7 +234,7 @@ function buildCard(release) {
           updateCountText(countEl, data.interestCount);
         }
       } catch (err) {
-        message.textContent = 'Network error. Please try again.';
+        message.textContent = 'Preorder Window has Expired';
         message.className = 'form-message error';
       } finally {
         submitBtn.disabled = false;
