@@ -1,8 +1,11 @@
 const releasesEl = document.getElementById('releases');
 const sportFilterEl = document.getElementById('sport-filter');
+const inStockToggleEl = document.getElementById('in-stock-toggle');
 const statusEl = document.getElementById('status');
 const sourceNoteEl = document.getElementById('source-note');
 const cardTemplate = document.getElementById('release-card-template');
+
+let inStockOnly = false;
 
 // Generic, original icon per sport (mirrors the header montage) — used to build
 // a placeholder product image since we don't have licensed Topps box photography.
@@ -79,6 +82,10 @@ function todayISO() {
   return `${y}-${m}-${day}`;
 }
 
+function isSoldOut(release) {
+  return release.releaseDate < todayISO() || release.soldOut === true;
+}
+
 async function loadReleases() {
   try {
     const res = await fetch('/api/releases');
@@ -144,7 +151,7 @@ function buildProductImage(release) {
 function buildCard(release) {
   const node = cardTemplate.content.cloneNode(true);
   const card = node.querySelector('.card');
-  const isSoldOut = release.releaseDate < todayISO() || release.soldOut === true;
+  const soldOut = isSoldOut(release);
 
   const productImage = buildProductImage(release);
   const imageEl = card.querySelector('.product-image');
@@ -177,7 +184,7 @@ function buildCard(release) {
   const submitBtn = form.querySelector('.notify-btn');
   let contactType = 'email';
 
-  if (isSoldOut) {
+  if (soldOut) {
     quantitySelect.disabled = true;
     toggleBtns.forEach((b) => { b.disabled = true; });
     input.disabled = true;
@@ -242,7 +249,7 @@ function buildCard(release) {
     });
   }
 
-  if (isSoldOut) {
+  if (soldOut) {
     card.classList.add('sold-out');
     const dim = document.createElement('div');
     dim.className = 'card-dim';
@@ -265,10 +272,22 @@ function updateCountText(el, count) {
   }
 }
 
-sportFilterEl.addEventListener('change', () => {
-  const value = sportFilterEl.value;
-  const filtered = value === 'all' ? allReleases : allReleases.filter((r) => r.sport === value);
+function applyFilters() {
+  const sport = sportFilterEl.value;
+  let filtered = sport === 'all' ? allReleases : allReleases.filter((r) => r.sport === sport);
+  if (inStockOnly) {
+    filtered = filtered.filter((r) => !isSoldOut(r));
+  }
   render(filtered);
+}
+
+sportFilterEl.addEventListener('change', applyFilters);
+
+inStockToggleEl.addEventListener('click', () => {
+  inStockOnly = !inStockOnly;
+  inStockToggleEl.classList.toggle('active', inStockOnly);
+  inStockToggleEl.setAttribute('aria-pressed', String(inStockOnly));
+  applyFilters();
 });
 
 loadReleases();

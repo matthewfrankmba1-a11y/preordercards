@@ -168,6 +168,28 @@ body {
   font-size: 0.95rem;
 }
 
+.stock-toggle-btn {
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.stock-toggle-btn:hover {
+  border-color: var(--navy);
+  color: var(--navy);
+}
+
+.stock-toggle-btn.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
 .status {
   padding: 0.75rem 1rem;
   border-radius: 8px;
@@ -194,7 +216,7 @@ body {
 
 .photo-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1rem;
   padding: 1.75rem 0 3rem;
 }
@@ -210,8 +232,10 @@ body {
 .photo-card img {
   display: block;
   width: 100%;
-  height: 280px;
-  object-fit: cover;
+  height: auto;
+  max-height: 480px;
+  object-fit: contain;
+  background: #fff;
 }
 
 .date-group {
@@ -487,6 +511,7 @@ body {
     --border: #2a2e37;
   }
   .controls select { background: #171a21; color: var(--text); }
+  .stock-toggle-btn { background: #171a21; color: var(--muted); }
   .toggle-btn { background: #171a21; color: var(--muted); }
   .contact-input { background: #101319; color: var(--text); }
   .form-field select { background: #101319; color: var(--text); }
