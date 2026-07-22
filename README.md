@@ -130,6 +130,13 @@ appear for those.
   will show that error back to you in Discord (ephemeral reply).
 - `RESEND_API_KEY` is a secret — never commit it, same as the bot token.
 
+## Success stories page
+
+`/success.html` shows a photo grid of order screenshots. Drop image files
+(`.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`) into `public/success/` and they
+appear automatically, newest first — `GET /api/success-photos` lists
+whatever's in that folder at request time, no manifest file to maintain.
+
 ## Deploying (Render)
 
 `render.yaml` defines the service as a Render Blueprint: a web service on

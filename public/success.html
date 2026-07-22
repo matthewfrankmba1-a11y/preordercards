@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Topps Release Tracker</title>
+  <title>Success Stories — Topps Release Tracker</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -71,27 +71,19 @@
     </div>
     <div class="header-scrim"></div>
     <div class="wrap header-content">
-      <h1>Topps Release Tracker</h1>
-      <p class="tagline">Upcoming Topps Releases, by date. Register your interest, no upfront payment required, pricing guaranteed to be lower than market.</p>
-      <a class="header-nav-link" href="/success.html">See Success Stories →</a>
+      <h1>Success Stories</h1>
+      <p class="tagline">Real orders, delivered. A look at collectors who registered interest and got their boxes.</p>
+      <a class="header-nav-link" href="/">← Back to Releases</a>
     </div>
   </header>
 
   <main class="wrap">
-    <div class="controls">
-      <label for="sport-filter">Filter by sport</label>
-      <select id="sport-filter">
-        <option value="all">All sports</option>
-      </select>
-    </div>
-
     <div id="status" class="status" hidden></div>
-    <div id="releases" class="releases"></div>
+    <div id="photo-grid" class="photo-grid"></div>
   </main>
 
   <footer class="site-footer">
     <div class="wrap">
-      <p id="source-note"></p>
       <p class="disclaimer">
         This site is an independent release-tracking and interest-registration service.
         It is not affiliated with, endorsed by, or sponsored by Topps, MLB, the NBA, the NFL,
@@ -101,39 +93,6 @@
     </div>
   </footer>
 
-  <template id="release-card-template">
-    <article class="card">
-      <div class="product-image"></div>
-
-      <div class="card-header">
-        <span class="badge sport-badge"></span>
-        <span class="badge format-badge"></span>
-      </div>
-      <h3 class="card-title"></h3>
-      <p class="card-date"></p>
-      <p class="card-desc"></p>
-      <p class="card-preorder-note"></p>
-      <p class="card-count"></p>
-
-      <form class="signup-form">
-        <label class="form-field">
-          <span class="form-label">Quantity</span>
-          <select class="quantity-select"></select>
-        </label>
-
-        <div class="contact-toggle">
-          <button type="button" class="toggle-btn active" data-type="email">Email</button>
-          <button type="button" class="toggle-btn" data-type="phone">Phone</button>
-        </div>
-        <div class="signup-row">
-          <input type="text" class="contact-input" placeholder="you@example.com" autocomplete="email" />
-          <button type="submit" class="notify-btn">Register Interest</button>
-        </div>
-        <p class="form-message" role="status"></p>
-      </form>
-    </article>
-  </template>
-
-  <script src="app.js"></script>
+  <script src="success.js"></script>
 </body>
 </html>
