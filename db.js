@@ -24,11 +24,35 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_interests_release_id ON interests (release_id);
 `);
 
+// Migration: add email_sent_at to tables created before this column existed.
+const hasEmailSentAt = db
+  .prepare(`SELECT COUNT(*) AS c FROM pragma_table_info('interests') WHERE name = 'email_sent_at'`)
+  .get().c > 0;
+if (!hasEmailSentAt) {
+  db.exec(`ALTER TABLE interests ADD COLUMN email_sent_at TEXT`);
+}
+
 const upsertInterest = db.prepare(`
   INSERT INTO interests (release_id, contact_type, contact_value, quantity)
   VALUES (@releaseId, @contactType, @contactValue, @quantity)
   ON CONFLICT (release_id, contact_value)
   DO UPDATE SET quantity = excluded.quantity, contact_type = excluded.contact_type, created_at = CURRENT_TIMESTAMP
+`);
+
+const getInterestByReleaseAndContact = db.prepare(`
+  SELECT id, release_id AS releaseId, contact_type AS contactType, contact_value AS contactValue,
+         quantity, email_sent_at AS emailSentAt
+  FROM interests WHERE release_id = ? AND contact_value = ?
+`);
+
+const getInterestById = db.prepare(`
+  SELECT id, release_id AS releaseId, contact_type AS contactType, contact_value AS contactValue,
+         quantity, email_sent_at AS emailSentAt
+  FROM interests WHERE id = ?
+`);
+
+const markEmailSent = db.prepare(`
+  UPDATE interests SET email_sent_at = @sentAt WHERE id = @id
 `);
 
 const countByRelease = db.prepare(`
@@ -37,4 +61,11 @@ const countByRelease = db.prepare(`
   GROUP BY release_id
 `);
 
-module.exports = { db, upsertInterest, countByRelease };
+module.exports = {
+  db,
+  upsertInterest,
+  countByRelease,
+  getInterestByReleaseAndContact,
+  getInterestById,
+  markEmailSent,
+};

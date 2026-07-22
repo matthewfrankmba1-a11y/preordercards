@@ -74,43 +74,59 @@ should never be committed). A person can register once per release —
 resubmitting updates the quantity instead of erroring. A simple in-memory
 rate limiter caps requests per IP.
 
-## Discord alerts
+## Discord bot (interest alerts + manual email send)
 
-Copy `.env.example` to `.env` and set `DISCORD_WEBHOOK_URL` to a Discord
-channel webhook URL (Channel Settings → Integrations → Webhooks → New
-Webhook → Copy URL). Every successful registration posts an embed with the
-release, sport, quantity, and contact info to that channel. The embed
-title is prefixed with a sport-specific emoji (⚾🏀🏈🥊⚽🎬, `SPORT_EMOJI` in
-`server.js`) — unrecognized sports fall back to 📦.
+Every registration posts an alert to Discord with the release, sport,
+quantity, and contact info — the embed title is prefixed with a
+sport-specific emoji (⚾🏀🏈🥊⚽🎬, `SPORT_EMOJI` in `bot.js`/`server.js`),
+falling back to 📦 for unrecognized sports.
 
-- `.env` is gitignored — never commit it. Treat the webhook URL as a secret:
-  anyone who has it can post messages into your Discord channel.
-- The webhook call happens server-side only (never in frontend JS) and is
-  fire-and-forget — if Discord is unreachable, the registration still
-  succeeds and the error is just logged to the server console.
-- If `DISCORD_WEBHOOK_URL` isn't set, this feature is silently skipped.
+Rather than emailing the registrant automatically, alerts for email
+registrations include a **"Send Confirmation Email" button**. Clicking it
+sends the acknowledgment email (via Resend) on demand, then disables
+itself and marks that registration as sent (`email_sent_at` in the
+database) so it can't be double-sent. This requires a real Discord bot,
+not just a webhook — plain incoming webhooks can't route button clicks
+anywhere, since they aren't tied to any Application.
+
+**Setup:**
+
+1. [discord.com/developers/applications](https://discord.com/developers/applications)
+   → **New Application** → name it anything.
+2. **Bot** tab → **Reset Token** → copy it → this is `DISCORD_BOT_TOKEN`.
+   No privileged intents are needed (button interactions work without them).
+3. **OAuth2 → URL Generator** → scopes: `bot`. Permissions: **View Channel**,
+   **Send Messages**, **Embed Links**. Open the generated URL and add the
+   bot to your server.
+4. In Discord, enable Developer Mode (User Settings → Advanced), then
+   right-click the channel you want alerts in → **Copy Channel ID** → this
+   is `DISCORD_CHANNEL_ID`.
+5. Set both in `.env` (local) or Render's Environment tab (production).
+
+If `DISCORD_BOT_TOKEN`/`DISCORD_CHANNEL_ID` aren't set, alerts fall back to
+the legacy `DISCORD_WEBHOOK_URL` webhook (no button) so basic alerting still
+works without the bot. If the bot *is* configured, it takes priority.
+
+- The bot connects once at server startup (`bot.init(...)` in `server.js`)
+  and stays connected via a persistent WebSocket — this runs fine inside
+  the same Node process as the web server, no separate service needed.
+- `DISCORD_BOT_TOKEN` is a secret — anyone with it can control the bot.
+  Never commit it.
 
 ## Confirmation emails
 
 Set `RESEND_API_KEY` (from [resend.com](https://resend.com), free up to
-3,000 emails/month) and `EMAIL_FROM` to send a confirmation email to
-anyone who registers with an email address (phone-only registrants have
-no address to send to, so they're skipped).
+3,000 emails/month) and `EMAIL_FROM`. This only sends when you click
+"Send Confirmation Email" on a Discord alert — never automatically.
+Phone-only registrants have no email address, so the button doesn't
+appear for those.
 
 - Sending from your own domain (e.g. `notifications@preordercards.com`)
   requires verifying it in Resend's dashboard first (Domains → Add Domain
-  → add the SPF/DKIM DNS records it shows at your registrar). Until
-  verified, Resend will reject sends from that address.
-- Like the Discord alert, this is fire-and-forget server-side — a Resend
-  outage or missing API key never blocks or fails the registration itself,
-  it's just skipped/logged.
-- `RESEND_API_KEY` is a secret — never commit it, same as the Discord
-  webhook URL.
-
-This app does not send anything to the person who registered yet (no
-confirmation email/SMS) — it only alerts you. Wiring up outbound
-email/SMS (e.g. via an email provider or Twilio) would be the next step
-before using this in production.
+  → add the SPF/DKIM/MX DNS records it shows at your registrar). Until
+  verified, Resend rejects sends from that address — clicking the button
+  will show that error back to you in Discord (ephemeral reply).
+- `RESEND_API_KEY` is a secret — never commit it, same as the bot token.
 
 ## Deploying (Render)
 

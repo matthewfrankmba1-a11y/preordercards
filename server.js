@@ -4,7 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const helmet = require('helmet');
-const { upsertInterest, countByRelease } = require('./db');
+const { upsertInterest, countByRelease, getInterestByReleaseAndContact } = require('./db');
+const bot = require('./bot');
 
 const app = express();
 // Render (and most PaaS hosts) put the app behind a reverse proxy. Without this,
@@ -63,10 +64,12 @@ async function notifyDiscord(release, { contactType, contactValue, quantity }) {
   }
 }
 
-// Fire-and-forget confirmation email — only possible when the person registered
-// with an email address (phone-only registrants have no address to send to).
+// Sends the acknowledgment email via Resend. Returns { ok, error } rather than
+// throwing, since the Discord bot needs to report failures back to whoever
+// clicked "Send Confirmation Email" (e.g. "domain not verified").
 async function sendConfirmationEmail(release, { contactType, contactValue, quantity }) {
-  if (!RESEND_API_KEY || contactType !== 'email') return;
+  if (contactType !== 'email') return { ok: false, error: 'No email address on file.' };
+  if (!RESEND_API_KEY) return { ok: false, error: 'RESEND_API_KEY is not configured.' };
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -99,10 +102,14 @@ async function sendConfirmationEmail(release, { contactType, contactValue, quant
       }),
     });
     if (!res.ok) {
-      console.error('Resend email failed:', res.status, await res.text());
+      const body = await res.text();
+      console.error('Resend email failed:', res.status, body);
+      return { ok: false, error: `Resend ${res.status}: ${body}` };
     }
+    return { ok: true };
   } catch (err) {
     console.error('Resend email failed:', err.message);
+    return { ok: false, error: err.message };
   }
 }
 
@@ -208,12 +215,22 @@ app.post('/api/interest', rateLimit, (req, res) => {
     quantity: qty,
   });
 
-  notifyDiscord(release, { contactType, contactValue: normalizedValue, quantity: qty });
-  sendConfirmationEmail(release, { contactType, contactValue: normalizedValue, quantity: qty });
+  const row = getInterestByReleaseAndContact.get(releaseId, normalizedValue);
+
+  // Prefer the bot (posts a "Send Confirmation Email" button); fall back to the
+  // plain webhook — with no button, since incoming webhooks can't route
+  // interactions — if the bot isn't configured.
+  if (bot.isConfigured()) {
+    bot.postInterestAlert(release, row);
+  } else {
+    notifyDiscord(release, { contactType, contactValue: normalizedValue, quantity: qty });
+  }
 
   const counts = Object.fromEntries(countByRelease.all().map((r) => [r.releaseId, r.count]));
   res.status(201).json({ success: true, interestCount: counts[releaseId] || 1 });
 });
+
+bot.init({ loadReleases, sendConfirmationEmail });
 
 app.listen(PORT, () => {
   console.log(`Topps release tracker running at http://localhost:${PORT}`);
