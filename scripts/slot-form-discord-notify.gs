@@ -11,7 +11,7 @@
 // 4. Submit the form once to test.
 
 function onFormSubmitTrigger(e) {
-  var webhookUrl = 'https://discord.com/api/webhooks/1529270324997259265/_jLBevxL7tfZYI24j7ls920XTNGIF-HBFB8KQoqP9I9CeipMaU7aVDThna2pPxSPVXXf';
+  var webhookUrl = 'https://discord.com/api/webhooks/1529991361518899281/mZuO1KvYM0R4M6Zzb78YcV5XojXZnlceM0RSyh2SnPwQ4RWpIKfTkw0FAisr_3NiBtZv';
 
   var itemResponses = e.response.getItemResponses();
   var fields = itemResponses.map(function (itemResponse) {
