@@ -1,4 +1,4 @@
-# Topps Release Tracker
+# Topps Preorder Release Calendar
 
 A small full-stack app that lists upcoming Topps trading card releases,
 grouped by date, with a "Register Interest" form so visitors can flag
