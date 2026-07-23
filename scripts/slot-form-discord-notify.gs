@@ -12,22 +12,14 @@
 
 function onFormSubmitTrigger(e) {
   var webhookUrl = 'https://discord.com/api/webhooks/1529270324997259265/_jLBevxL7tfZYI24j7ls920XTNGIF-HBFB8KQoqP9I9CeipMaU7aVDThna2pPxSPVXXf';
-
-  var itemResponses = e.response.getItemResponses();
-  var fields = itemResponses.map(function (itemResponse) {
-    var value = itemResponse.getResponse();
-    return {
-      name: itemResponse.getItem().getTitle(),
-      value: (value === null || value === '') ? '(blank)' : String(value),
-    };
-  });
+  var formUrl = FormApp.getActiveForm().getEditUrl();
 
   var payload = {
     embeds: [
       {
         title: '📝 New Slot Details submission',
         color: 3447003,
-        fields: fields,
+        description: '[View all responses](' + formUrl + ')',
         timestamp: new Date().toISOString(),
       },
     ],
