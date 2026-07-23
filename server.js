@@ -17,7 +17,9 @@ const PORT = process.env.PORT || 3000;
 const RELEASES_PATH = path.join(__dirname, 'data', 'releases.json');
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const EMAIL_FROM = process.env.EMAIL_FROM || 'PreorderCards <notifications@preordercards.com>';
+const EMAIL_FROM = process.env.EMAIL_FROM || 'PreorderCards <admin@preordercards.com>';
+const SLOT_FORM_URL =
+  'https://docs.google.com/forms/d/e/1FAIpQLScFl_nJ4tvYHxAmU6X-cQ5RoheIe4GJxTJnbQI5zUxqj4Ea3Q/viewform?usp=sharing&ouid=105723711896896295891';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -80,21 +82,30 @@ async function sendConfirmationEmail(release, { contactType, contactValue, quant
       body: JSON.stringify({
         from: EMAIL_FROM,
         to: [contactValue],
-        subject: `You're registered: ${release.title}`,
+        subject: `We've received your inquiry — ${release.title}`,
         text: [
-          `You've registered interest in ${release.title} (releasing ${release.releaseDate}), quantity ${quantity}.`,
+          `We've received your inquiry about ${release.title} (releasing ${release.releaseDate}), quantity ${quantity}.`,
           '',
-          "No payment was collected — this just registers your interest. We'll be in touch when preorders open.",
+          "No payment was collected — this just acknowledges your inquiry. We'll be in touch when preorders open.",
+          '',
+          "If you're looking to lock in a slot, fill out our Slot Details form here:",
+          SLOT_FORM_URL,
+          '',
+          'You can also find this same link anytime at the top of our homepage under "Submit Slot Details."',
           '',
           '— PreorderCards',
           '',
           'PreorderCards is an independent tracker and is not affiliated with Topps or any league/brand referenced.',
         ].join('\n'),
         html: `
-          <p>You've registered interest in <strong>${escapeHtml(release.title)}</strong>
+          <p>We've received your inquiry about <strong>${escapeHtml(release.title)}</strong>
           (releasing ${release.releaseDate}), quantity ${quantity}.</p>
-          <p>No payment was collected — this just registers your interest. We'll be in touch
+          <p>No payment was collected — this just acknowledges your inquiry. We'll be in touch
           when preorders open.</p>
+          <p>If you're looking to lock in a slot, fill out our
+          <a href="${SLOT_FORM_URL}">Slot Details form</a>.
+          You can also find this same link anytime at the top of our homepage under
+          "Submit Slot Details."</p>
           <p>— PreorderCards</p>
           <p style="color:#888;font-size:12px">PreorderCards is an independent tracker and is
           not affiliated with Topps or any league/brand referenced.</p>

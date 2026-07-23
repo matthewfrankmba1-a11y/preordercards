@@ -16,7 +16,7 @@ services:
       - key: RESEND_API_KEY
         sync: false
       - key: EMAIL_FROM
-        value: "PreorderCards <notifications@preordercards.com>"
+        value: "PreorderCards <admin@preordercards.com>"
       - key: DISCORD_BOT_TOKEN
         sync: false
       - key: DISCORD_CHANNEL_ID
