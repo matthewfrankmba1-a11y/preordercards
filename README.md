@@ -137,6 +137,19 @@ appear for those.
 appear automatically, newest first — `GET /api/success-photos` lists
 whatever's in that folder at request time, no manifest file to maintain.
 
+## Analytics
+
+Google Analytics (GA4) is wired into every page via `public/analytics.js`
+(measurement ID `G-0KK6YZP2DG`) plus the `gtag.js` loader tag in each
+page's `<head>`. The CSP in `server.js` explicitly allows
+`googletagmanager.com` (script) and the `google-analytics.com` /
+`analytics.google.com` domains (connect/img) — nothing else was loosened.
+View traffic at analytics.google.com.
+
+To swap in a different GA property, update the ID in both places: the
+`gtag/js?id=...` query param in each HTML file's `<head>`, and the
+`gtag('config', ...)` call in `public/analytics.js`.
+
 ## Deploying (Render)
 
 `render.yaml` defines the service as a Render Blueprint: a web service on

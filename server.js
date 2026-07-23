@@ -113,7 +113,25 @@ async function sendConfirmationEmail(release, { contactType, contactValue, quant
   }
 }
 
-app.use(helmet());
+// Extend the default CSP (script-src 'self' etc.) just enough to allow Google
+// Analytics' script and beacon requests — everything else stays locked down.
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        'script-src': ["'self'", 'https://www.googletagmanager.com'],
+        'connect-src': [
+          "'self'",
+          'https://www.google-analytics.com',
+          'https://*.google-analytics.com',
+          'https://*.analytics.google.com',
+        ],
+        'img-src': ["'self'", 'data:', 'https://www.google-analytics.com'],
+      },
+    },
+  })
+);
 app.use(express.json({ limit: '10kb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
