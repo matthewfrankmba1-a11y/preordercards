@@ -86,7 +86,11 @@ async function sendConfirmationEmail(release, { contactType, contactValue, quant
         text: [
           `We've received your inquiry about ${release.title} (releasing ${release.releaseDate}), quantity ${quantity}.`,
           '',
-          "No payment was collected — this just acknowledges your inquiry. We'll be in touch when preorders open.",
+          "No payment was collected — this acknowledges your inquiry. We'll be in touch when the product is released and we've secured our allocation.",
+          '',
+          "For Slots: you'll know the service fee per successful box checkout ahead of the scheduled release. Orders ship directly from the retailer to you — the retailer handles product billing, and the service fee is paid separately via PayPal, Venmo, or Stripe.",
+          '',
+          'For Preorder: the price per box is set once the market has established an average from the first 5-10 public sales, discounted 6-7% off that average, with free shipping.',
           '',
           "If you're looking to lock in a slot, fill out our Slot Details form here:",
           SLOT_FORM_URL,
@@ -100,8 +104,15 @@ async function sendConfirmationEmail(release, { contactType, contactValue, quant
         html: `
           <p>We've received your inquiry about <strong>${escapeHtml(release.title)}</strong>
           (releasing ${release.releaseDate}), quantity ${quantity}.</p>
-          <p>No payment was collected — this just acknowledges your inquiry. We'll be in touch
-          when preorders open.</p>
+          <p>No payment was collected — this acknowledges your inquiry. We'll be in touch
+          when the product is released and we've secured our allocation.</p>
+          <p><strong>For Slots:</strong> you'll know the service fee per successful box checkout
+          ahead of the scheduled release. Orders ship directly from the retailer to you — the
+          retailer handles product billing, and the service fee is paid separately via PayPal,
+          Venmo, or Stripe.</p>
+          <p><strong>For Preorder:</strong> the price per box is set once the market has
+          established an average from the first 5-10 public sales, discounted 6-7% off that
+          average, with free shipping.</p>
           <p>If you're looking to lock in a slot, fill out our
           <a href="${SLOT_FORM_URL}">Slot Details form</a>.
           You can also find this same link anytime at the top of our homepage under
