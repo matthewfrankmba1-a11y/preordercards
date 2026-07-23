@@ -89,7 +89,7 @@ function isSoldOut(release) {
 // Cap how many sold-out cards ever appear at once, so the page doesn't read as
 // "mostly sold out" — only the most recent MAX_SOLD_OUT_SHOWN are kept; older
 // sold-out releases are dropped from the listing entirely.
-const MAX_SOLD_OUT_SHOWN = 4;
+const MAX_SOLD_OUT_SHOWN = 3;
 
 function limitSoldOut(releases) {
   const active = releases.filter((r) => !isSoldOut(r));

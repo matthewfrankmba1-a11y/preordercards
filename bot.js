@@ -30,6 +30,16 @@ function init({ loadReleases, sendConfirmationEmail }) {
 
   client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
+  // Without an 'error' listener, EventEmitter rethrows and crashes the whole
+  // process on any Gateway hiccup (e.g. a WebSocket handshake timeout) — which
+  // would take the entire web server down, not just the bot. Never let that happen.
+  client.on('error', (err) => {
+    console.error('Discord client error:', err.message);
+  });
+  client.on('shardError', (err) => {
+    console.error('Discord shard error:', err.message);
+  });
+
   client.once('clientReady', () => {
     ready = true;
     console.log('Discord bot connected.');
