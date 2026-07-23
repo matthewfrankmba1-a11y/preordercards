@@ -12,14 +12,24 @@
 
 function onFormSubmitTrigger(e) {
   var webhookUrl = 'https://discord.com/api/webhooks/1529270324997259265/_jLBevxL7tfZYI24j7ls920XTNGIF-HBFB8KQoqP9I9CeipMaU7aVDThna2pPxSPVXXf';
-  var formUrl = FormApp.getActiveForm().getEditUrl();
+
+  var itemResponses = e.response.getItemResponses();
+  var fields = itemResponses.map(function (itemResponse) {
+    var value = itemResponse.getResponse();
+    return {
+      name: itemResponse.getItem().getTitle(),
+      value: (value === null || value === '') ? '(blank)' : String(value),
+      inline: true,
+    };
+  });
 
   var payload = {
+    username: 'New Preorder!',
     embeds: [
       {
-        title: '📝 New Slot Details submission',
-        color: 3447003,
-        description: '[View all responses](' + formUrl + ')',
+        title: '📝 NEW SLOT SUBMISSION',
+        color: 13770556,
+        fields: fields,
         timestamp: new Date().toISOString(),
       },
     ],
