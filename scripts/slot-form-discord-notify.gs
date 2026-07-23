@@ -12,6 +12,7 @@
 
 function onFormSubmitTrigger(e) {
   var webhookUrl = 'https://discord.com/api/webhooks/1529991361518899281/mZuO1KvYM0R4M6Zzb78YcV5XojXZnlceM0RSyh2SnPwQ4RWpIKfTkw0FAisr_3NiBtZv';
+  var responsesUrl = 'https://docs.google.com/forms/d/1uHL6qjs1Id5ZaD0kWb06MwDgZuET-6MokQOFoLt2mok/edit#responses';
 
   var itemResponses = e.response.getItemResponses();
   var fields = itemResponses.map(function (itemResponse) {
@@ -29,6 +30,7 @@ function onFormSubmitTrigger(e) {
       {
         title: '📝 NEW SLOT SUBMISSION',
         color: 13770556,
+        description: '[View all responses](' + responsesUrl + ')',
         fields: fields,
         timestamp: new Date().toISOString(),
       },
