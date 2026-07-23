@@ -12,22 +12,30 @@
 
 function onFormSubmitTrigger(e) {
   var webhookUrl = 'https://discord.com/api/webhooks/1529270324997259265/_jLBevxL7tfZYI24j7ls920XTNGIF-HBFB8KQoqP9I9CeipMaU7aVDThna2pPxSPVXXf';
-  var formUrl = FormApp.getActiveForm().getEditUrl();
 
-  var payload = {
+  var itemResponses = e.response.getItemResponses();
+  var lines = itemResponses.map(function (itemResponse) {
+    var value = itemResponse.getResponse();
+    return itemResponse.getItem().getTitle() + ': ' + ((value === null || value === '') ? '(blank)' : String(value));
+  });
+  var textContent = lines.join('\n');
+  var fileBlob = Utilities.newBlob(textContent, 'text/plain', 'slot-submission.txt');
+
+  var payloadJson = JSON.stringify({
     embeds: [
       {
         title: '📝 New Slot Details submission',
         color: 3447003,
-        description: '[View all responses](' + formUrl + ')',
         timestamp: new Date().toISOString(),
       },
     ],
-  };
+  });
 
   UrlFetchApp.fetch(webhookUrl, {
     method: 'post',
-    contentType: 'application/json',
-    payload: JSON.stringify(payload),
+    payload: {
+      payload_json: payloadJson,
+      file: fileBlob,
+    },
   });
 }
