@@ -137,6 +137,35 @@ appear for those.
 appear automatically, newest first — `GET /api/success-photos` lists
 whatever's in that folder at request time, no manifest file to maintain.
 
+## Seller marketplace
+
+A separate, invite-key-gated marketplace for trusted sellers to list in-hand
+inventory (not tied to the curated release calendar), with buyers registering
+interest at a fixed price — no offers/negotiation.
+
+- **Invite keys**: run `node scripts/generate-seller-keys.js [count]` (defaults
+  to 10) to mint new keys. Each key is single-use and doubles as that seller's
+  permanent login identifier (paired with a password they set at signup) —
+  there's no separate username, consistent with sellers being anonymous.
+- **Seller dashboard**: `/seller.html` — sign up with a key + password (gets
+  a random anonymous display name like "QuietOtter482"), or log back in with
+  the same key + password. Authenticated sellers can add listings
+  (description, optional SKU, optional image URL — a pasted stock-photo link,
+  not a file upload — and price) and mark their own listings sold.
+- **Sessions**: a custom lightweight token stored in the `seller_sessions`
+  table (not `express-session`), so sellers stay logged in across redeploys
+  since it's backed by the same persistent disk as everything else. 30-day
+  expiry. Passwords are hashed with `bcryptjs`.
+- **Public marketplace**: `/marketplace.html` lists all active listings;
+  buyers register interest (email/phone, no quantity) at the seller's listed
+  price. This posts a "🛒 New marketplace interest" Discord alert (same
+  webhook/bot as release registrations) so you can manually facilitate the
+  sale — there's no automated checkout here either.
+- Pricing guidance (shown on the seller dashboard) asks sellers to price
+  below the lowest active eBay listing for the same item — this is **not
+  programmatically enforced** (no eBay API integration), it's an honor-system
+  disclosure, same spirit as the 3%-fee-vs-eBay's-13% framing in the Terms page.
+
 ## Analytics
 
 Google Analytics (GA4) is wired into every page via `public/analytics.js`

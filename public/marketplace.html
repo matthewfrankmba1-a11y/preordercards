@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Marketplace — Topps Preorder Release Calendar</title>
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0KK6YZP2DG"></script>
+  <script src="/analytics.js"></script>
+</head>
+<body>
+  <header class="site-header compact">
+    <div class="header-scrim"></div>
+    <div class="wrap header-content">
+      <h1>Marketplace</h1>
+      <p class="tagline">In-hand inventory from trusted sellers, priced below eBay. No offers — register interest at the listed price.</p>
+      <a class="header-nav-link" href="/">← Back to Releases</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="status" class="status" hidden></div>
+    <div id="listings" class="marketplace-grid"></div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p class="disclaimer">
+        This site is an independent release-tracking and interest-registration service.
+        It is not affiliated with, endorsed by, or sponsored by Topps, MLB, the NBA, the NFL,
+        the UFC, Disney, Marvel, or any other brand or league referenced here. All product
+        names and trademarks belong to their respective owners.
+      </p>
+    </div>
+  </footer>
+
+  <template id="listing-card-template">
+    <article class="card">
+      <div class="listing-image"></div>
+      <h3 class="card-title"></h3>
+      <p class="card-desc listing-sku"></p>
+      <p class="card-date listing-price"></p>
+      <p class="card-desc listing-seller"></p>
+
+      <form class="signup-form listing-interest-form">
+        <div class="contact-toggle">
+          <button type="button" class="toggle-btn active" data-type="email">Email</button>
+          <button type="button" class="toggle-btn" data-type="phone">Phone</button>
+        </div>
+        <div class="signup-row">
+          <input type="text" class="contact-input" placeholder="you@example.com" autocomplete="email" />
+          <button type="submit" class="notify-btn">Register Interest</button>
+        </div>
+        <p class="form-message" role="status"></p>
+      </form>
+    </article>
+  </template>
+
+  <script src="marketplace.js"></script>
+</body>
+</html>

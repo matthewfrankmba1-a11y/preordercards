@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Seller Dashboard — Topps Preorder Release Calendar</title>
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0KK6YZP2DG"></script>
+  <script src="/analytics.js"></script>
+</head>
+<body>
+  <header class="site-header compact">
+    <div class="header-scrim"></div>
+    <div class="wrap header-content">
+      <h1>Seller Dashboard</h1>
+      <p class="tagline">List inventory for buyers to discover and register interest in.</p>
+      <a class="header-nav-link" href="/">← Back to Releases</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="status" class="status" hidden></div>
+
+    <section id="auth-section">
+      <div class="seller-auth-tabs">
+        <button type="button" class="seller-tab-btn active" data-tab="login">Log In</button>
+        <button type="button" class="seller-tab-btn" data-tab="signup">Sign Up with Key</button>
+      </div>
+
+      <form id="login-form" class="seller-auth-form">
+        <label class="form-field">
+          <span class="form-label">Invite Key</span>
+          <input type="text" id="login-key" placeholder="XXXX-XXXX-XXXX" autocomplete="off" required />
+        </label>
+        <label class="form-field">
+          <span class="form-label">Password</span>
+          <input type="password" id="login-password" autocomplete="current-password" required />
+        </label>
+        <button type="submit" class="notify-btn">Log In</button>
+        <p class="form-message" id="login-message"></p>
+      </form>
+
+      <form id="signup-form" class="seller-auth-form" hidden>
+        <label class="form-field">
+          <span class="form-label">Invite Key</span>
+          <input type="text" id="signup-key" placeholder="XXXX-XXXX-XXXX" autocomplete="off" required />
+        </label>
+        <label class="form-field">
+          <span class="form-label">Create Password</span>
+          <input type="password" id="signup-password" placeholder="At least 8 characters" autocomplete="new-password" required />
+        </label>
+        <button type="submit" class="notify-btn">Create Seller Account</button>
+        <p class="form-message" id="signup-message"></p>
+      </form>
+    </section>
+
+    <section id="dashboard-section" hidden>
+      <div class="seller-welcome">
+        <p>Signed in as <strong id="seller-name"></strong></p>
+        <button type="button" id="logout-btn" class="stock-toggle-btn">Log Out</button>
+      </div>
+
+      <div class="legal-notice">
+        Price your listing lower than the lowest active listing on eBay for the same item.
+        Our transaction fee is only 3% total (1.5% seller + 1.5% buyer), versus eBay's roughly
+        13%, so buyers should always find a better price here. Items must be factory sealed.
+      </div>
+
+      <form id="listing-form" class="seller-listing-form">
+        <h3>New Listing</h3>
+        <label class="form-field">
+          <span class="form-label">Description</span>
+          <textarea id="listing-description" maxlength="500" rows="3" required></textarea>
+        </label>
+        <label class="form-field">
+          <span class="form-label">SKU (optional)</span>
+          <input type="text" id="listing-sku" maxlength="100" />
+        </label>
+        <label class="form-field">
+          <span class="form-label">Image URL (optional, stock photo link)</span>
+          <input type="url" id="listing-image" placeholder="https://..." />
+        </label>
+        <label class="form-field">
+          <span class="form-label">Price (USD)</span>
+          <input type="number" id="listing-price" min="0.01" step="0.01" required />
+        </label>
+        <button type="submit" class="notify-btn">Add Listing</button>
+        <p class="form-message" id="listing-message"></p>
+      </form>
+
+      <h3>Your Listings</h3>
+      <div id="my-listings" class="seller-listings"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p class="disclaimer">
+        This site is an independent release-tracking and interest-registration service.
+        It is not affiliated with, endorsed by, or sponsored by Topps, MLB, the NBA, the NFL,
+        the UFC, Disney, Marvel, or any other brand or league referenced here. All product
+        names and trademarks belong to their respective owners.
+      </p>
+    </div>
+  </footer>
+
+  <script src="seller.js"></script>
+</body>
+</html>

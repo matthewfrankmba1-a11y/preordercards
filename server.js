@@ -149,12 +149,16 @@ app.use(
           'https://*.google-analytics.com',
           'https://*.analytics.google.com',
         ],
-        'img-src': ["'self'", 'data:', 'https://www.google-analytics.com'],
+        // 'https:' (not specific domains) because sellers paste arbitrary stock
+        // photo URLs for marketplace listings — we can't allowlist hosts in advance.
+        'img-src': ["'self'", 'data:', 'https:'],
       },
     },
   })
 );
 app.use(express.json({ limit: '10kb' }));
+app.use('/api/seller', require('./sellerAuth').router);
+app.use('/api', require('./marketplace'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 function loadReleases() {

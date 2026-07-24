@@ -248,6 +248,28 @@ body {
   background: #fff;
 }
 
+.marketplace-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  padding-bottom: 3rem;
+}
+
+.listing-image {
+  margin: -1.1rem -1.1rem 0.2rem;
+  height: 180px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  overflow: hidden;
+  background: #f0f1f4;
+}
+
+.listing-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .date-group {
   grid-column: 1 / -1;
 }
@@ -548,7 +570,7 @@ body {
   font-size: 0.95rem;
 }
 
-.legal .legal-notice {
+.legal-notice {
   background: #fff3f3;
   border: 1px solid #fbdada;
   border-radius: 8px;
@@ -559,7 +581,7 @@ body {
 }
 
 @media (prefers-color-scheme: dark) {
-  .legal .legal-notice { background: #2a1416; border-color: #4a2226; color: #ffb3bb; }
+  .legal-notice { background: #2a1416; border-color: #4a2226; color: #ffb3bb; }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -577,4 +599,87 @@ body {
   .form-field select { background: #101319; color: var(--text); }
   .sport-badge { background: #1b2440; color: #b9c6ff; }
   .format-badge { background: #3a1c22; color: #ffb3bb; }
+  .seller-auth-form input, .seller-listing-form input, .seller-listing-form textarea {
+    background: #101319;
+    color: var(--text);
+  }
+}
+
+/* Seller dashboard */
+
+.seller-auth-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1.5rem 0 1rem;
+}
+
+.seller-tab-btn {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.seller-tab-btn.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
+.seller-auth-form {
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 3rem;
+}
+
+.seller-auth-form[hidden] {
+  display: none;
+}
+
+.seller-auth-form input {
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.seller-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1.5rem 0 1rem;
+}
+
+.seller-listing-form {
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.seller-listing-form input,
+.seller-listing-form textarea {
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.seller-listings {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  padding-bottom: 3rem;
+}
+
+.seller-listing-card {
+  gap: 0.5rem;
 }
