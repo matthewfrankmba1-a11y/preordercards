@@ -1,5 +1,9 @@
 const FEE_RATE = 0.025;
-const SHIPPING_FEE = 6;
+const SHIPPING_FEE_BASE = 6;
+const SHIPPING_FEE_PER_ADDITIONAL_BOX = 1;
+function shippingFee(quantity) {
+  return SHIPPING_FEE_BASE + (quantity - 1) * SHIPPING_FEE_PER_ADDITIONAL_BOX;
+}
 
 const listingsEl = document.getElementById('listings');
 const statusEl = document.getElementById('status');
@@ -67,8 +71,9 @@ function buildCard(listing) {
 
   function updateTotalPreview() {
     const qty = Number(quantitySelect.value) || 1;
-    const total = listing.price * qty * (1 + FEE_RATE) + SHIPPING_FEE;
-    totalPreview.textContent = `You'll pay $${total.toFixed(2)} total (incl. 2.5% fee + $6 shipping).`;
+    const shipping = shippingFee(qty);
+    const total = listing.price * qty * (1 + FEE_RATE) + shipping;
+    totalPreview.textContent = `You'll pay $${total.toFixed(2)} total (incl. 2.5% fee + $${shipping} shipping).`;
   }
   quantitySelect.addEventListener('change', updateTotalPreview);
   updateTotalPreview();

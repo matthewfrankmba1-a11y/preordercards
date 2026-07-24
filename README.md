@@ -157,19 +157,21 @@ interest at a fixed price — no offers/negotiation.
   table (not `express-session`), so sellers stay logged in across redeploys
   since it's backed by the same persistent disk as everything else. 30-day
   expiry. Passwords are hashed with `bcryptjs`.
-- **Fee model**: `FEE_RATE = 0.025` and `SHIPPING_FEE = 6` in
+- **Fee model**: `FEE_RATE = 0.025` and `shippingFee(quantity)` in
   `marketplace.js` (both mirrored in `public/seller.js` and
   `public/marketplace.js` for live previews — keep all three in sync if
-  either changes again). Sellers see a live "you'll receive $X per unit
-  after the 2.5% fee, minus a flat $6 shipping-label fee deducted once per
-  completed sale" preview while typing a price. Buyers pick a quantity
-  (capped at the seller's stock, max 10) and see a live "you'll pay $X
-  total (incl. 2.5% fee + $6 shipping)" preview
-  (price × quantity × 1.025 + 6). This is **2.5% + a flat $6 deducted from
-  the seller and 2.5% + a flat $6 added for the buyer independently**,
-  matching the fee described on the Terms page (`public/terms.html`,
-  section 5) — keep both in sync if the rate changes again. The $6 is a
-  flat per-sale amount (covers one shipping label), not per unit.
+  either changes again). The shipping-label fee scales with quantity:
+  `SHIPPING_FEE_BASE = 6` for the first box, plus
+  `SHIPPING_FEE_PER_ADDITIONAL_BOX = 1` per additional box in the same
+  sale (so 1 box = $6, 2 = $7, 3 = $8, etc.) — applied once per completed
+  sale, on both sides. Sellers see a live "you'll receive $X per unit
+  after the 2.5% fee" preview plus a shipping-fee estimate for their
+  listed quantity while typing a price. Buyers pick a quantity (capped at
+  the seller's stock, max 10) and see a live "you'll pay $X total (incl.
+  2.5% fee + $Y shipping)" preview (price × quantity × 1.025 +
+  shippingFee(quantity)). This matches the fee described on the Terms
+  page (`public/terms.html`, section 5) — keep both in sync if it changes
+  again.
 - **Marketplace Discord alert**: the "🛒 New marketplace interest" embed
   shows both sides of the transaction so the admin can facilitate payment
   without digging through the database — buyer contact (email/phone),

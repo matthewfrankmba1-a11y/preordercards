@@ -23,7 +23,11 @@ function requireAdmin(req, res, next) {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const FEE_RATE = 0.025;
-const SHIPPING_FEE = 6;
+const SHIPPING_FEE_BASE = 6;
+const SHIPPING_FEE_PER_ADDITIONAL_BOX = 1;
+function shippingFee(quantity) {
+  return SHIPPING_FEE_BASE + (quantity - 1) * SHIPPING_FEE_PER_ADDITIONAL_BOX;
+}
 const MARKETPLACE_WEBHOOK_URL = process.env.MARKETPLACE_DISCORD_WEBHOOK_URL;
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const EMAIL_FROM = process.env.EMAIL_FROM || 'PreorderCards <admin@preordercards.com>';
@@ -46,8 +50,9 @@ function normalizePhone(value) {
 async function notifyMarketplaceDiscord(listing, row) {
   if (!MARKETPLACE_WEBHOOK_URL) return;
   const total = listing.price * row.quantity;
-  const buyerPays = total * (1 + FEE_RATE) + SHIPPING_FEE;
-  const sellerReceives = total * (1 - FEE_RATE) - SHIPPING_FEE;
+  const shipping = shippingFee(row.quantity);
+  const buyerPays = total * (1 + FEE_RATE) + shipping;
+  const sellerReceives = total * (1 - FEE_RATE) - shipping;
   try {
     await fetch(MARKETPLACE_WEBHOOK_URL, {
       method: 'POST',
@@ -66,8 +71,8 @@ async function notifyMarketplaceDiscord(listing, row) {
               ...(listing.sku ? [{ name: 'SKU', value: listing.sku, inline: true }] : []),
               { name: row.contactType === 'email' ? 'Buyer email' : 'Buyer phone', value: row.contactValue },
               { name: 'Seller email', value: listing.sellerEmail || 'Not set', inline: true },
-              { name: 'Buyer pays (incl. 2.5% fee + $6 shipping)', value: `$${buyerPays.toFixed(2)}`, inline: true },
-              { name: 'Seller receives (after 2.5% fee + $6 shipping)', value: `$${sellerReceives.toFixed(2)}`, inline: true },
+              { name: `Buyer pays (incl. 2.5% fee + $${shipping} shipping)`, value: `$${buyerPays.toFixed(2)}`, inline: true },
+              { name: `Seller receives (after 2.5% fee + $${shipping} shipping)`, value: `$${sellerReceives.toFixed(2)}`, inline: true },
             ],
             timestamp: new Date().toISOString(),
           },
@@ -330,7 +335,7 @@ router.post('/listing-interest', rateLimit, (req, res) => {
   );
   sendSellerAlertEmail(seller, listing, quantityNum);
 
-  const buyerPays = listing.price * quantityNum * (1 + FEE_RATE) + SHIPPING_FEE;
+  const buyerPays = listing.price * quantityNum * (1 + FEE_RATE) + shippingFee(quantityNum);
   res.status(201).json({ success: true, buyerPays: Math.round(buyerPays * 100) / 100 });
 });
 

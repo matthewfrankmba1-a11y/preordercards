@@ -1,5 +1,9 @@
 const FEE_RATE = 0.025;
-const SHIPPING_FEE = 6;
+const SHIPPING_FEE_BASE = 6;
+const SHIPPING_FEE_PER_ADDITIONAL_BOX = 1;
+function shippingFee(quantity) {
+  return SHIPPING_FEE_BASE + (quantity - 1) * SHIPPING_FEE_PER_ADDITIONAL_BOX;
+}
 
 const statusEl = document.getElementById('status');
 const authSection = document.getElementById('auth-section');
@@ -24,9 +28,12 @@ function updateFeePreview() {
     return;
   }
   const net = price * (1 - FEE_RATE);
-  listingFeePreview.textContent = `You'll receive $${net.toFixed(2)} per unit after the 2.5% fee, minus a flat $6 shipping-label fee deducted once per completed sale (not per unit).`;
+  const qty = Number(listingQuantitySelect.value) || 1;
+  const shipping = shippingFee(qty);
+  listingFeePreview.textContent = `You'll receive $${net.toFixed(2)} per unit after the 2.5% fee. A shipping fee also applies once per completed sale — $${SHIPPING_FEE_BASE} for 1 box, plus $${SHIPPING_FEE_PER_ADDITIONAL_BOX} per additional box (e.g. $${shipping} if a buyer orders all ${qty}), deducted from your payout.`;
 }
 listingPriceInput.addEventListener('input', updateFeePreview);
+listingQuantitySelect.addEventListener('change', updateFeePreview);
 
 const tabBtns = document.querySelectorAll('.seller-tab-btn');
 const loginForm = document.getElementById('login-form');
