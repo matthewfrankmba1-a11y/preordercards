@@ -130,8 +130,11 @@ addColumnIfMissing('listing_interests', 'quantity', 'INTEGER NOT NULL DEFAULT 1'
 addColumnIfMissing('seller_invite_keys', 'key_type', "TEXT NOT NULL DEFAULT 'seller'");
 addColumnIfMissing('sellers', 'is_admin', 'INTEGER NOT NULL DEFAULT 0');
 addColumnIfMissing('sellers', 'email', 'TEXT');
+addColumnIfMissing('seller_invite_keys', 'expires_at', 'TEXT');
 
-const insertInviteKey = db.prepare(`INSERT INTO seller_invite_keys (key_code, key_type) VALUES (@keyCode, @keyType)`);
+const insertInviteKey = db.prepare(`
+  INSERT INTO seller_invite_keys (key_code, key_type, expires_at) VALUES (@keyCode, @keyType, @expiresAt)
+`);
 
 const getInviteKey = db.prepare(`SELECT * FROM seller_invite_keys WHERE key_code = ?`);
 
@@ -148,7 +151,7 @@ const listInviteKeys = db.prepare(`
 
 const listInviteKeysWithAlias = db.prepare(`
   SELECT k.key_code AS keyCode, k.key_type AS keyType, k.used, k.created_at AS createdAt,
-         s.display_name AS alias
+         k.expires_at AS expiresAt, s.display_name AS alias
   FROM seller_invite_keys k
   LEFT JOIN sellers s ON s.id = k.used_by_seller_id
   ORDER BY k.id

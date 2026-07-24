@@ -26,6 +26,9 @@ const SESSION_DAYS = 30;
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 const KEY_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I to avoid confusion
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const EMAIL_FROM = process.env.EMAIL_FROM || 'PreorderCards <admin@preordercards.com>';
+const SITE_URL = process.env.SITE_URL || 'https://preordercards.com';
 
 function generateInviteKeyCode() {
   const groups = [];
@@ -156,6 +159,9 @@ router.post('/signup', rateLimit, (req, res) => {
   const keyRow = getInviteKey.get(normalizedKey);
   if (!keyRow) return res.status(400).json({ error: 'Invalid invite key.' });
   if (keyRow.used) return res.status(400).json({ error: 'This invite key has already been used.' });
+  if (keyRow.expires_at && new Date(keyRow.expires_at) < new Date()) {
+    return res.status(400).json({ error: 'This invite key has expired.' });
+  }
 
   const isAdmin = keyRow.key_type === 'admin';
   const passwordHash = bcrypt.hashSync(password, 10);
@@ -280,6 +286,93 @@ router.post('/admin/revoke-key', (req, res) => {
   res.json({ success: true, hadSeller: Boolean(seller), alias: seller ? seller.display_name : null, removedListings });
 });
 
+function buildTrustedSellerEmail(keyCode, expiresAt) {
+  const expiresLocal = expiresAt.toLocaleString('en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'America/New_York',
+  });
+  return [
+    "You've been personally invited to join a small, trusted group of sellers helping build the next frontier of online commerce for hard-to-obtain items — PreorderCards.",
+    '',
+    `YOUR INVITE KEY (valid 24 hours, expires ${expiresLocal} ET): ${keyCode}`,
+    '',
+    `Go to ${SITE_URL}/seller.html, click "Sign Up with Key," enter the key above, and choose a password. You'll be given a random, anonymous display name — no personal info is shown publicly. Please register before the key expires.`,
+    '',
+    'FEE STRUCTURE',
+    '- 2.5% is deducted from your payout as the seller.',
+    '- 2.5% is added to what the buyer pays.',
+    '- A shipping-label fee also applies once per completed sale, on both sides: $6 for the first box, plus $1 for each additional box in the same sale (e.g. $8 for a 3-box order).',
+    '',
+    "WHAT'S REQUIRED TO LIST",
+    '- Item must be factory sealed.',
+    '- A description, optional SKU, and an optional stock-photo link (not a file upload).',
+    '- Quantity available (1-10 units) and your price per unit.',
+    '',
+    'KEEPING PRODUCT INTEGRITY',
+    'To protect buyers and preserve trust in every sale:',
+    '- The original factory seal must remain fully intact — no peeling, resealing, or tampering.',
+    '- The original tracking number / barcode from the retailer you purchased from must remain visible on the box.',
+    '- When you ship to the end customer, your new shipping label may be applied over other existing barcodes, but it must never cover or obscure the original retailer tracking number.',
+    '',
+    'ESCROW & PAYOUTS',
+    "For this first wave of transactions, funds are held in escrow until a sale is confirmed complete. Once you've shipped to the end customer, you'll need to provide the tracking information for that shipment so we can confirm you've held up your side of the sale. As trust is established, select sellers will move to automatic payouts.",
+    '',
+    'QUESTIONS',
+    'Just reply to this email or reach out to admin@preordercards.com any time.',
+    '',
+    'Welcome aboard,',
+    'PreorderCards',
+  ].join('\n');
+}
+
+// Generates a 24-hour invite key and emails it to a prospective trusted
+// seller with the full onboarding rundown (fees, listing rules, product
+// integrity requirements, escrow terms). Protected by the same shared
+// admin secret as the other key-management routes.
+router.post('/admin/invite-trusted-seller', async (req, res) => {
+  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
+    return res.status(403).json({ error: 'Forbidden.' });
+  }
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  if (!EMAIL_RE.test(email) || email.length > 254) {
+    return res.status(400).json({ error: 'Enter a valid email address.' });
+  }
+  if (!RESEND_API_KEY) {
+    return res.status(500).json({ error: 'Email sending is not configured.' });
+  }
+
+  const keyCode = generateInviteKeyCode();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  insertInviteKey.run({ keyCode, keyType: 'seller', expiresAt: expiresAt.toISOString() });
+
+  try {
+    const emailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: [email],
+        subject: "You're invited: PreorderCards Trusted Seller Program",
+        text: buildTrustedSellerEmail(keyCode, expiresAt),
+      }),
+    });
+    if (!emailRes.ok) {
+      const body = await emailRes.text();
+      console.error('Trusted-seller invite email failed:', emailRes.status, body);
+      return res.status(502).json({ error: 'Key was created, but the invite email failed to send.', keyCode, expiresAt: expiresAt.toISOString() });
+    }
+  } catch (err) {
+    console.error('Trusted-seller invite email failed:', err.message);
+    return res.status(502).json({ error: 'Key was created, but the invite email failed to send.', keyCode, expiresAt: expiresAt.toISOString() });
+  }
+
+  res.json({ success: true, keyCode, expiresAt: expiresAt.toISOString() });
+});
+
 // Lets new (regular) invite keys be minted against the live database without
 // shell access to the host — protected by a shared secret, not seller auth.
 router.post('/admin/generate-keys', (req, res) => {
@@ -290,7 +383,7 @@ router.post('/admin/generate-keys', (req, res) => {
   const keys = [];
   for (let i = 0; i < count; i++) {
     const key = generateInviteKeyCode();
-    insertInviteKey.run({ keyCode: key, keyType: 'seller' });
+    insertInviteKey.run({ keyCode: key, keyType: 'seller', expiresAt: null });
     keys.push(key);
   }
   res.json({ keys });
@@ -306,7 +399,7 @@ router.post('/admin/generate-super-key', (req, res) => {
     return res.status(409).json({ error: 'A super key has already been generated. Only one may ever exist.' });
   }
   const key = generateInviteKeyCode();
-  insertInviteKey.run({ keyCode: key, keyType: 'admin' });
+  insertInviteKey.run({ keyCode: key, keyType: 'admin', expiresAt: null });
   res.json({ key });
 });
 

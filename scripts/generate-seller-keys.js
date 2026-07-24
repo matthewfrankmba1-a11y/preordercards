@@ -24,7 +24,7 @@ function generateKey() {
 const keys = [];
 for (let i = 0; i < count; i++) {
   const key = generateKey();
-  insertInviteKey.run(key);
+  insertInviteKey.run({ keyCode: key, keyType: 'seller', expiresAt: null });
   keys.push(key);
 }
 

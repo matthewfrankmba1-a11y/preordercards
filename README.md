@@ -210,6 +210,19 @@ interest at a fixed price — no offers/negotiation.
 - **Admin key generation**: `POST /api/seller/admin/generate-keys` (header
   `x-admin-secret: <ADMIN_SECRET>`, body `{"count": N}`) mints new regular
   invite keys directly against the live database — no host shell access needed.
+- **Trusted-seller invite email**: `POST /api/seller/admin/invite-trusted-seller`
+  (header `x-admin-secret: <ADMIN_SECRET>`, body `{"email": "..."}`) mints a
+  single invite key that **expires in 24 hours** and emails it (via Resend) to
+  the given address with the full onboarding rundown — fee structure, listing
+  requirements, product-integrity rules (original seal intact, original
+  retailer tracking number stays visible, the new outbound shipping label may
+  go over other barcodes but never the original tracking number), the escrow
+  model for this first wave (manual payouts until trust is established, then
+  select sellers move to auto-payout), and the tracking-number-on-ship
+  requirement. Regular keys from `/admin/generate-keys` and the super key
+  never expire (`expires_at` is `NULL`) — only keys minted through this route
+  do. Signup (`POST /api/seller/signup`) rejects an expired key with 400
+  before it ever reaches the used-key check.
 - **Super key / admin account**: `POST /api/seller/admin/generate-super-key`
   (same `x-admin-secret` header, no body) mints the one-and-only "super key."
   It rejects with `409` if one already exists — only one can ever be
