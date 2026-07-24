@@ -1,4 +1,4 @@
-const FEE_RATE = 0.03;
+const FEE_RATE = 0.025;
 
 const statusEl = document.getElementById('status');
 const authSection = document.getElementById('auth-section');
@@ -23,7 +23,7 @@ function updateFeePreview() {
     return;
   }
   const net = price * (1 - FEE_RATE);
-  listingFeePreview.textContent = `You'll receive $${net.toFixed(2)} per unit after the 3% fee.`;
+  listingFeePreview.textContent = `You'll receive $${net.toFixed(2)} per unit after the 2.5% fee.`;
 }
 listingPriceInput.addEventListener('input', updateFeePreview);
 

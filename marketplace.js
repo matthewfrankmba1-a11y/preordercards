@@ -21,7 +21,7 @@ function requireAdmin(req, res, next) {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const FEE_RATE = 0.03;
+const FEE_RATE = 0.025;
 const MARKETPLACE_WEBHOOK_URL = process.env.MARKETPLACE_DISCORD_WEBHOOK_URL;
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const EMAIL_FROM = process.env.EMAIL_FROM || 'PreorderCards <admin@preordercards.com>';
@@ -40,6 +40,7 @@ async function notifyMarketplaceDiscord(listing, row) {
   if (!MARKETPLACE_WEBHOOK_URL) return;
   const total = listing.price * row.quantity;
   const buyerPays = total * (1 + FEE_RATE);
+  const sellerReceives = total * (1 - FEE_RATE);
   try {
     await fetch(MARKETPLACE_WEBHOOK_URL, {
       method: 'POST',
@@ -57,7 +58,9 @@ async function notifyMarketplaceDiscord(listing, row) {
               { name: 'Quantity requested', value: String(row.quantity), inline: true },
               ...(listing.sku ? [{ name: 'SKU', value: listing.sku, inline: true }] : []),
               { name: row.contactType === 'email' ? 'Buyer email' : 'Buyer phone', value: row.contactValue },
-              { name: 'Buyer pays (incl. 3% fee)', value: `$${buyerPays.toFixed(2)}` },
+              { name: 'Seller email', value: listing.sellerEmail || 'Not set', inline: true },
+              { name: 'Buyer pays (incl. 2.5% fee)', value: `$${buyerPays.toFixed(2)}`, inline: true },
+              { name: 'Seller receives (after 2.5% fee)', value: `$${sellerReceives.toFixed(2)}`, inline: true },
             ],
             timestamp: new Date().toISOString(),
           },
@@ -242,7 +245,7 @@ router.post('/listing-interest', rateLimit, (req, res) => {
 
   const seller = getSellerById.get(listing.seller_id);
   notifyMarketplaceDiscord(
-    { ...listing, sellerName: seller ? seller.display_name : 'Unknown seller' },
+    { ...listing, sellerName: seller ? seller.display_name : 'Unknown seller', sellerEmail: seller ? seller.email : null },
     { contactType, contactValue: normalizedValue, quantity: quantityNum }
   );
   sendSellerAlertEmail(seller, listing, quantityNum);

@@ -1,4 +1,4 @@
-const FEE_RATE = 0.03;
+const FEE_RATE = 0.025;
 
 const listingsEl = document.getElementById('listings');
 const statusEl = document.getElementById('status');
@@ -67,7 +67,7 @@ function buildCard(listing) {
   function updateTotalPreview() {
     const qty = Number(quantitySelect.value) || 1;
     const total = listing.price * qty * (1 + FEE_RATE);
-    totalPreview.textContent = `You'll pay $${total.toFixed(2)} total (incl. 3% fee).`;
+    totalPreview.textContent = `You'll pay $${total.toFixed(2)} total (incl. 2.5% fee).`;
   }
   quantitySelect.addEventListener('change', updateTotalPreview);
   updateTotalPreview();

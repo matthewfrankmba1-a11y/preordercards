@@ -157,14 +157,23 @@ interest at a fixed price — no offers/negotiation.
   table (not `express-session`), so sellers stay logged in across redeploys
   since it's backed by the same persistent disk as everything else. 30-day
   expiry. Passwords are hashed with `bcryptjs`.
-- **Fee model**: `FEE_RATE = 0.03` in `marketplace.js`. Sellers see a live
-  "you'll receive $X per unit after the 3% fee" preview while typing a price
-  (price × 0.97). Buyers pick a quantity (capped at the seller's stock, max
-  10) and see a live "you'll pay $X total (incl. 3% fee)" preview
-  (price × quantity × 1.03). Note this is **3% deducted from the seller and
-  3% added for the buyer independently** (a 6% total spread) — different
-  from the flat 1.5%+1.5%=3% combined fee described on the Terms page for
-  release preorders. Reconcile that copy if the two are meant to match.
+- **Fee model**: `FEE_RATE = 0.025` in `marketplace.js` (also mirrored in
+  `public/seller.js` and `public/marketplace.js` for live previews — keep
+  all three in sync if this changes again). Sellers see a live "you'll
+  receive $X per unit after the 2.5% fee" preview while typing a price
+  (price × 0.975). Buyers pick a quantity (capped at the seller's stock,
+  max 10) and see a live "you'll pay $X total (incl. 2.5% fee)" preview
+  (price × quantity × 1.025). Note this is **2.5% deducted from the seller
+  and 2.5% added for the buyer independently** (a 5% total spread) —
+  different from the flat 1.5%+1.5%=3% combined fee described on the Terms
+  page for release preorders. Reconcile that copy if the two are meant to
+  match — it has drifted twice now (was 3%/3%, now 2.5%/2.5%) without the
+  Terms page being updated either time.
+- **Marketplace Discord alert**: the "🛒 New marketplace interest" embed
+  shows both sides of the transaction so the admin can facilitate payment
+  without digging through the database — buyer contact (email/phone),
+  seller's alert email (if they've set one, else "Not set"), what the
+  buyer pays including the fee, and what the seller receives after the fee.
 - **Public marketplace**: `/marketplace.html` lists all active listings;
   buyers register interest (email/phone + quantity) at the seller's listed
   price, no offers/negotiation. This posts a "🛒 New marketplace interest"
