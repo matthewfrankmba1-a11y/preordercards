@@ -51,8 +51,9 @@ async function checkSession() {
     const res = await fetch('/api/seller/me');
     if (res.ok) {
       const data = await res.json();
-      showDashboard(data.displayName);
+      showDashboard(data.displayName, data.isAdmin);
       loadMyListings();
+      if (data.isAdmin) loadAdminListings();
     } else {
       showAuth();
     }
@@ -61,10 +62,11 @@ async function checkSession() {
   }
 }
 
-function showDashboard(displayName) {
-  sellerNameEl.textContent = displayName;
+function showDashboard(displayName, isAdmin) {
+  sellerNameEl.textContent = displayName + (isAdmin ? ' (Admin)' : '');
   authSection.hidden = true;
   dashboardSection.hidden = false;
+  document.getElementById('admin-section').hidden = !isAdmin;
 }
 
 function showAuth() {
@@ -92,8 +94,9 @@ loginForm.addEventListener('submit', async (e) => {
       return;
     }
     showMessage(message, 'Logged in!', false);
-    showDashboard(data.displayName);
+    showDashboard(data.displayName, data.isAdmin);
     loadMyListings();
+    if (data.isAdmin) loadAdminListings();
   } catch (err) {
     showMessage(message, 'Network error. Please try again.', true);
   }
@@ -119,8 +122,9 @@ signupForm.addEventListener('submit', async (e) => {
       return;
     }
     showMessage(message, 'Account created!', false);
-    showDashboard(data.displayName);
+    showDashboard(data.displayName, data.isAdmin);
     loadMyListings();
+    if (data.isAdmin) loadAdminListings();
   } catch (err) {
     showMessage(message, 'Network error. Please try again.', true);
   }
@@ -231,6 +235,71 @@ function buildListingCard(listing) {
     });
     card.appendChild(soldBtn);
   }
+
+  return card;
+}
+
+async function loadAdminListings() {
+  const container = document.getElementById('admin-listings');
+  try {
+    const res = await fetch('/api/seller/admin/listings');
+    if (!res.ok) return;
+    const data = await res.json();
+    container.innerHTML = '';
+    if (data.listings.length === 0) {
+      container.innerHTML = '<p class="card-desc">No listings exist yet.</p>';
+      return;
+    }
+    for (const listing of data.listings) {
+      container.appendChild(buildAdminListingCard(listing));
+    }
+  } catch (err) {
+    container.innerHTML = '<p class="card-desc">Could not load listings.</p>';
+  }
+}
+
+function buildAdminListingCard(listing) {
+  const card = document.createElement('div');
+  card.className = 'card seller-listing-card';
+
+  const title = document.createElement('h3');
+  title.className = 'card-title';
+  title.textContent = listing.description;
+  card.appendChild(title);
+
+  const seller = document.createElement('p');
+  seller.className = 'card-desc';
+  seller.textContent = `Seller: ${listing.sellerName}`;
+  card.appendChild(seller);
+
+  if (listing.sku) {
+    const sku = document.createElement('p');
+    sku.className = 'card-desc';
+    sku.textContent = `SKU: ${listing.sku}`;
+    card.appendChild(sku);
+  }
+
+  const price = document.createElement('p');
+  price.className = 'card-date';
+  price.textContent = `$${Number(listing.price).toFixed(2)} each × ${listing.quantity}`;
+  card.appendChild(price);
+
+  const status = document.createElement('p');
+  status.className = 'card-desc';
+  status.textContent = listing.status === 'sold' ? 'Sold' : 'Active';
+  card.appendChild(status);
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'notify-btn';
+  removeBtn.textContent = 'Remove Listing';
+  removeBtn.addEventListener('click', async () => {
+    if (!confirm(`Remove "${listing.description}" by ${listing.sellerName}? This cannot be undone.`)) return;
+    removeBtn.disabled = true;
+    await fetch(`/api/seller/admin/listings/${listing.id}/remove`, { method: 'POST' });
+    loadAdminListings();
+  });
+  card.appendChild(removeBtn);
 
   return card;
 }

@@ -67,6 +67,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS seller_invite_keys (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     key_code TEXT NOT NULL UNIQUE,
+    key_type TEXT NOT NULL DEFAULT 'seller' CHECK (key_type IN ('seller', 'admin')),
     used INTEGER NOT NULL DEFAULT 0,
     used_by_seller_id INTEGER,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -77,6 +78,7 @@ db.exec(`
     invite_key TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     display_name TEXT NOT NULL,
+    is_admin INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
 
@@ -124,23 +126,27 @@ function addColumnIfMissing(table, column, definition) {
 }
 addColumnIfMissing('listings', 'quantity', 'INTEGER NOT NULL DEFAULT 1');
 addColumnIfMissing('listing_interests', 'quantity', 'INTEGER NOT NULL DEFAULT 1');
+addColumnIfMissing('seller_invite_keys', 'key_type', "TEXT NOT NULL DEFAULT 'seller'");
+addColumnIfMissing('sellers', 'is_admin', 'INTEGER NOT NULL DEFAULT 0');
 
-const insertInviteKey = db.prepare(`INSERT INTO seller_invite_keys (key_code) VALUES (?)`);
+const insertInviteKey = db.prepare(`INSERT INTO seller_invite_keys (key_code, key_type) VALUES (@keyCode, @keyType)`);
 
 const getInviteKey = db.prepare(`SELECT * FROM seller_invite_keys WHERE key_code = ?`);
+
+const countSuperKeys = db.prepare(`SELECT COUNT(*) AS c FROM seller_invite_keys WHERE key_type = 'admin'`);
 
 const markInviteKeyUsed = db.prepare(`
   UPDATE seller_invite_keys SET used = 1, used_by_seller_id = @sellerId WHERE key_code = @keyCode
 `);
 
 const listInviteKeys = db.prepare(`
-  SELECT key_code AS keyCode, used, used_by_seller_id AS usedBySellerId, created_at AS createdAt
+  SELECT key_code AS keyCode, key_type AS keyType, used, used_by_seller_id AS usedBySellerId, created_at AS createdAt
   FROM seller_invite_keys ORDER BY id
 `);
 
 const insertSeller = db.prepare(`
-  INSERT INTO sellers (invite_key, password_hash, display_name)
-  VALUES (@inviteKey, @passwordHash, @displayName)
+  INSERT INTO sellers (invite_key, password_hash, display_name, is_admin)
+  VALUES (@inviteKey, @passwordHash, @displayName, @isAdmin)
 `);
 
 const getSellerByInviteKey = db.prepare(`SELECT * FROM sellers WHERE invite_key = ?`);
@@ -152,7 +158,8 @@ const insertSession = db.prepare(`
 `);
 
 const getSession = db.prepare(`
-  SELECT sess.token, sess.expires_at AS expiresAt, s.id AS sellerId, s.display_name AS displayName
+  SELECT sess.token, sess.expires_at AS expiresAt, s.id AS sellerId, s.display_name AS displayName,
+         s.is_admin AS isAdmin
   FROM seller_sessions sess
   JOIN sellers s ON s.id = sess.seller_id
   WHERE sess.token = ?
@@ -191,6 +198,20 @@ const upsertListingInterest = db.prepare(`
   DO UPDATE SET contact_type = excluded.contact_type, quantity = excluded.quantity, created_at = CURRENT_TIMESTAMP
 `);
 
+// --- Admin (super key) ---
+
+const getAllListingsAdmin = db.prepare(`
+  SELECT l.id, l.description, l.sku, l.image_url AS imageUrl, l.price, l.quantity, l.status,
+         l.created_at AS createdAt, s.display_name AS sellerName
+  FROM listings l
+  JOIN sellers s ON s.id = l.seller_id
+  ORDER BY l.created_at DESC
+`);
+
+const deleteListingInterestsByListing = db.prepare(`DELETE FROM listing_interests WHERE listing_id = ?`);
+
+const deleteListingByIdAdmin = db.prepare(`DELETE FROM listings WHERE id = ?`);
+
 module.exports = {
   db,
   upsertInterest,
@@ -214,4 +235,8 @@ module.exports = {
   getListingById,
   markListingSold,
   upsertListingInterest,
+  countSuperKeys,
+  getAllListingsAdmin,
+  deleteListingInterestsByListing,
+  deleteListingByIdAdmin,
 };

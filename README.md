@@ -176,8 +176,19 @@ interest at a fixed price — no offers/negotiation.
   programmatically enforced** (no eBay API integration), it's an honor-system
   disclosure.
 - **Admin key generation**: `POST /api/seller/admin/generate-keys` (header
-  `x-admin-secret: <ADMIN_SECRET>`, body `{"count": N}`) mints new invite
-  keys directly against the live database — no host shell access needed.
+  `x-admin-secret: <ADMIN_SECRET>`, body `{"count": N}`) mints new regular
+  invite keys directly against the live database — no host shell access needed.
+- **Super key / admin account**: `POST /api/seller/admin/generate-super-key`
+  (same `x-admin-secret` header, no body) mints the one-and-only "super key."
+  It rejects with `409` if one already exists — only one can ever be
+  generated. Signing up with it (same `/seller.html` flow as any other key)
+  creates a seller account with `is_admin = 1`. That account gets an extra
+  "Admin: All Listings" section on the dashboard showing every seller's
+  listings, with a **Remove Listing** button that deletes any listing
+  (`POST /api/seller/admin/listings/:id/remove`) regardless of who owns it.
+  Regular sellers are unaffected — they can still only add listings and
+  mark their own sold, exactly as before; `requireAdmin` middleware in
+  `marketplace.js` returns `403` if a non-admin tries the admin routes.
 
 ## Analytics
 

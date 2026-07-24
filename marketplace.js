@@ -7,8 +7,18 @@ const {
   markListingSold,
   upsertListingInterest,
   getSellerById,
+  getAllListingsAdmin,
+  deleteListingInterestsByListing,
+  deleteListingByIdAdmin,
 } = require('./db');
 const { requireSellerAuth } = require('./sellerAuth');
+
+function requireAdmin(req, res, next) {
+  if (!req.seller.isAdmin) {
+    return res.status(403).json({ error: 'Admin access required.' });
+  }
+  next();
+}
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const FEE_RATE = 0.03;
@@ -128,6 +138,24 @@ router.post('/seller/listings/:id/sold', requireSellerAuth, (req, res) => {
   if (result.changes === 0) {
     return res.status(404).json({ error: 'Listing not found.' });
   }
+  res.json({ success: true });
+});
+
+// --- Admin (super key) only ---
+
+router.get('/seller/admin/listings', requireSellerAuth, requireAdmin, (req, res) => {
+  const listings = getAllListingsAdmin.all();
+  res.json({ listings });
+});
+
+router.post('/seller/admin/listings/:id/remove', requireSellerAuth, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const listing = getListingById.get(id);
+  if (!listing) {
+    return res.status(404).json({ error: 'Listing not found.' });
+  }
+  deleteListingInterestsByListing.run(id);
+  deleteListingByIdAdmin.run(id);
   res.json({ success: true });
 });
 

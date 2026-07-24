@@ -10,6 +10,7 @@ const {
   insertSession,
   deleteSession,
   insertInviteKey,
+  countSuperKeys,
 } = require('./db');
 
 const SESSION_COOKIE = 'seller_session';
@@ -96,7 +97,7 @@ function requireSellerAuth(req, res, next) {
   if (!session || new Date(session.expiresAt) < new Date()) {
     return res.status(401).json({ error: 'Session expired. Please log in again.' });
   }
-  req.seller = { id: session.sellerId, displayName: session.displayName };
+  req.seller = { id: session.sellerId, displayName: session.displayName, isAdmin: Boolean(session.isAdmin) };
   next();
 }
 
@@ -134,13 +135,14 @@ router.post('/signup', rateLimit, (req, res) => {
   if (!keyRow) return res.status(400).json({ error: 'Invalid invite key.' });
   if (keyRow.used) return res.status(400).json({ error: 'This invite key has already been used.' });
 
+  const isAdmin = keyRow.key_type === 'admin';
   const passwordHash = bcrypt.hashSync(password, 10);
   const displayName = generateSellerName();
-  const result = insertSeller.run({ inviteKey: normalizedKey, passwordHash, displayName });
+  const result = insertSeller.run({ inviteKey: normalizedKey, passwordHash, displayName, isAdmin: isAdmin ? 1 : 0 });
   markInviteKeyUsed.run({ sellerId: result.lastInsertRowid, keyCode: normalizedKey });
 
   issueSession(res, result.lastInsertRowid);
-  res.status(201).json({ success: true, displayName });
+  res.status(201).json({ success: true, displayName, isAdmin });
 });
 
 router.post('/login', rateLimit, (req, res) => {
@@ -155,7 +157,7 @@ router.post('/login', rateLimit, (req, res) => {
   }
 
   issueSession(res, seller.id);
-  res.json({ success: true, displayName: seller.display_name });
+  res.json({ success: true, displayName: seller.display_name, isAdmin: Boolean(seller.is_admin) });
 });
 
 router.post('/logout', (req, res) => {
@@ -167,11 +169,11 @@ router.post('/logout', (req, res) => {
 });
 
 router.get('/me', requireSellerAuth, (req, res) => {
-  res.json({ sellerId: req.seller.id, displayName: req.seller.displayName });
+  res.json({ sellerId: req.seller.id, displayName: req.seller.displayName, isAdmin: req.seller.isAdmin });
 });
 
-// Lets new invite keys be minted against the live database without shell
-// access to the host — protected by a shared secret, not seller auth.
+// Lets new (regular) invite keys be minted against the live database without
+// shell access to the host — protected by a shared secret, not seller auth.
 router.post('/admin/generate-keys', (req, res) => {
   if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
     return res.status(403).json({ error: 'Forbidden.' });
@@ -180,10 +182,24 @@ router.post('/admin/generate-keys', (req, res) => {
   const keys = [];
   for (let i = 0; i < count; i++) {
     const key = generateInviteKeyCode();
-    insertInviteKey.run(key);
+    insertInviteKey.run({ keyCode: key, keyType: 'seller' });
     keys.push(key);
   }
   res.json({ keys });
+});
+
+// Mints the one-and-only super key that creates an admin seller account on
+// signup. Rejects if a super key already exists — only one may ever be made.
+router.post('/admin/generate-super-key', (req, res) => {
+  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
+    return res.status(403).json({ error: 'Forbidden.' });
+  }
+  if (countSuperKeys.get().c > 0) {
+    return res.status(409).json({ error: 'A super key has already been generated. Only one may ever exist.' });
+  }
+  const key = generateInviteKeyCode();
+  insertInviteKey.run({ keyCode: key, keyType: 'admin' });
+  res.json({ key });
 });
 
 module.exports = { router, requireSellerAuth };
