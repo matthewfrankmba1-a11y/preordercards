@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-07-21",
+  "lastUpdated": "2026-07-24",
   "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat) as of 2026-07-21. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
@@ -85,7 +85,8 @@
       "format": "Hobby Box",
       "releaseDate": "2026-07-24",
       "description": "Preorders open for the flagship Topps NFL release.",
-      "isPreorderOpenDate": true
+      "isPreorderOpenDate": true,
+      "soldOut": true
     },
     {
       "id": "2026-topps-mint-marvel",
