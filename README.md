@@ -163,12 +163,10 @@ interest at a fixed price — no offers/negotiation.
   receive $X per unit after the 2.5% fee" preview while typing a price
   (price × 0.975). Buyers pick a quantity (capped at the seller's stock,
   max 10) and see a live "you'll pay $X total (incl. 2.5% fee)" preview
-  (price × quantity × 1.025). Note this is **2.5% deducted from the seller
-  and 2.5% added for the buyer independently** (a 5% total spread) —
-  different from the flat 1.5%+1.5%=3% combined fee described on the Terms
-  page for release preorders. Reconcile that copy if the two are meant to
-  match — it has drifted twice now (was 3%/3%, now 2.5%/2.5%) without the
-  Terms page being updated either time.
+  (price × quantity × 1.025). This is **2.5% deducted from the seller and
+  2.5% added for the buyer independently** (a 5% total spread), matching
+  the fee described on the Terms page (`public/terms.html`, section 5) —
+  keep both in sync if the rate changes again.
 - **Marketplace Discord alert**: the "🛒 New marketplace interest" embed
   shows both sides of the transaction so the admin can facilitate payment
   without digging through the database — buyer contact (email/phone),
