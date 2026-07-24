@@ -94,6 +94,7 @@ db.exec(`
     sku TEXT,
     image_url TEXT,
     price REAL NOT NULL,
+    quantity INTEGER NOT NULL DEFAULT 1 CHECK (quantity BETWEEN 1 AND 10),
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'sold')),
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
@@ -105,11 +106,24 @@ db.exec(`
     listing_id INTEGER NOT NULL,
     contact_type TEXT NOT NULL CHECK (contact_type IN ('email', 'phone')),
     contact_value TEXT NOT NULL,
+    quantity INTEGER NOT NULL DEFAULT 1 CHECK (quantity BETWEEN 1 AND 10),
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (listing_id, contact_value)
   );
   CREATE INDEX IF NOT EXISTS idx_listing_interests_listing_id ON listing_interests (listing_id);
 `);
+
+// Migrations: add quantity to tables created before this column existed.
+function addColumnIfMissing(table, column, definition) {
+  const exists = db
+    .prepare(`SELECT COUNT(*) AS c FROM pragma_table_info('${table}') WHERE name = '${column}'`)
+    .get().c > 0;
+  if (!exists) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
+addColumnIfMissing('listings', 'quantity', 'INTEGER NOT NULL DEFAULT 1');
+addColumnIfMissing('listing_interests', 'quantity', 'INTEGER NOT NULL DEFAULT 1');
 
 const insertInviteKey = db.prepare(`INSERT INTO seller_invite_keys (key_code) VALUES (?)`);
 
@@ -147,8 +161,8 @@ const getSession = db.prepare(`
 const deleteSession = db.prepare(`DELETE FROM seller_sessions WHERE token = ?`);
 
 const insertListing = db.prepare(`
-  INSERT INTO listings (seller_id, description, sku, image_url, price)
-  VALUES (@sellerId, @description, @sku, @imageUrl, @price)
+  INSERT INTO listings (seller_id, description, sku, image_url, price, quantity)
+  VALUES (@sellerId, @description, @sku, @imageUrl, @price, @quantity)
 `);
 
 const getListingsBySeller = db.prepare(`
@@ -156,7 +170,7 @@ const getListingsBySeller = db.prepare(`
 `);
 
 const getActiveListings = db.prepare(`
-  SELECT l.id, l.description, l.sku, l.image_url AS imageUrl, l.price, l.status,
+  SELECT l.id, l.description, l.sku, l.image_url AS imageUrl, l.price, l.quantity, l.status,
          l.created_at AS createdAt, s.display_name AS sellerName
   FROM listings l
   JOIN sellers s ON s.id = l.seller_id
@@ -171,10 +185,10 @@ const markListingSold = db.prepare(`
 `);
 
 const upsertListingInterest = db.prepare(`
-  INSERT INTO listing_interests (listing_id, contact_type, contact_value)
-  VALUES (@listingId, @contactType, @contactValue)
+  INSERT INTO listing_interests (listing_id, contact_type, contact_value, quantity)
+  VALUES (@listingId, @contactType, @contactValue, @quantity)
   ON CONFLICT (listing_id, contact_value)
-  DO UPDATE SET contact_type = excluded.contact_type, created_at = CURRENT_TIMESTAMP
+  DO UPDATE SET contact_type = excluded.contact_type, quantity = excluded.quantity, created_at = CURRENT_TIMESTAMP
 `);
 
 module.exports = {

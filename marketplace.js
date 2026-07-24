@@ -9,9 +9,10 @@ const {
   getSellerById,
 } = require('./db');
 const { requireSellerAuth } = require('./sellerAuth');
-const bot = require('./bot');
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const FEE_RATE = 0.03;
+const MARKETPLACE_WEBHOOK_URL = process.env.MARKETPLACE_DISCORD_WEBHOOK_URL;
 
 function normalizePhone(value) {
   const trimmed = value.trim();
@@ -19,6 +20,41 @@ function normalizePhone(value) {
   const digits = trimmed.replace(/\D/g, '');
   if (digits.length < 10 || digits.length > 15) return null;
   return (hasPlus ? '+' : '') + digits;
+}
+
+// Fire-and-forget alert to the marketplace's own dedicated Discord webhook —
+// separate from the release-interest bot/webhook entirely.
+async function notifyMarketplaceDiscord(listing, row) {
+  if (!MARKETPLACE_WEBHOOK_URL) return;
+  const total = listing.price * row.quantity;
+  const buyerPays = total * (1 + FEE_RATE);
+  try {
+    await fetch(MARKETPLACE_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: 'New Preorder!',
+        embeds: [
+          {
+            title: '🛒 New marketplace interest',
+            color: 13770556,
+            fields: [
+              { name: 'Listing', value: listing.description },
+              { name: 'Seller', value: listing.sellerName, inline: true },
+              { name: 'Unit price', value: `$${listing.price.toFixed(2)}`, inline: true },
+              { name: 'Quantity requested', value: String(row.quantity), inline: true },
+              ...(listing.sku ? [{ name: 'SKU', value: listing.sku, inline: true }] : []),
+              { name: row.contactType === 'email' ? 'Buyer email' : 'Buyer phone', value: row.contactValue },
+              { name: 'Buyer pays (incl. 3% fee)', value: `$${buyerPays.toFixed(2)}` },
+            ],
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      }),
+    });
+  } catch (err) {
+    console.error('Marketplace Discord webhook failed:', err.message);
+  }
 }
 
 // Rate limiter for public buyer-interest submissions (same pattern used elsewhere).
@@ -42,7 +78,7 @@ const router = express.Router();
 // --- Seller-side (authenticated) ---
 
 router.post('/seller/listings', requireSellerAuth, (req, res) => {
-  const { description, sku, imageUrl, price } = req.body || {};
+  const { description, sku, imageUrl, price, quantity } = req.body || {};
 
   if (typeof description !== 'string' || !description.trim()) {
     return res.status(400).json({ error: 'Description is required.' });
@@ -53,6 +89,10 @@ router.post('/seller/listings', requireSellerAuth, (req, res) => {
   const priceNum = Number(price);
   if (!Number.isFinite(priceNum) || priceNum <= 0) {
     return res.status(400).json({ error: 'Enter a valid price greater than 0.' });
+  }
+  const quantityNum = quantity === undefined ? 1 : Number(quantity);
+  if (!Number.isInteger(quantityNum) || quantityNum < 1 || quantityNum > 10) {
+    return res.status(400).json({ error: 'Quantity must be a whole number between 1 and 10.' });
   }
   if (imageUrl) {
     try {
@@ -71,6 +111,7 @@ router.post('/seller/listings', requireSellerAuth, (req, res) => {
     sku: sku ? String(sku).trim() : null,
     imageUrl: imageUrl ? String(imageUrl).trim() : null,
     price: priceNum,
+    quantity: quantityNum,
   });
 
   res.status(201).json({ success: true, id: result.lastInsertRowid });
@@ -98,7 +139,7 @@ router.get('/marketplace', (req, res) => {
 });
 
 router.post('/listing-interest', rateLimit, (req, res) => {
-  const { listingId, contactType, contactValue } = req.body || {};
+  const { listingId, contactType, contactValue, quantity } = req.body || {};
 
   if (listingId === undefined || listingId === null) {
     return res.status(400).json({ error: 'Missing listingId.' });
@@ -109,6 +150,12 @@ router.post('/listing-interest', rateLimit, (req, res) => {
   }
   if (listing.status !== 'active') {
     return res.status(410).json({ error: 'This listing is no longer available.' });
+  }
+
+  const quantityNum = quantity === undefined ? 1 : Number(quantity);
+  const maxQty = Math.min(10, listing.quantity);
+  if (!Number.isInteger(quantityNum) || quantityNum < 1 || quantityNum > maxQty) {
+    return res.status(400).json({ error: `Quantity must be a whole number between 1 and ${maxQty}.` });
   }
 
   let normalizedValue;
@@ -128,15 +175,21 @@ router.post('/listing-interest', rateLimit, (req, res) => {
     return res.status(400).json({ error: 'contactType must be "email" or "phone".' });
   }
 
-  upsertListingInterest.run({ listingId: listing.id, contactType, contactValue: normalizedValue });
+  upsertListingInterest.run({
+    listingId: listing.id,
+    contactType,
+    contactValue: normalizedValue,
+    quantity: quantityNum,
+  });
 
   const seller = getSellerById.get(listing.seller_id);
-  bot.postListingInterestAlert(
+  notifyMarketplaceDiscord(
     { ...listing, sellerName: seller ? seller.display_name : 'Unknown seller' },
-    { contactType, contactValue: normalizedValue }
+    { contactType, contactValue: normalizedValue, quantity: quantityNum }
   );
 
-  res.status(201).json({ success: true });
+  const buyerPays = listing.price * quantityNum * (1 + FEE_RATE);
+  res.status(201).json({ success: true, buyerPays: Math.round(buyerPays * 100) / 100 });
 });
 
 module.exports = router;

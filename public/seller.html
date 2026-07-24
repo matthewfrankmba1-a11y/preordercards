@@ -62,8 +62,9 @@
 
       <div class="legal-notice">
         Price your listing lower than the lowest active listing on eBay for the same item.
-        Our transaction fee is only 3% total (1.5% seller + 1.5% buyer), versus eBay's roughly
-        13%, so buyers should always find a better price here. Items must be factory sealed.
+        Our transaction fee is 3% — deducted from your payout as the seller, and added on
+        top of what the buyer pays — versus eBay's roughly 13%, so buyers should always find
+        a better price here. Items must be factory sealed.
       </div>
 
       <form id="listing-form" class="seller-listing-form">
@@ -81,9 +82,14 @@
           <input type="url" id="listing-image" placeholder="https://..." />
         </label>
         <label class="form-field">
-          <span class="form-label">Price (USD)</span>
+          <span class="form-label">Quantity available</span>
+          <select id="listing-quantity"></select>
+        </label>
+        <label class="form-field">
+          <span class="form-label">Price per unit (USD)</span>
           <input type="number" id="listing-price" min="0.01" step="0.01" required />
         </label>
+        <p class="fee-preview" id="listing-fee-preview"></p>
         <button type="submit" class="notify-btn">Add Listing</button>
         <p class="form-message" id="listing-message"></p>
       </form>

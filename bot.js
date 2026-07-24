@@ -136,33 +136,8 @@ async function postInterestAlert(release, row) {
   }
 }
 
-async function postListingInterestAlert(listing, row) {
-  if (!ready || !CHANNEL_ID) return false;
-  try {
-    const channel = await client.channels.fetch(CHANNEL_ID);
-
-    const embed = new EmbedBuilder()
-      .setTitle('🛒 New marketplace interest')
-      .setColor(0xd21f3c)
-      .addFields(
-        { name: 'Listing', value: listing.description },
-        { name: 'Seller', value: listing.sellerName, inline: true },
-        { name: 'Price', value: `$${listing.price}`, inline: true },
-        ...(listing.sku ? [{ name: 'SKU', value: listing.sku, inline: true }] : []),
-        { name: row.contactType === 'email' ? 'Buyer email' : 'Buyer phone', value: row.contactValue },
-      )
-      .setTimestamp();
-
-    await channel.send({ embeds: [embed] });
-    return true;
-  } catch (err) {
-    console.error('Failed to post Discord listing-interest alert:', err.message);
-    return false;
-  }
-}
-
 function isConfigured() {
   return Boolean(BOT_TOKEN && CHANNEL_ID);
 }
 
-module.exports = { init, postInterestAlert, postListingInterestAlert, isConfigured };
+module.exports = { init, postInterestAlert, isConfigured };

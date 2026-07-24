@@ -665,12 +665,20 @@ body {
 }
 
 .seller-listing-form input,
-.seller-listing-form textarea {
+.seller-listing-form textarea,
+.seller-listing-form select {
   padding: 0.5rem 0.6rem;
   border-radius: 8px;
   border: 1px solid var(--border);
   font-size: 0.9rem;
   font-family: inherit;
+}
+
+.fee-preview {
+  margin: -0.25rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: italic;
 }
 
 .seller-listings {

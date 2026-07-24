@@ -151,20 +151,33 @@ interest at a fixed price — no offers/negotiation.
   a random anonymous display name like "QuietOtter482"), or log back in with
   the same key + password. Authenticated sellers can add listings
   (description, optional SKU, optional image URL — a pasted stock-photo link,
-  not a file upload — and price) and mark their own listings sold.
+  not a file upload — quantity available 1-10, and price per unit) and mark
+  their own listings sold.
 - **Sessions**: a custom lightweight token stored in the `seller_sessions`
   table (not `express-session`), so sellers stay logged in across redeploys
   since it's backed by the same persistent disk as everything else. 30-day
   expiry. Passwords are hashed with `bcryptjs`.
+- **Fee model**: `FEE_RATE = 0.03` in `marketplace.js`. Sellers see a live
+  "you'll receive $X per unit after the 3% fee" preview while typing a price
+  (price × 0.97). Buyers pick a quantity (capped at the seller's stock, max
+  10) and see a live "you'll pay $X total (incl. 3% fee)" preview
+  (price × quantity × 1.03). Note this is **3% deducted from the seller and
+  3% added for the buyer independently** (a 6% total spread) — different
+  from the flat 1.5%+1.5%=3% combined fee described on the Terms page for
+  release preorders. Reconcile that copy if the two are meant to match.
 - **Public marketplace**: `/marketplace.html` lists all active listings;
-  buyers register interest (email/phone, no quantity) at the seller's listed
-  price. This posts a "🛒 New marketplace interest" Discord alert (same
-  webhook/bot as release registrations) so you can manually facilitate the
-  sale — there's no automated checkout here either.
+  buyers register interest (email/phone + quantity) at the seller's listed
+  price, no offers/negotiation. This posts a "🛒 New marketplace interest"
+  alert to its own dedicated `MARKETPLACE_DISCORD_WEBHOOK_URL` — separate
+  from the release-interest bot/webhook — so you can manually facilitate
+  the sale. No automated checkout here either.
 - Pricing guidance (shown on the seller dashboard) asks sellers to price
   below the lowest active eBay listing for the same item — this is **not
   programmatically enforced** (no eBay API integration), it's an honor-system
-  disclosure, same spirit as the 3%-fee-vs-eBay's-13% framing in the Terms page.
+  disclosure.
+- **Admin key generation**: `POST /api/seller/admin/generate-keys` (header
+  `x-admin-secret: <ADMIN_SECRET>`, body `{"count": N}`) mints new invite
+  keys directly against the live database — no host shell access needed.
 
 ## Analytics
 

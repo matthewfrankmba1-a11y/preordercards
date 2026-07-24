@@ -1,3 +1,5 @@
+const FEE_RATE = 0.03;
+
 const listingsEl = document.getElementById('listings');
 const statusEl = document.getElementById('status');
 const cardTemplate = document.getElementById('listing-card-template');
@@ -48,10 +50,28 @@ function buildCard(listing) {
 
   card.querySelector('.card-title').textContent = listing.description;
   card.querySelector('.listing-sku').textContent = listing.sku ? `SKU: ${listing.sku}` : '';
-  card.querySelector('.listing-price').textContent = `$${Number(listing.price).toFixed(2)}`;
+  card.querySelector('.listing-price').textContent = `$${Number(listing.price).toFixed(2)} each`;
   card.querySelector('.listing-seller').textContent = `Seller: ${listing.sellerName}`;
 
   const form = card.querySelector('.listing-interest-form');
+  const quantitySelect = form.querySelector('.listing-quantity-select');
+  const totalPreview = form.querySelector('.listing-total-preview');
+  const maxQty = Math.min(10, listing.quantity);
+  for (let i = 1; i <= maxQty; i++) {
+    const opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = i === 1 ? '1 item' : `${i} items`;
+    quantitySelect.appendChild(opt);
+  }
+
+  function updateTotalPreview() {
+    const qty = Number(quantitySelect.value) || 1;
+    const total = listing.price * qty * (1 + FEE_RATE);
+    totalPreview.textContent = `You'll pay $${total.toFixed(2)} total (incl. 3% fee).`;
+  }
+  quantitySelect.addEventListener('change', updateTotalPreview);
+  updateTotalPreview();
+
   const toggleBtns = form.querySelectorAll('.toggle-btn');
   const input = form.querySelector('.contact-input');
   const message = form.querySelector('.form-message');
@@ -88,7 +108,12 @@ function buildCard(listing) {
       const res = await fetch('/api/listing-interest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ listingId: listing.id, contactType, contactValue: value }),
+        body: JSON.stringify({
+          listingId: listing.id,
+          contactType,
+          contactValue: value,
+          quantity: Number(quantitySelect.value),
+        }),
       });
       const data = await res.json();
       if (!res.ok) {

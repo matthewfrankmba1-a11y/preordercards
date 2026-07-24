@@ -1,7 +1,31 @@
+const FEE_RATE = 0.03;
+
 const statusEl = document.getElementById('status');
 const authSection = document.getElementById('auth-section');
 const dashboardSection = document.getElementById('dashboard-section');
 const sellerNameEl = document.getElementById('seller-name');
+
+const listingQuantitySelect = document.getElementById('listing-quantity');
+for (let i = 1; i <= 10; i++) {
+  const opt = document.createElement('option');
+  opt.value = String(i);
+  opt.textContent = i === 1 ? '1 item' : `${i} items`;
+  listingQuantitySelect.appendChild(opt);
+}
+
+const listingPriceInput = document.getElementById('listing-price');
+const listingFeePreview = document.getElementById('listing-fee-preview');
+
+function updateFeePreview() {
+  const price = Number(listingPriceInput.value);
+  if (!price || price <= 0) {
+    listingFeePreview.textContent = '';
+    return;
+  }
+  const net = price * (1 - FEE_RATE);
+  listingFeePreview.textContent = `You'll receive $${net.toFixed(2)} per unit after the 3% fee.`;
+}
+listingPriceInput.addEventListener('input', updateFeePreview);
 
 const tabBtns = document.querySelectorAll('.seller-tab-btn');
 const loginForm = document.getElementById('login-form');
@@ -113,7 +137,8 @@ listingForm.addEventListener('submit', async (e) => {
   const description = document.getElementById('listing-description').value.trim();
   const sku = document.getElementById('listing-sku').value.trim();
   const imageUrl = document.getElementById('listing-image').value.trim();
-  const price = document.getElementById('listing-price').value;
+  const price = listingPriceInput.value;
+  const quantity = listingQuantitySelect.value;
   const message = document.getElementById('listing-message');
   message.textContent = 'Adding listing...';
   message.className = 'form-message';
@@ -122,7 +147,13 @@ listingForm.addEventListener('submit', async (e) => {
     const res = await fetch('/api/seller/listings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description, sku: sku || undefined, imageUrl: imageUrl || undefined, price: Number(price) }),
+      body: JSON.stringify({
+        description,
+        sku: sku || undefined,
+        imageUrl: imageUrl || undefined,
+        price: Number(price),
+        quantity: Number(quantity),
+      }),
     });
     const data = await res.json();
     if (!res.ok) {
@@ -131,6 +162,7 @@ listingForm.addEventListener('submit', async (e) => {
     }
     showMessage(message, 'Listing added!', false);
     listingForm.reset();
+    listingFeePreview.textContent = '';
     loadMyListings();
   } catch (err) {
     showMessage(message, 'Network error. Please try again.', true);
@@ -174,8 +206,13 @@ function buildListingCard(listing) {
 
   const price = document.createElement('p');
   price.className = 'card-date';
-  price.textContent = `$${Number(listing.price).toFixed(2)}`;
+  price.textContent = `$${Number(listing.price).toFixed(2)} each — you receive $${(Number(listing.price) * (1 - FEE_RATE)).toFixed(2)} each after fee`;
   card.appendChild(price);
+
+  const qty = document.createElement('p');
+  qty.className = 'card-desc';
+  qty.textContent = `Quantity: ${listing.quantity}`;
+  card.appendChild(qty);
 
   const status = document.createElement('p');
   status.className = 'card-desc';
