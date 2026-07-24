@@ -224,6 +224,22 @@ const deleteListingInterestsByListing = db.prepare(`DELETE FROM listing_interest
 
 const deleteListingByIdAdmin = db.prepare(`DELETE FROM listings WHERE id = ?`);
 
+// --- Admin: revoke a seller (and their key) entirely ---
+
+const countListingsBySeller = db.prepare(`SELECT COUNT(*) AS c FROM listings WHERE seller_id = ?`);
+
+const deleteListingInterestsBySeller = db.prepare(`
+  DELETE FROM listing_interests WHERE listing_id IN (SELECT id FROM listings WHERE seller_id = ?)
+`);
+
+const deleteListingsBySeller = db.prepare(`DELETE FROM listings WHERE seller_id = ?`);
+
+const deleteSessionsBySeller = db.prepare(`DELETE FROM seller_sessions WHERE seller_id = ?`);
+
+const deleteSellerById = db.prepare(`DELETE FROM sellers WHERE id = ?`);
+
+const deleteInviteKeyByCode = db.prepare(`DELETE FROM seller_invite_keys WHERE key_code = ?`);
+
 module.exports = {
   db,
   upsertInterest,
@@ -253,4 +269,10 @@ module.exports = {
   getAllListingsAdmin,
   deleteListingInterestsByListing,
   deleteListingByIdAdmin,
+  countListingsBySeller,
+  deleteListingInterestsBySeller,
+  deleteListingsBySeller,
+  deleteSessionsBySeller,
+  deleteSellerById,
+  deleteInviteKeyByCode,
 };

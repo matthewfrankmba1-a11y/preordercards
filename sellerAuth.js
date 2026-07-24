@@ -13,6 +13,12 @@ const {
   countSuperKeys,
   updateSellerEmail,
   listInviteKeysWithAlias,
+  countListingsBySeller,
+  deleteListingInterestsBySeller,
+  deleteListingsBySeller,
+  deleteSessionsBySeller,
+  deleteSellerById,
+  deleteInviteKeyByCode,
 } = require('./db');
 
 const SESSION_COOKIE = 'seller_session';
@@ -226,6 +232,52 @@ router.get('/admin/keys', (req, res) => {
     return res.status(403).json({ error: 'Forbidden.' });
   }
   res.json({ keys: listInviteKeysWithAlias.all() });
+});
+
+// Read-only: look up a key + its seller (if used) and their listing count,
+// so the admin can decide what a revoke would affect before doing it.
+router.get('/admin/lookup-key', (req, res) => {
+  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
+    return res.status(403).json({ error: 'Forbidden.' });
+  }
+  const keyCode = String(req.query.key || '').trim().toUpperCase();
+  const keyRow = getInviteKey.get(keyCode);
+  if (!keyRow) return res.status(404).json({ error: 'Key not found.' });
+
+  const seller = keyRow.used_by_seller_id ? getSellerByInviteKey.get(keyCode) : null;
+  res.json({
+    keyCode,
+    keyType: keyRow.key_type,
+    used: Boolean(keyRow.used),
+    alias: seller ? seller.display_name : null,
+    listingCount: seller ? countListingsBySeller.get(seller.id).c : 0,
+  });
+});
+
+// Permanently revokes a key: deletes the seller account it created (if any),
+// their listings, listing interests, and sessions, then deletes the key
+// itself. Irreversible — meant to be called after the admin has confirmed
+// what it will affect via /admin/lookup-key.
+router.post('/admin/revoke-key', (req, res) => {
+  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
+    return res.status(403).json({ error: 'Forbidden.' });
+  }
+  const keyCode = String(req.body?.keyCode || '').trim().toUpperCase();
+  const keyRow = getInviteKey.get(keyCode);
+  if (!keyRow) return res.status(404).json({ error: 'Key not found.' });
+
+  const seller = keyRow.used_by_seller_id ? getSellerByInviteKey.get(keyCode) : null;
+  let removedListings = 0;
+  if (seller) {
+    removedListings = countListingsBySeller.get(seller.id).c;
+    deleteListingInterestsBySeller.run(seller.id);
+    deleteListingsBySeller.run(seller.id);
+    deleteSessionsBySeller.run(seller.id);
+    deleteSellerById.run(seller.id);
+  }
+  deleteInviteKeyByCode.run(keyCode);
+
+  res.json({ success: true, hadSeller: Boolean(seller), alias: seller ? seller.display_name : null, removedListings });
 });
 
 // Lets new (regular) invite keys be minted against the live database without
