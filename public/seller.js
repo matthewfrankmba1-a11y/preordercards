@@ -1,4 +1,5 @@
 const FEE_RATE = 0.025;
+const SHIPPING_FEE = 6;
 
 const statusEl = document.getElementById('status');
 const authSection = document.getElementById('auth-section');
@@ -23,7 +24,7 @@ function updateFeePreview() {
     return;
   }
   const net = price * (1 - FEE_RATE);
-  listingFeePreview.textContent = `You'll receive $${net.toFixed(2)} per unit after the 2.5% fee.`;
+  listingFeePreview.textContent = `You'll receive $${net.toFixed(2)} per unit after the 2.5% fee, minus a flat $6 shipping-label fee deducted once per completed sale (not per unit).`;
 }
 listingPriceInput.addEventListener('input', updateFeePreview);
 
@@ -315,6 +316,54 @@ function buildAdminListingCard(listing) {
   status.className = 'card-desc';
   status.textContent = listing.status === 'sold' ? 'Sold' : 'Active';
   card.appendChild(status);
+
+  const labelForm = document.createElement('form');
+  labelForm.className = 'admin-label-form';
+
+  const labelInput = document.createElement('input');
+  labelInput.type = 'file';
+  labelInput.accept = 'application/pdf,image/png,image/jpeg';
+  labelForm.appendChild(labelInput);
+
+  const labelBtn = document.createElement('button');
+  labelBtn.type = 'submit';
+  labelBtn.className = 'stock-toggle-btn';
+  labelBtn.textContent = 'Send Shipping Label';
+  labelForm.appendChild(labelBtn);
+
+  const labelMsg = document.createElement('p');
+  labelMsg.className = 'form-message';
+  labelForm.appendChild(labelMsg);
+
+  labelForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!labelInput.files.length) {
+      showMessage(labelMsg, 'Choose a file first.', true);
+      return;
+    }
+    showMessage(labelMsg, 'Sending...', false);
+    labelBtn.disabled = true;
+    const formData = new FormData();
+    formData.append('label', labelInput.files[0]);
+    try {
+      const res = await fetch(`/api/seller/admin/listings/${listing.id}/shipping-label`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showMessage(labelMsg, data.error || 'Failed to send label.', true);
+        return;
+      }
+      showMessage(labelMsg, 'Shipping label emailed to the seller!', false);
+      labelForm.reset();
+    } catch (err) {
+      showMessage(labelMsg, 'Network error. Please try again.', true);
+    } finally {
+      labelBtn.disabled = false;
+    }
+  });
+  card.appendChild(labelForm);
 
   const removeBtn = document.createElement('button');
   removeBtn.type = 'button';

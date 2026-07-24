@@ -157,21 +157,33 @@ interest at a fixed price — no offers/negotiation.
   table (not `express-session`), so sellers stay logged in across redeploys
   since it's backed by the same persistent disk as everything else. 30-day
   expiry. Passwords are hashed with `bcryptjs`.
-- **Fee model**: `FEE_RATE = 0.025` in `marketplace.js` (also mirrored in
-  `public/seller.js` and `public/marketplace.js` for live previews — keep
-  all three in sync if this changes again). Sellers see a live "you'll
-  receive $X per unit after the 2.5% fee" preview while typing a price
-  (price × 0.975). Buyers pick a quantity (capped at the seller's stock,
-  max 10) and see a live "you'll pay $X total (incl. 2.5% fee)" preview
-  (price × quantity × 1.025). This is **2.5% deducted from the seller and
-  2.5% added for the buyer independently** (a 5% total spread), matching
-  the fee described on the Terms page (`public/terms.html`, section 5) —
-  keep both in sync if the rate changes again.
+- **Fee model**: `FEE_RATE = 0.025` and `SHIPPING_FEE = 6` in
+  `marketplace.js` (both mirrored in `public/seller.js` and
+  `public/marketplace.js` for live previews — keep all three in sync if
+  either changes again). Sellers see a live "you'll receive $X per unit
+  after the 2.5% fee, minus a flat $6 shipping-label fee deducted once per
+  completed sale" preview while typing a price. Buyers pick a quantity
+  (capped at the seller's stock, max 10) and see a live "you'll pay $X
+  total (incl. 2.5% fee + $6 shipping)" preview
+  (price × quantity × 1.025 + 6). This is **2.5% + a flat $6 deducted from
+  the seller and 2.5% + a flat $6 added for the buyer independently**,
+  matching the fee described on the Terms page (`public/terms.html`,
+  section 5) — keep both in sync if the rate changes again. The $6 is a
+  flat per-sale amount (covers one shipping label), not per unit.
 - **Marketplace Discord alert**: the "🛒 New marketplace interest" embed
   shows both sides of the transaction so the admin can facilitate payment
   without digging through the database — buyer contact (email/phone),
   seller's alert email (if they've set one, else "Not set"), what the
-  buyer pays including the fee, and what the seller receives after the fee.
+  buyer pays including fees, and what the seller receives after fees.
+- **Shipping labels**: on the admin dashboard, each listing in "Admin: All
+  Listings" has a file upload + "Send Shipping Label" button
+  (`POST /api/seller/admin/listings/:id/shipping-label`, `multipart/form-data`,
+  field name `label`, PDF/PNG/JPEG only, 5MB max). It emails the uploaded
+  file as an attachment directly to that listing's seller (requires the
+  seller to have an alert email on file — returns a 400 if not). Unlike
+  the generic interest alert, this is a deliberate manual admin action, so
+  the label can legitimately carry the buyer's shipping address on it —
+  the admin prepares it (e.g. via a carrier) before uploading.
 - **Public marketplace**: `/marketplace.html` lists all active listings;
   buyers register interest (email/phone + quantity) at the seller's listed
   price, no offers/negotiation. This posts a "🛒 New marketplace interest"

@@ -1,4 +1,5 @@
 const express = require('express');
+const multer = require('multer');
 const {
   insertListing,
   getListingsBySeller,
@@ -22,9 +23,15 @@ function requireAdmin(req, res, next) {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const FEE_RATE = 0.025;
+const SHIPPING_FEE = 6;
 const MARKETPLACE_WEBHOOK_URL = process.env.MARKETPLACE_DISCORD_WEBHOOK_URL;
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const EMAIL_FROM = process.env.EMAIL_FROM || 'PreorderCards <admin@preordercards.com>';
+const LABEL_MIME_TYPES = new Set(['application/pdf', 'image/png', 'image/jpeg']);
+const uploadLabel = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
 
 function normalizePhone(value) {
   const trimmed = value.trim();
@@ -39,8 +46,8 @@ function normalizePhone(value) {
 async function notifyMarketplaceDiscord(listing, row) {
   if (!MARKETPLACE_WEBHOOK_URL) return;
   const total = listing.price * row.quantity;
-  const buyerPays = total * (1 + FEE_RATE);
-  const sellerReceives = total * (1 - FEE_RATE);
+  const buyerPays = total * (1 + FEE_RATE) + SHIPPING_FEE;
+  const sellerReceives = total * (1 - FEE_RATE) - SHIPPING_FEE;
   try {
     await fetch(MARKETPLACE_WEBHOOK_URL, {
       method: 'POST',
@@ -59,8 +66,8 @@ async function notifyMarketplaceDiscord(listing, row) {
               ...(listing.sku ? [{ name: 'SKU', value: listing.sku, inline: true }] : []),
               { name: row.contactType === 'email' ? 'Buyer email' : 'Buyer phone', value: row.contactValue },
               { name: 'Seller email', value: listing.sellerEmail || 'Not set', inline: true },
-              { name: 'Buyer pays (incl. 2.5% fee)', value: `$${buyerPays.toFixed(2)}`, inline: true },
-              { name: 'Seller receives (after 2.5% fee)', value: `$${sellerReceives.toFixed(2)}`, inline: true },
+              { name: 'Buyer pays (incl. 2.5% fee + $6 shipping)', value: `$${buyerPays.toFixed(2)}`, inline: true },
+              { name: 'Seller receives (after 2.5% fee + $6 shipping)', value: `$${sellerReceives.toFixed(2)}`, inline: true },
             ],
             timestamp: new Date().toISOString(),
           },
@@ -192,6 +199,79 @@ router.post('/seller/admin/listings/:id/remove', requireSellerAuth, requireAdmin
   res.json({ success: true });
 });
 
+// Emails a shipping label (uploaded by the admin, e.g. purchased via a
+// carrier) directly to the listing's seller as an attachment. The label
+// legitimately contains the buyer's shipping address — unlike the generic
+// interest alert, this is a deliberate, manual admin action, not automated.
+router.post(
+  '/seller/admin/listings/:id/shipping-label',
+  requireSellerAuth,
+  requireAdmin,
+  (req, res, next) => {
+    uploadLabel.single('label')(req, res, (err) => {
+      if (err) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({ error: 'File is too large (max 5MB).' });
+        }
+        return res.status(400).json({ error: 'Upload failed.' });
+      }
+      next();
+    });
+  },
+  async (req, res) => {
+    const id = Number(req.params.id);
+    const listing = getListingById.get(id);
+    if (!listing) {
+      return res.status(404).json({ error: 'Listing not found.' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded.' });
+    }
+    if (!LABEL_MIME_TYPES.has(req.file.mimetype)) {
+      return res.status(400).json({ error: 'File must be a PDF, PNG, or JPEG.' });
+    }
+
+    const seller = getSellerById.get(listing.seller_id);
+    if (!seller || !seller.email) {
+      return res.status(400).json({ error: 'This seller has no alert email on file — ask them to set one on their dashboard first.' });
+    }
+    if (!RESEND_API_KEY) {
+      return res.status(500).json({ error: 'Email sending is not configured.' });
+    }
+
+    try {
+      const emailRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: EMAIL_FROM,
+          to: [seller.email],
+          subject: `Shipping label for your listing: ${listing.description}`,
+          text: `Attached is the shipping label for your listing "${listing.description}". Please print it, attach it to the package, and ship as soon as possible.\n\n— PreorderCards`,
+          attachments: [
+            {
+              filename: req.file.originalname || 'shipping-label',
+              content: req.file.buffer.toString('base64'),
+            },
+          ],
+        }),
+      });
+      if (!emailRes.ok) {
+        const body = await emailRes.text();
+        console.error('Shipping label email failed:', emailRes.status, body);
+        return res.status(502).json({ error: 'Failed to send the shipping label email.' });
+      }
+      res.json({ success: true });
+    } catch (err) {
+      console.error('Shipping label email failed:', err.message);
+      res.status(502).json({ error: 'Failed to send the shipping label email.' });
+    }
+  }
+);
+
 // --- Public ---
 
 router.get('/marketplace', (req, res) => {
@@ -250,7 +330,7 @@ router.post('/listing-interest', rateLimit, (req, res) => {
   );
   sendSellerAlertEmail(seller, listing, quantityNum);
 
-  const buyerPays = listing.price * quantityNum * (1 + FEE_RATE);
+  const buyerPays = listing.price * quantityNum * (1 + FEE_RATE) + SHIPPING_FEE;
   res.status(201).json({ success: true, buyerPays: Math.round(buyerPays * 100) / 100 });
 });
 
