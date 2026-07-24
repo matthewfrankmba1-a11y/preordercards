@@ -49,6 +49,11 @@
           <span class="form-label">Create Password</span>
           <input type="password" id="signup-password" placeholder="At least 8 characters" autocomplete="new-password" required />
         </label>
+        <label class="form-field">
+          <span class="form-label">Alert Email (optional)</span>
+          <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email" />
+        </label>
+        <p class="card-desc">Get a notification when a listing of yours gets interest — no buyer contact info is shared, that stays with us.</p>
         <button type="submit" class="notify-btn">Create Seller Account</button>
         <p class="form-message" id="signup-message"></p>
       </form>
@@ -66,6 +71,17 @@
         top of what the buyer pays — versus eBay's roughly 13%, so buyers should always find
         a better price here. Items must be factory sealed.
       </div>
+
+      <form id="email-form" class="seller-listing-form">
+        <h3>Alert Email</h3>
+        <p class="card-desc">Get notified when one of your listings gets interest. No buyer contact info is included — that stays with us. Leave blank and save to remove it.</p>
+        <label class="form-field">
+          <span class="form-label">Email</span>
+          <input type="email" id="alert-email" placeholder="you@example.com" />
+        </label>
+        <button type="submit" class="notify-btn">Save Email</button>
+        <p class="form-message" id="email-message"></p>
+      </form>
 
       <form id="listing-form" class="seller-listing-form">
         <h3>New Listing</h3>

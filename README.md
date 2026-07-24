@@ -175,6 +175,17 @@ interest at a fixed price — no offers/negotiation.
   below the lowest active eBay listing for the same item — this is **not
   programmatically enforced** (no eBay API integration), it's an honor-system
   disclosure.
+- **Seller alert emails**: sellers can optionally set a contact email (at
+  signup, or later via the "Alert Email" form on the dashboard, `POST
+  /api/seller/email`) — login always stays key + password, this is a
+  notification address only, never a credential. When a buyer registers
+  interest in one of their listings, they get a **generic** email via Resend
+  ("someone registered interest in your listing... quantity N") — it
+  deliberately never includes the buyer's email/phone, so the admin stays
+  the go-between for actually facilitating the sale, same as the Discord
+  alert. Sending is fire-and-forget and fails silently (logged
+  server-side) if `RESEND_API_KEY` isn't set or the send errors, so it can
+  never block a buyer's interest registration from succeeding.
 - **Admin key generation**: `POST /api/seller/admin/generate-keys` (header
   `x-admin-secret: <ADMIN_SECRET>`, body `{"count": N}`) mints new regular
   invite keys directly against the live database — no host shell access needed.

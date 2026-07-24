@@ -23,6 +23,8 @@ function requireAdmin(req, res, next) {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const FEE_RATE = 0.03;
 const MARKETPLACE_WEBHOOK_URL = process.env.MARKETPLACE_DISCORD_WEBHOOK_URL;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const EMAIL_FROM = process.env.EMAIL_FROM || 'PreorderCards <admin@preordercards.com>';
 
 function normalizePhone(value) {
   const trimmed = value.trim();
@@ -64,6 +66,34 @@ async function notifyMarketplaceDiscord(listing, row) {
     });
   } catch (err) {
     console.error('Marketplace Discord webhook failed:', err.message);
+  }
+}
+
+// Fire-and-forget email to the seller when their listing gets interest.
+// Deliberately generic — never includes the buyer's email/phone. The admin
+// stays the go-between for actually facilitating the sale, same as Discord.
+async function sendSellerAlertEmail(seller, listing, quantity) {
+  if (!seller || !seller.email || !RESEND_API_KEY) return;
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: [seller.email],
+        subject: 'Someone registered interest in your listing',
+        text: `Good news — someone registered interest in your listing "${listing.description}" (quantity: ${quantity}).\n\nWe'll be in touch to help facilitate the sale.\n\n— PreorderCards`,
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      console.error('Seller alert email failed:', res.status, body);
+    }
+  } catch (err) {
+    console.error('Seller alert email failed:', err.message);
   }
 }
 
@@ -215,6 +245,7 @@ router.post('/listing-interest', rateLimit, (req, res) => {
     { ...listing, sellerName: seller ? seller.display_name : 'Unknown seller' },
     { contactType, contactValue: normalizedValue, quantity: quantityNum }
   );
+  sendSellerAlertEmail(seller, listing, quantityNum);
 
   const buyerPays = listing.price * quantityNum * (1 + FEE_RATE);
   res.status(201).json({ success: true, buyerPays: Math.round(buyerPays * 100) / 100 });

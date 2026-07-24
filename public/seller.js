@@ -51,7 +51,7 @@ async function checkSession() {
     const res = await fetch('/api/seller/me');
     if (res.ok) {
       const data = await res.json();
-      showDashboard(data.displayName, data.isAdmin);
+      showDashboard(data.displayName, data.isAdmin, data.email);
       loadMyListings();
       if (data.isAdmin) loadAdminListings();
     } else {
@@ -62,11 +62,12 @@ async function checkSession() {
   }
 }
 
-function showDashboard(displayName, isAdmin) {
+function showDashboard(displayName, isAdmin, email) {
   sellerNameEl.textContent = displayName + (isAdmin ? ' (Admin)' : '');
   authSection.hidden = true;
   dashboardSection.hidden = false;
   document.getElementById('admin-section').hidden = !isAdmin;
+  document.getElementById('alert-email').value = email || '';
 }
 
 function showAuth() {
@@ -94,7 +95,7 @@ loginForm.addEventListener('submit', async (e) => {
       return;
     }
     showMessage(message, 'Logged in!', false);
-    showDashboard(data.displayName, data.isAdmin);
+    showDashboard(data.displayName, data.isAdmin, data.email);
     loadMyListings();
     if (data.isAdmin) loadAdminListings();
   } catch (err) {
@@ -106,6 +107,7 @@ signupForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const key = document.getElementById('signup-key').value.trim();
   const password = document.getElementById('signup-password').value;
+  const email = document.getElementById('signup-email').value.trim();
   const message = document.getElementById('signup-message');
   message.textContent = 'Creating account...';
   message.className = 'form-message';
@@ -114,7 +116,7 @@ signupForm.addEventListener('submit', async (e) => {
     const res = await fetch('/api/seller/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, password }),
+      body: JSON.stringify({ key, password, email: email || undefined }),
     });
     const data = await res.json();
     if (!res.ok) {
@@ -122,9 +124,34 @@ signupForm.addEventListener('submit', async (e) => {
       return;
     }
     showMessage(message, 'Account created!', false);
-    showDashboard(data.displayName, data.isAdmin);
+    showDashboard(data.displayName, data.isAdmin, data.email);
     loadMyListings();
     if (data.isAdmin) loadAdminListings();
+  } catch (err) {
+    showMessage(message, 'Network error. Please try again.', true);
+  }
+});
+
+const emailForm = document.getElementById('email-form');
+emailForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('alert-email').value.trim();
+  const message = document.getElementById('email-message');
+  message.textContent = 'Saving...';
+  message.className = 'form-message';
+
+  try {
+    const res = await fetch('/api/seller/email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email || undefined }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showMessage(message, data.error || 'Could not save email.', true);
+      return;
+    }
+    showMessage(message, data.email ? 'Alert email saved!' : 'Alert email removed.', false);
   } catch (err) {
     showMessage(message, 'Network error. Please try again.', true);
   }

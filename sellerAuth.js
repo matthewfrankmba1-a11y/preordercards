@@ -11,12 +11,14 @@ const {
   deleteSession,
   insertInviteKey,
   countSuperKeys,
+  updateSellerEmail,
 } = require('./db');
 
 const SESSION_COOKIE = 'seller_session';
 const SESSION_DAYS = 30;
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 const KEY_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I to avoid confusion
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function generateInviteKeyCode() {
   const groups = [];
@@ -97,7 +99,12 @@ function requireSellerAuth(req, res, next) {
   if (!session || new Date(session.expiresAt) < new Date()) {
     return res.status(401).json({ error: 'Session expired. Please log in again.' });
   }
-  req.seller = { id: session.sellerId, displayName: session.displayName, isAdmin: Boolean(session.isAdmin) };
+  req.seller = {
+    id: session.sellerId,
+    displayName: session.displayName,
+    isAdmin: Boolean(session.isAdmin),
+    email: session.email,
+  };
   next();
 }
 
@@ -122,12 +129,20 @@ function rateLimit(req, res, next) {
 const router = express.Router();
 
 router.post('/signup', rateLimit, (req, res) => {
-  const { key, password } = req.body || {};
+  const { key, password, email } = req.body || {};
   if (typeof key !== 'string' || typeof password !== 'string') {
     return res.status(400).json({ error: 'Missing key or password.' });
   }
   if (password.length < 8) {
     return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+  }
+
+  let normalizedEmail = null;
+  if (email) {
+    normalizedEmail = String(email).trim().toLowerCase();
+    if (!EMAIL_RE.test(normalizedEmail) || normalizedEmail.length > 254) {
+      return res.status(400).json({ error: 'Enter a valid email address, or leave it blank.' });
+    }
   }
 
   const normalizedKey = key.trim().toUpperCase();
@@ -138,11 +153,17 @@ router.post('/signup', rateLimit, (req, res) => {
   const isAdmin = keyRow.key_type === 'admin';
   const passwordHash = bcrypt.hashSync(password, 10);
   const displayName = generateSellerName();
-  const result = insertSeller.run({ inviteKey: normalizedKey, passwordHash, displayName, isAdmin: isAdmin ? 1 : 0 });
+  const result = insertSeller.run({
+    inviteKey: normalizedKey,
+    passwordHash,
+    displayName,
+    isAdmin: isAdmin ? 1 : 0,
+    email: normalizedEmail,
+  });
   markInviteKeyUsed.run({ sellerId: result.lastInsertRowid, keyCode: normalizedKey });
 
   issueSession(res, result.lastInsertRowid);
-  res.status(201).json({ success: true, displayName, isAdmin });
+  res.status(201).json({ success: true, displayName, isAdmin, email: normalizedEmail });
 });
 
 router.post('/login', rateLimit, (req, res) => {
@@ -157,7 +178,12 @@ router.post('/login', rateLimit, (req, res) => {
   }
 
   issueSession(res, seller.id);
-  res.json({ success: true, displayName: seller.display_name, isAdmin: Boolean(seller.is_admin) });
+  res.json({
+    success: true,
+    displayName: seller.display_name,
+    isAdmin: Boolean(seller.is_admin),
+    email: seller.email,
+  });
 });
 
 router.post('/logout', (req, res) => {
@@ -169,7 +195,27 @@ router.post('/logout', (req, res) => {
 });
 
 router.get('/me', requireSellerAuth, (req, res) => {
-  res.json({ sellerId: req.seller.id, displayName: req.seller.displayName, isAdmin: req.seller.isAdmin });
+  res.json({
+    sellerId: req.seller.id,
+    displayName: req.seller.displayName,
+    isAdmin: req.seller.isAdmin,
+    email: req.seller.email,
+  });
+});
+
+// Sets or updates the seller's alert email — login stays key + password
+// always; this is purely a notification contact, not a credential.
+router.post('/email', requireSellerAuth, (req, res) => {
+  const { email } = req.body || {};
+  let normalizedEmail = null;
+  if (email) {
+    normalizedEmail = String(email).trim().toLowerCase();
+    if (!EMAIL_RE.test(normalizedEmail) || normalizedEmail.length > 254) {
+      return res.status(400).json({ error: 'Enter a valid email address, or leave it blank to remove it.' });
+    }
+  }
+  updateSellerEmail.run({ sellerId: req.seller.id, email: normalizedEmail });
+  res.json({ success: true, email: normalizedEmail });
 });
 
 // Lets new (regular) invite keys be minted against the live database without

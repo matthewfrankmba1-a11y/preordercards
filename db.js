@@ -79,6 +79,7 @@ db.exec(`
     password_hash TEXT NOT NULL,
     display_name TEXT NOT NULL,
     is_admin INTEGER NOT NULL DEFAULT 0,
+    email TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
 
@@ -128,6 +129,7 @@ addColumnIfMissing('listings', 'quantity', 'INTEGER NOT NULL DEFAULT 1');
 addColumnIfMissing('listing_interests', 'quantity', 'INTEGER NOT NULL DEFAULT 1');
 addColumnIfMissing('seller_invite_keys', 'key_type', "TEXT NOT NULL DEFAULT 'seller'");
 addColumnIfMissing('sellers', 'is_admin', 'INTEGER NOT NULL DEFAULT 0');
+addColumnIfMissing('sellers', 'email', 'TEXT');
 
 const insertInviteKey = db.prepare(`INSERT INTO seller_invite_keys (key_code, key_type) VALUES (@keyCode, @keyType)`);
 
@@ -145,13 +147,15 @@ const listInviteKeys = db.prepare(`
 `);
 
 const insertSeller = db.prepare(`
-  INSERT INTO sellers (invite_key, password_hash, display_name, is_admin)
-  VALUES (@inviteKey, @passwordHash, @displayName, @isAdmin)
+  INSERT INTO sellers (invite_key, password_hash, display_name, is_admin, email)
+  VALUES (@inviteKey, @passwordHash, @displayName, @isAdmin, @email)
 `);
 
 const getSellerByInviteKey = db.prepare(`SELECT * FROM sellers WHERE invite_key = ?`);
 
 const getSellerById = db.prepare(`SELECT * FROM sellers WHERE id = ?`);
+
+const updateSellerEmail = db.prepare(`UPDATE sellers SET email = @email WHERE id = @sellerId`);
 
 const insertSession = db.prepare(`
   INSERT INTO seller_sessions (token, seller_id, expires_at) VALUES (@token, @sellerId, @expiresAt)
@@ -159,7 +163,7 @@ const insertSession = db.prepare(`
 
 const getSession = db.prepare(`
   SELECT sess.token, sess.expires_at AS expiresAt, s.id AS sellerId, s.display_name AS displayName,
-         s.is_admin AS isAdmin
+         s.is_admin AS isAdmin, s.email AS email
   FROM seller_sessions sess
   JOIN sellers s ON s.id = sess.seller_id
   WHERE sess.token = ?
@@ -226,6 +230,7 @@ module.exports = {
   insertSeller,
   getSellerByInviteKey,
   getSellerById,
+  updateSellerEmail,
   insertSession,
   getSession,
   deleteSession,
