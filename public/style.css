@@ -39,7 +39,7 @@ body {
   align-items: flex-end;
   background: linear-gradient(135deg, var(--navy), var(--navy-light)), url('/images/banner.jpg');
   background-size: cover;
-  background-position: center;
+  background-position: center top;
   background-blend-mode: overlay;
   color: #fff;
 }
