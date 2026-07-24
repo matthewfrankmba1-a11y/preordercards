@@ -146,6 +146,14 @@ const listInviteKeys = db.prepare(`
   FROM seller_invite_keys ORDER BY id
 `);
 
+const listInviteKeysWithAlias = db.prepare(`
+  SELECT k.key_code AS keyCode, k.key_type AS keyType, k.used, k.created_at AS createdAt,
+         s.display_name AS alias
+  FROM seller_invite_keys k
+  LEFT JOIN sellers s ON s.id = k.used_by_seller_id
+  ORDER BY k.id
+`);
+
 const insertSeller = db.prepare(`
   INSERT INTO sellers (invite_key, password_hash, display_name, is_admin, email)
   VALUES (@inviteKey, @passwordHash, @displayName, @isAdmin, @email)
@@ -227,6 +235,7 @@ module.exports = {
   getInviteKey,
   markInviteKeyUsed,
   listInviteKeys,
+  listInviteKeysWithAlias,
   insertSeller,
   getSellerByInviteKey,
   getSellerById,

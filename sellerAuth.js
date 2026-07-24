@@ -12,6 +12,7 @@ const {
   insertInviteKey,
   countSuperKeys,
   updateSellerEmail,
+  listInviteKeysWithAlias,
 } = require('./db');
 
 const SESSION_COOKIE = 'seller_session';
@@ -216,6 +217,15 @@ router.post('/email', requireSellerAuth, (req, res) => {
   }
   updateSellerEmail.run({ sellerId: req.seller.id, email: normalizedEmail });
   res.json({ success: true, email: normalizedEmail });
+});
+
+// Read-only listing of every invite key ever generated, plus the real alias
+// (display_name) if it's been used to sign up — for admin record-keeping.
+router.get('/admin/keys', (req, res) => {
+  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
+    return res.status(403).json({ error: 'Forbidden.' });
+  }
+  res.json({ keys: listInviteKeysWithAlias.all() });
 });
 
 // Lets new (regular) invite keys be minted against the live database without
