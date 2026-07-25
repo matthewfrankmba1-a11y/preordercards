@@ -77,6 +77,15 @@ const markReminderSent = db.prepare(`
   UPDATE interests SET reminder_sent_at = @sentAt WHERE id = @id
 `);
 
+// Skips everyone else pending for a release without emailing them — used to
+// isolate a single test recipient before firing a real batch send.
+const markAllPendingRemindersSentExcept = db.prepare(`
+  UPDATE interests
+  SET reminder_sent_at = @sentAt
+  WHERE release_id = @releaseId AND contact_type = 'email' AND reminder_sent_at IS NULL
+    AND contact_value != @excludeContactValue
+`);
+
 const countByRelease = db.prepare(`
   SELECT release_id AS releaseId, COUNT(*) AS count
   FROM interests
@@ -342,6 +351,7 @@ module.exports = {
   markEmailSent,
   getPendingReminderInterestsByRelease,
   markReminderSent,
+  markAllPendingRemindersSentExcept,
   insertInviteKey,
   getInviteKey,
   markInviteKeyUsed,

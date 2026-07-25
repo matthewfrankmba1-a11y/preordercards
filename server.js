@@ -11,6 +11,7 @@ const {
   insertSlotSubmission,
   getPendingReminderInterestsByRelease,
   markReminderSent,
+  markAllPendingRemindersSentExcept,
 } = require('./db');
 const bot = require('./bot');
 const { runStatsSummary, startStatsSummarySchedule } = require('./statsSummary');
@@ -416,6 +417,25 @@ app.post('/api/admin/send-drop-reminder', async (req, res) => {
     }
   }
   res.json({ success: true, releaseId, releaseTitle: release.title, sent, failed, totalPending: pending.length });
+});
+
+// Skips everyone else pending for a release (marks reminded without
+// emailing) so a single address can be tested in isolation before firing
+// a real batch send to everyone.
+app.post('/api/admin/skip-drop-reminder-except', (req, res) => {
+  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
+    return res.status(403).json({ error: 'Forbidden.' });
+  }
+  const { releaseId, exceptContactValue } = req.body || {};
+  if (!releaseId || !exceptContactValue) {
+    return res.status(400).json({ error: 'Missing releaseId or exceptContactValue.' });
+  }
+  const result = markAllPendingRemindersSentExcept.run({
+    releaseId,
+    excludeContactValue: String(exceptContactValue).trim().toLowerCase(),
+    sentAt: new Date().toISOString(),
+  });
+  res.json({ success: true, skipped: result.changes });
 });
 
 bot.init({ loadReleases, sendConfirmationEmail });
