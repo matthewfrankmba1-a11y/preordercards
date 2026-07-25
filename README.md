@@ -130,6 +130,23 @@ appear for those.
   will show that error back to you in Discord (ephemeral reply).
 - `RESEND_API_KEY` is a secret — never commit it, same as the bot token.
 
+## admin@preordercards.com replies → Discord
+
+`admin@preordercards.com` forwards for free (via ImprovMX, DNS records at
+Namecheap) to a personal Gmail inbox — there's no separate mailbox or
+login, replies just land in that Gmail account like any other email.
+
+`scripts/gmail-admin-reply-discord-notify.gs` is a standalone Google
+Apps Script (bound to that Gmail account, not to any Form/Sheet) that
+checks for new unread mail every 5 minutes (`to:admin@preordercards.com
+is:unread`) and posts a "📧 New reply" alert to its own dedicated Discord
+webhook — From, Subject, and a truncated body preview — then marks the
+message read so it isn't re-posted next run. If the Discord post fails,
+the message is left unread so it's retried on the next pass. See the
+setup steps in the script's header comment (script.google.com → New
+Project → paste the file → add a time-driven trigger → authorize Gmail
+access when prompted).
+
 ## Success stories page
 
 `/success.html` shows a photo grid of order screenshots. Drop image files
