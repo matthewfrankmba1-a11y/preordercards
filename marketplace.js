@@ -133,6 +133,9 @@ const router = express.Router();
 // --- Seller-side (authenticated) ---
 
 router.post('/seller/listings', requireSellerAuth, (req, res) => {
+  if (!req.seller.profileComplete) {
+    return res.status(403).json({ error: 'Complete your seller profile (name, phone, and a payout method) before creating listings.' });
+  }
   const { description, sku, imageUrl, price, quantity } = req.body || {};
 
   if (typeof description !== 'string' || !description.trim()) {

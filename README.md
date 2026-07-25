@@ -184,6 +184,26 @@ interest at a fixed price — no offers/negotiation.
   seller's existing sessions are deleted, forcing a fresh login everywhere.
   Accounts with no alert email set can't self-serve a reset — the error
   message points them to `admin@preordercards.com`.
+- **Required seller profile (gates listing creation)**: right after key
+  signup, every account — regular seller or admin — lands on a "Complete
+  Your Seller Profile" screen instead of the normal dashboard until they
+  submit full name, phone number, and at least one of Venmo/CashApp/Zelle
+  (`POST /api/seller/profile`). This is enforced server-side too, not just
+  hidden in the UI — `POST /api/seller/listings` returns `403` if
+  `req.seller.profileComplete` is false, so it can't be bypassed by
+  calling the API directly. `GET /api/seller/me`, `/login`, and `/signup`
+  all return a `profileComplete` boolean the frontend uses to decide
+  which screen to show.
+- **Account recovery without a key**: `POST /api/seller/recover-account`
+  (body `{fullName, phone}`, matched via `findSellerByNamePhone` —
+  case-insensitive name, normalized phone) is for sellers who've lost
+  their invite key entirely, not just their password. Login needs the key
+  itself, so a plain password reset wouldn't help — this emails **both**
+  the account's invite key and a password-reset link to the alert email
+  on file, sharing the same token/expiry infrastructure as
+  `/forgot-password` via a common `issueAccountRecoveryEmail` /
+  `issuePasswordResetEmail` split. Same no-email-on-file limitation as
+  the password reset flow.
 - **Fee model**: `FEE_RATE = 0.025` and `shippingFee(quantity)` in
   `marketplace.js` (both mirrored in `public/seller.js` and
   `public/marketplace.js` for live previews — keep all three in sync if

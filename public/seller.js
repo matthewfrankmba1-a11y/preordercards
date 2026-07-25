@@ -39,6 +39,7 @@ const tabBtns = document.querySelectorAll('.seller-tab-btn');
 const loginForm = document.getElementById('login-form');
 const signupForm = document.getElementById('signup-form');
 const forgotPasswordForm = document.getElementById('forgot-password-form');
+const recoverAccountForm = document.getElementById('recover-account-form');
 
 tabBtns.forEach((btn) => {
   btn.addEventListener('click', () => {
@@ -48,6 +49,7 @@ tabBtns.forEach((btn) => {
     loginForm.hidden = tab !== 'login';
     signupForm.hidden = tab !== 'signup';
     forgotPasswordForm.hidden = true;
+    recoverAccountForm.hidden = true;
   });
 });
 
@@ -86,6 +88,41 @@ forgotPasswordForm.addEventListener('submit', async (e) => {
   }
 });
 
+document.getElementById('lost-key-link').addEventListener('click', () => {
+  forgotPasswordForm.hidden = true;
+  recoverAccountForm.hidden = false;
+});
+
+document.getElementById('recover-account-cancel').addEventListener('click', () => {
+  recoverAccountForm.hidden = true;
+  loginForm.hidden = false;
+});
+
+recoverAccountForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fullName = document.getElementById('recover-name').value.trim();
+  const phone = document.getElementById('recover-phone').value.trim();
+  const message = document.getElementById('recover-account-message');
+  message.textContent = 'Looking up your account...';
+  message.className = 'form-message';
+
+  try {
+    const res = await fetch('/api/seller/recover-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fullName, phone }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showMessage(message, data.error || 'Could not recover your account.', true);
+      return;
+    }
+    showMessage(message, data.message || 'Recovery email sent!', false);
+  } catch (err) {
+    showMessage(message, 'Network error. Please try again.', true);
+  }
+});
+
 function showMessage(el, text, isError) {
   el.textContent = text;
   el.className = 'form-message' + (isError ? ' error' : ' success');
@@ -96,7 +133,7 @@ async function checkSession() {
     const res = await fetch('/api/seller/me');
     if (res.ok) {
       const data = await res.json();
-      showDashboard(data.displayName, data.isAdmin, data.email);
+      showDashboard(data.displayName, data.isAdmin, data.email, data.profileComplete);
       loadMyListings();
       if (data.isAdmin) loadAdminListings();
     } else {
@@ -107,12 +144,14 @@ async function checkSession() {
   }
 }
 
-function showDashboard(displayName, isAdmin, email) {
+function showDashboard(displayName, isAdmin, email, profileComplete) {
   sellerNameEl.textContent = displayName + (isAdmin ? ' (Admin)' : '');
   authSection.hidden = true;
   dashboardSection.hidden = false;
   document.getElementById('admin-section').hidden = !isAdmin;
   document.getElementById('alert-email').value = email || '';
+  document.getElementById('profile-gate-section').hidden = Boolean(profileComplete);
+  document.getElementById('dashboard-main').hidden = !profileComplete;
 }
 
 function showAuth() {
@@ -140,7 +179,7 @@ loginForm.addEventListener('submit', async (e) => {
       return;
     }
     showMessage(message, 'Logged in!', false);
-    showDashboard(data.displayName, data.isAdmin, data.email);
+    showDashboard(data.displayName, data.isAdmin, data.email, data.profileComplete);
     loadMyListings();
     if (data.isAdmin) loadAdminListings();
   } catch (err) {
@@ -169,9 +208,45 @@ signupForm.addEventListener('submit', async (e) => {
       return;
     }
     showMessage(message, 'Account created!', false);
-    showDashboard(data.displayName, data.isAdmin, data.email);
+    showDashboard(data.displayName, data.isAdmin, data.email, data.profileComplete);
     loadMyListings();
     if (data.isAdmin) loadAdminListings();
+  } catch (err) {
+    showMessage(message, 'Network error. Please try again.', true);
+  }
+});
+
+const profileForm = document.getElementById('profile-form');
+profileForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fullName = document.getElementById('profile-name').value.trim();
+  const phone = document.getElementById('profile-phone').value.trim();
+  const venmo = document.getElementById('profile-venmo').value.trim();
+  const cashapp = document.getElementById('profile-cashapp').value.trim();
+  const zelle = document.getElementById('profile-zelle').value.trim();
+  const message = document.getElementById('profile-message');
+  message.textContent = 'Saving...';
+  message.className = 'form-message';
+
+  try {
+    const res = await fetch('/api/seller/profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName,
+        phone,
+        venmo: venmo || undefined,
+        cashapp: cashapp || undefined,
+        zelle: zelle || undefined,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showMessage(message, data.error || 'Could not save profile.', true);
+      return;
+    }
+    document.getElementById('profile-gate-section').hidden = true;
+    document.getElementById('dashboard-main').hidden = false;
   } catch (err) {
     showMessage(message, 'Network error. Please try again.', true);
   }

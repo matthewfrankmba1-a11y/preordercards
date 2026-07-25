@@ -13,6 +13,8 @@ const {
   countSuperKeys,
   updateSellerEmail,
   updateSellerPassword,
+  updateSellerProfile,
+  findSellerByNamePhone,
   insertPasswordReset,
   getPasswordReset,
   deletePasswordResetsBySeller,
@@ -33,6 +35,14 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const EMAIL_FROM = process.env.EMAIL_FROM || 'PreorderCards <admin@preordercards.com>';
 const SITE_URL = process.env.SITE_URL || 'https://preordercards.com';
+
+function normalizePhone(value) {
+  const trimmed = value.trim();
+  const hasPlus = trimmed.startsWith('+');
+  const digits = trimmed.replace(/\D/g, '');
+  if (digits.length < 10 || digits.length > 15) return null;
+  return (hasPlus ? '+' : '') + digits;
+}
 
 function generateInviteKeyCode() {
   const groups = [];
@@ -118,6 +128,7 @@ function requireSellerAuth(req, res, next) {
     displayName: session.displayName,
     isAdmin: Boolean(session.isAdmin),
     email: session.email,
+    profileComplete: Boolean(session.profileCompletedAt),
   };
   next();
 }
@@ -180,7 +191,7 @@ router.post('/signup', rateLimit, (req, res) => {
   markInviteKeyUsed.run({ sellerId: result.lastInsertRowid, keyCode: normalizedKey });
 
   issueSession(res, result.lastInsertRowid);
-  res.status(201).json({ success: true, displayName, isAdmin, email: normalizedEmail });
+  res.status(201).json({ success: true, displayName, isAdmin, email: normalizedEmail, profileComplete: false });
 });
 
 router.post('/login', rateLimit, (req, res) => {
@@ -200,6 +211,7 @@ router.post('/login', rateLimit, (req, res) => {
     displayName: seller.display_name,
     isAdmin: Boolean(seller.is_admin),
     email: seller.email,
+    profileComplete: Boolean(seller.profile_completed_at),
   });
 });
 
@@ -217,7 +229,52 @@ router.get('/me', requireSellerAuth, (req, res) => {
     displayName: req.seller.displayName,
     isAdmin: req.seller.isAdmin,
     email: req.seller.email,
+    profileComplete: req.seller.profileComplete,
   });
+});
+
+// Required before a seller can create any listings: full name, phone, and
+// at least one payout method (Venmo, CashApp, or Zelle). Also doubles as
+// the identifying info used by /recover-account if they lose their key.
+router.post('/profile', requireSellerAuth, (req, res) => {
+  const { fullName, phone, venmo, cashapp, zelle } = req.body || {};
+
+  if (typeof fullName !== 'string' || !fullName.trim()) {
+    return res.status(400).json({ error: 'Full name is required.' });
+  }
+  if (fullName.trim().length > 200) {
+    return res.status(400).json({ error: 'Full name is too long.' });
+  }
+  if (typeof phone !== 'string' || !phone.trim()) {
+    return res.status(400).json({ error: 'Phone number is required.' });
+  }
+  const normalizedPhone = normalizePhone(phone);
+  if (!normalizedPhone) {
+    return res.status(400).json({ error: 'Enter a valid phone number.' });
+  }
+
+  const trimmedVenmo = venmo ? String(venmo).trim() : '';
+  const trimmedCashapp = cashapp ? String(cashapp).trim() : '';
+  const trimmedZelle = zelle ? String(zelle).trim() : '';
+  if (!trimmedVenmo && !trimmedCashapp && !trimmedZelle) {
+    return res.status(400).json({ error: 'Provide at least one of Venmo, CashApp, or Zelle.' });
+  }
+  for (const [label, value] of [['Venmo', trimmedVenmo], ['CashApp', trimmedCashapp], ['Zelle', trimmedZelle]]) {
+    if (value.length > 100) {
+      return res.status(400).json({ error: `${label} is too long (max 100 characters).` });
+    }
+  }
+
+  updateSellerProfile.run({
+    sellerId: req.seller.id,
+    fullName: fullName.trim(),
+    phone: normalizedPhone,
+    venmo: trimmedVenmo || null,
+    cashapp: trimmedCashapp || null,
+    zelle: trimmedZelle || null,
+  });
+
+  res.json({ success: true, profileComplete: true });
 });
 
 // Sets or updates the seller's alert email — login stays key + password
@@ -235,23 +292,14 @@ router.post('/email', requireSellerAuth, (req, res) => {
   res.json({ success: true, email: normalizedEmail });
 });
 
-// Requests a password reset link be emailed to the alert email registered
-// on this key's account. There's no username/email login — the invite key
-// is the account identifier, so that's what's submitted here.
-router.post('/forgot-password', rateLimit, async (req, res) => {
-  const { key } = req.body || {};
-  if (typeof key !== 'string' || !key.trim()) {
-    return res.status(400).json({ error: 'Enter your invite key.' });
-  }
-  const seller = getSellerByInviteKey.get(key.trim().toUpperCase());
-  if (!seller) {
-    return res.status(400).json({ error: 'No account found for that key.' });
-  }
+// Shared by /forgot-password (identified by key) and /recover-account
+// (identified by name + phone, for sellers who've lost their key entirely).
+async function issuePasswordResetEmail(seller, noEmailMessage) {
   if (!seller.email) {
-    return res.status(400).json({ error: 'This account has no alert email on file. Contact admin@preordercards.com to reset your password.' });
+    return { ok: false, status: 400, error: noEmailMessage };
   }
   if (!RESEND_API_KEY) {
-    return res.status(500).json({ error: 'Email sending is not configured.' });
+    return { ok: false, status: 500, error: 'Email sending is not configured.' };
   }
 
   deletePasswordResetsBySeller.run(seller.id);
@@ -275,16 +323,97 @@ router.post('/forgot-password', rateLimit, async (req, res) => {
       }),
     });
     if (!emailRes.ok) {
-      const body = await emailRes.text();
-      console.error('Password reset email failed:', emailRes.status, body);
-      return res.status(502).json({ error: 'Failed to send the reset email. Try again later.' });
+      console.error('Password reset email failed:', emailRes.status, await emailRes.text());
+      return { ok: false, status: 502, error: 'Failed to send the reset email. Try again later.' };
     }
   } catch (err) {
     console.error('Password reset email failed:', err.message);
-    return res.status(502).json({ error: 'Failed to send the reset email. Try again later.' });
+    return { ok: false, status: 502, error: 'Failed to send the reset email. Try again later.' };
+  }
+  return { ok: true };
+}
+
+// Requests a password reset link be emailed to the alert email registered
+// on this key's account. There's no username/email login — the invite key
+// is the account identifier, so that's what's submitted here.
+router.post('/forgot-password', rateLimit, async (req, res) => {
+  const { key } = req.body || {};
+  if (typeof key !== 'string' || !key.trim()) {
+    return res.status(400).json({ error: 'Enter your invite key.' });
+  }
+  const seller = getSellerByInviteKey.get(key.trim().toUpperCase());
+  if (!seller) {
+    return res.status(400).json({ error: 'No account found for that key.' });
+  }
+  const result = await issuePasswordResetEmail(
+    seller,
+    'This account has no alert email on file. Contact admin@preordercards.com to reset your password.'
+  );
+  if (!result.ok) return res.status(result.status).json({ error: result.error });
+  res.json({ success: true, message: 'Reset link sent to the email on file.' });
+});
+
+// Login requires key + password, so just resetting the password isn't
+// enough for someone who's lost the key itself — this emails the key
+// back to them (plus a reset link, in case they want a new password too).
+async function issueAccountRecoveryEmail(seller) {
+  if (!seller.email) {
+    return { ok: false, status: 400, error: 'This account has no alert email on file. Contact admin@preordercards.com to recover your account.' };
+  }
+  if (!RESEND_API_KEY) {
+    return { ok: false, status: 500, error: 'Email sending is not configured.' };
   }
 
-  res.json({ success: true, message: 'Reset link sent to the email on file.' });
+  deletePasswordResetsBySeller.run(seller.id);
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+  insertPasswordReset.run({ token, sellerId: seller.id, expiresAt: expiresAt.toISOString() });
+  const resetUrl = `${SITE_URL}/reset-password.html?token=${token}`;
+
+  try {
+    const emailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: [seller.email],
+        subject: 'Your PreorderCards account recovery',
+        text: `Someone requested account recovery for your PreorderCards seller account using your name and phone number.\n\nYour invite key: ${seller.invite_key}\n\nIf you'd also like to set a new password, use this link (expires in 1 hour): ${resetUrl}\n\nIf you didn't request this, you can ignore this email — nothing has changed on your account.`,
+      }),
+    });
+    if (!emailRes.ok) {
+      console.error('Account recovery email failed:', emailRes.status, await emailRes.text());
+      return { ok: false, status: 502, error: 'Failed to send the recovery email. Try again later.' };
+    }
+  } catch (err) {
+    console.error('Account recovery email failed:', err.message);
+    return { ok: false, status: 502, error: 'Failed to send the recovery email. Try again later.' };
+  }
+  return { ok: true };
+}
+
+// For sellers who've lost their invite key entirely — identifies the
+// account by the full name + phone number collected on their required
+// profile instead of the key, then emails the key back to them.
+router.post('/recover-account', rateLimit, async (req, res) => {
+  const { fullName, phone } = req.body || {};
+  if (typeof fullName !== 'string' || !fullName.trim() || typeof phone !== 'string' || !phone.trim()) {
+    return res.status(400).json({ error: 'Enter your full name and phone number.' });
+  }
+  const normalizedPhone = normalizePhone(phone);
+  if (!normalizedPhone) {
+    return res.status(400).json({ error: 'Enter a valid phone number.' });
+  }
+  const seller = findSellerByNamePhone.get({ fullName: fullName.trim(), phone: normalizedPhone });
+  if (!seller) {
+    return res.status(400).json({ error: 'No account found matching that name and phone number.' });
+  }
+  const result = await issueAccountRecoveryEmail(seller);
+  if (!result.ok) return res.status(result.status).json({ error: result.error });
+  res.json({ success: true, message: 'Your invite key and a reset link have been sent to the email on file.' });
 });
 
 // Completes a password reset using the token emailed by /forgot-password.

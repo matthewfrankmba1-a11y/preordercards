@@ -48,8 +48,24 @@
           <input type="text" id="forgot-key" placeholder="XXXX-XXXX-XXXX" autocomplete="off" required />
         </label>
         <button type="submit" class="notify-btn">Send Reset Link</button>
+        <button type="button" id="lost-key-link" class="link-btn">Lost your key too?</button>
         <button type="button" id="forgot-password-cancel" class="link-btn">Back to log in</button>
         <p class="form-message" id="forgot-password-message"></p>
+      </form>
+
+      <form id="recover-account-form" class="seller-auth-form" hidden>
+        <p class="card-desc">Enter the full name and phone number from your seller profile and we'll email your invite key (plus a reset link) to the alert email on file.</p>
+        <label class="form-field">
+          <span class="form-label">Full Name</span>
+          <input type="text" id="recover-name" autocomplete="name" required />
+        </label>
+        <label class="form-field">
+          <span class="form-label">Phone Number</span>
+          <input type="tel" id="recover-phone" autocomplete="tel" required />
+        </label>
+        <button type="submit" class="notify-btn">Recover Account</button>
+        <button type="button" id="recover-account-cancel" class="link-btn">Back to log in</button>
+        <p class="form-message" id="recover-account-message"></p>
       </form>
 
       <form id="signup-form" class="seller-auth-form" hidden>
@@ -77,6 +93,41 @@
         <button type="button" id="logout-btn" class="stock-toggle-btn">Log Out</button>
       </div>
 
+      <section id="profile-gate-section" hidden>
+        <div class="legal-notice">
+          Before you can create any listings, we need a few details: your name, a phone
+          number, and at least one way for us to send you payment — Venmo, CashApp, or
+          Zelle. This also doubles as how you can recover your account if you ever lose
+          your invite key.
+        </div>
+        <form id="profile-form" class="seller-listing-form">
+          <label class="form-field">
+            <span class="form-label">Full Name</span>
+            <input type="text" id="profile-name" autocomplete="name" required />
+          </label>
+          <label class="form-field">
+            <span class="form-label">Phone Number</span>
+            <input type="tel" id="profile-phone" autocomplete="tel" required />
+          </label>
+          <p class="card-desc">Provide at least one of the following:</p>
+          <label class="form-field">
+            <span class="form-label">Venmo (optional)</span>
+            <input type="text" id="profile-venmo" placeholder="@your-venmo" />
+          </label>
+          <label class="form-field">
+            <span class="form-label">CashApp (optional)</span>
+            <input type="text" id="profile-cashapp" placeholder="$your-cashapp" />
+          </label>
+          <label class="form-field">
+            <span class="form-label">Zelle (optional)</span>
+            <input type="text" id="profile-zelle" placeholder="Zelle email or phone" />
+          </label>
+          <button type="submit" class="notify-btn">Save &amp; Continue</button>
+          <p class="form-message" id="profile-message"></p>
+        </form>
+      </section>
+
+      <div id="dashboard-main" hidden>
       <div class="legal-notice">
         Price your listing lower than the lowest active listing on eBay for the same item.
         Our transaction fee is 2.5% — deducted from your payout as the seller, and added on
@@ -133,6 +184,7 @@
         <p class="card-desc">As the admin account, you can remove any seller's listing.</p>
         <div id="admin-listings" class="seller-listings"></div>
       </section>
+      </div>
     </section>
   </main>
 

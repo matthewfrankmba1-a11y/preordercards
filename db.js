@@ -148,6 +148,12 @@ addColumnIfMissing('seller_invite_keys', 'key_type', "TEXT NOT NULL DEFAULT 'sel
 addColumnIfMissing('sellers', 'is_admin', 'INTEGER NOT NULL DEFAULT 0');
 addColumnIfMissing('sellers', 'email', 'TEXT');
 addColumnIfMissing('seller_invite_keys', 'expires_at', 'TEXT');
+addColumnIfMissing('sellers', 'full_name', 'TEXT');
+addColumnIfMissing('sellers', 'phone', 'TEXT');
+addColumnIfMissing('sellers', 'venmo', 'TEXT');
+addColumnIfMissing('sellers', 'cashapp', 'TEXT');
+addColumnIfMissing('sellers', 'zelle', 'TEXT');
+addColumnIfMissing('sellers', 'profile_completed_at', 'TEXT');
 
 const insertInviteKey = db.prepare(`
   INSERT INTO seller_invite_keys (key_code, key_type, expires_at) VALUES (@keyCode, @keyType, @expiresAt)
@@ -187,6 +193,19 @@ const updateSellerEmail = db.prepare(`UPDATE sellers SET email = @email WHERE id
 
 const updateSellerPassword = db.prepare(`UPDATE sellers SET password_hash = @passwordHash WHERE id = @sellerId`);
 
+const updateSellerProfile = db.prepare(`
+  UPDATE sellers
+  SET full_name = @fullName, phone = @phone, venmo = @venmo, cashapp = @cashapp, zelle = @zelle,
+      profile_completed_at = CURRENT_TIMESTAMP
+  WHERE id = @sellerId
+`);
+
+// Used for account recovery when a seller has lost their invite key —
+// exact match on normalized phone plus a case-insensitive name match.
+const findSellerByNamePhone = db.prepare(`
+  SELECT * FROM sellers WHERE phone = @phone AND LOWER(full_name) = LOWER(@fullName)
+`);
+
 const insertPasswordReset = db.prepare(`
   INSERT INTO seller_password_resets (token, seller_id, expires_at) VALUES (@token, @sellerId, @expiresAt)
 `);
@@ -201,7 +220,7 @@ const insertSession = db.prepare(`
 
 const getSession = db.prepare(`
   SELECT sess.token, sess.expires_at AS expiresAt, s.id AS sellerId, s.display_name AS displayName,
-         s.is_admin AS isAdmin, s.email AS email
+         s.is_admin AS isAdmin, s.email AS email, s.profile_completed_at AS profileCompletedAt
   FROM seller_sessions sess
   JOIN sellers s ON s.id = sess.seller_id
   WHERE sess.token = ?
@@ -304,6 +323,8 @@ module.exports = {
   getSellerById,
   updateSellerEmail,
   updateSellerPassword,
+  updateSellerProfile,
+  findSellerByNamePhone,
   insertPasswordReset,
   getPasswordReset,
   deletePasswordResetsBySeller,
