@@ -15,7 +15,7 @@
 //    or run checkForNewAdminReplies manually from the editor to test sooner.
 
 function checkForNewAdminReplies() {
-  var webhookUrl = 'https://discord.com/api/webhooks/1530594093506232337/7EcdBm6rJ2AbkGh8NiL8Vlj4DFJRLZI5UH00fWN45VUhUocNZF4qmX7PQzDJCsUwMa4l';
+  var webhookUrl = 'https://discord.com/api/webhooks/1530685899678027937/lRO04FsqilgQnEiQ0s_bzEg2A0i2LVGV7C54hcQN-WKJVxh7ljjZgXY37xYGdreiEvpq';
 
   var threads = GmailApp.search('to:admin@preordercards.com is:unread', 0, 20);
 
