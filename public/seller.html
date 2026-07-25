@@ -38,6 +38,18 @@
         </label>
         <button type="submit" class="notify-btn">Log In</button>
         <p class="form-message" id="login-message"></p>
+        <button type="button" id="forgot-password-link" class="link-btn">Forgot your password?</button>
+      </form>
+
+      <form id="forgot-password-form" class="seller-auth-form" hidden>
+        <p class="card-desc">Enter your invite key and we'll email a reset link to the alert email on file for that account.</p>
+        <label class="form-field">
+          <span class="form-label">Invite Key</span>
+          <input type="text" id="forgot-key" placeholder="XXXX-XXXX-XXXX" autocomplete="off" required />
+        </label>
+        <button type="submit" class="notify-btn">Send Reset Link</button>
+        <button type="button" id="forgot-password-cancel" class="link-btn">Back to log in</button>
+        <p class="form-message" id="forgot-password-message"></p>
       </form>
 
       <form id="signup-form" class="seller-auth-form" hidden>

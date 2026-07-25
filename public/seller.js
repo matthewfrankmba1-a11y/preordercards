@@ -38,6 +38,7 @@ listingQuantitySelect.addEventListener('change', updateFeePreview);
 const tabBtns = document.querySelectorAll('.seller-tab-btn');
 const loginForm = document.getElementById('login-form');
 const signupForm = document.getElementById('signup-form');
+const forgotPasswordForm = document.getElementById('forgot-password-form');
 
 tabBtns.forEach((btn) => {
   btn.addEventListener('click', () => {
@@ -46,7 +47,43 @@ tabBtns.forEach((btn) => {
     const tab = btn.dataset.tab;
     loginForm.hidden = tab !== 'login';
     signupForm.hidden = tab !== 'signup';
+    forgotPasswordForm.hidden = true;
   });
+});
+
+document.getElementById('forgot-password-link').addEventListener('click', () => {
+  loginForm.hidden = true;
+  signupForm.hidden = true;
+  forgotPasswordForm.hidden = false;
+});
+
+document.getElementById('forgot-password-cancel').addEventListener('click', () => {
+  forgotPasswordForm.hidden = true;
+  loginForm.hidden = false;
+});
+
+forgotPasswordForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const key = document.getElementById('forgot-key').value.trim();
+  const message = document.getElementById('forgot-password-message');
+  message.textContent = 'Sending...';
+  message.className = 'form-message';
+
+  try {
+    const res = await fetch('/api/seller/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showMessage(message, data.error || 'Could not send reset link.', true);
+      return;
+    }
+    showMessage(message, data.message || 'Reset link sent!', false);
+  } catch (err) {
+    showMessage(message, 'Network error. Please try again.', true);
+  }
 });
 
 function showMessage(el, text, isError) {

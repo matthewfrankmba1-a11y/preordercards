@@ -12,6 +12,10 @@ const {
   insertInviteKey,
   countSuperKeys,
   updateSellerEmail,
+  updateSellerPassword,
+  insertPasswordReset,
+  getPasswordReset,
+  deletePasswordResetsBySeller,
   listInviteKeysWithAlias,
   countListingsBySeller,
   deleteListingInterestsBySeller,
@@ -229,6 +233,81 @@ router.post('/email', requireSellerAuth, (req, res) => {
   }
   updateSellerEmail.run({ sellerId: req.seller.id, email: normalizedEmail });
   res.json({ success: true, email: normalizedEmail });
+});
+
+// Requests a password reset link be emailed to the alert email registered
+// on this key's account. There's no username/email login — the invite key
+// is the account identifier, so that's what's submitted here.
+router.post('/forgot-password', rateLimit, async (req, res) => {
+  const { key } = req.body || {};
+  if (typeof key !== 'string' || !key.trim()) {
+    return res.status(400).json({ error: 'Enter your invite key.' });
+  }
+  const seller = getSellerByInviteKey.get(key.trim().toUpperCase());
+  if (!seller) {
+    return res.status(400).json({ error: 'No account found for that key.' });
+  }
+  if (!seller.email) {
+    return res.status(400).json({ error: 'This account has no alert email on file. Contact admin@preordercards.com to reset your password.' });
+  }
+  if (!RESEND_API_KEY) {
+    return res.status(500).json({ error: 'Email sending is not configured.' });
+  }
+
+  deletePasswordResetsBySeller.run(seller.id);
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+  insertPasswordReset.run({ token, sellerId: seller.id, expiresAt: expiresAt.toISOString() });
+
+  const resetUrl = `${SITE_URL}/reset-password.html?token=${token}`;
+  try {
+    const emailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: [seller.email],
+        subject: 'Reset your PreorderCards seller password',
+        text: `Someone requested a password reset for your PreorderCards seller account.\n\nReset your password here (this link expires in 1 hour): ${resetUrl}\n\nIf you didn't request this, you can ignore this email — your password won't change.`,
+      }),
+    });
+    if (!emailRes.ok) {
+      const body = await emailRes.text();
+      console.error('Password reset email failed:', emailRes.status, body);
+      return res.status(502).json({ error: 'Failed to send the reset email. Try again later.' });
+    }
+  } catch (err) {
+    console.error('Password reset email failed:', err.message);
+    return res.status(502).json({ error: 'Failed to send the reset email. Try again later.' });
+  }
+
+  res.json({ success: true, message: 'Reset link sent to the email on file.' });
+});
+
+// Completes a password reset using the token emailed by /forgot-password.
+// Also invalidates the account's active sessions, forcing a fresh login.
+router.post('/reset-password', rateLimit, (req, res) => {
+  const { token, newPassword } = req.body || {};
+  if (typeof token !== 'string' || !token) {
+    return res.status(400).json({ error: 'Missing reset token.' });
+  }
+  if (typeof newPassword !== 'string' || newPassword.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+  }
+  const resetRow = getPasswordReset.get(token);
+  if (!resetRow || new Date(resetRow.expires_at) < new Date()) {
+    return res.status(400).json({ error: 'This reset link is invalid or has expired.' });
+  }
+
+  const passwordHash = bcrypt.hashSync(newPassword, 10);
+  updateSellerPassword.run({ sellerId: resetRow.seller_id, passwordHash });
+  deletePasswordResetsBySeller.run(resetRow.seller_id);
+  deleteSessionsBySeller.run(resetRow.seller_id);
+
+  res.json({ success: true });
 });
 
 // Read-only listing of every invite key ever generated, plus the real alias

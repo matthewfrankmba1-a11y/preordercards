@@ -90,6 +90,13 @@ db.exec(`
     expires_at TEXT NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS seller_password_resets (
+    token TEXT PRIMARY KEY,
+    seller_id INTEGER NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at TEXT NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS listings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     seller_id INTEGER NOT NULL,
@@ -167,6 +174,16 @@ const getSellerByInviteKey = db.prepare(`SELECT * FROM sellers WHERE invite_key 
 const getSellerById = db.prepare(`SELECT * FROM sellers WHERE id = ?`);
 
 const updateSellerEmail = db.prepare(`UPDATE sellers SET email = @email WHERE id = @sellerId`);
+
+const updateSellerPassword = db.prepare(`UPDATE sellers SET password_hash = @passwordHash WHERE id = @sellerId`);
+
+const insertPasswordReset = db.prepare(`
+  INSERT INTO seller_password_resets (token, seller_id, expires_at) VALUES (@token, @sellerId, @expiresAt)
+`);
+
+const getPasswordReset = db.prepare(`SELECT * FROM seller_password_resets WHERE token = ?`);
+
+const deletePasswordResetsBySeller = db.prepare(`DELETE FROM seller_password_resets WHERE seller_id = ?`);
 
 const insertSession = db.prepare(`
   INSERT INTO seller_sessions (token, seller_id, expires_at) VALUES (@token, @sellerId, @expiresAt)
@@ -259,6 +276,10 @@ module.exports = {
   getSellerByInviteKey,
   getSellerById,
   updateSellerEmail,
+  updateSellerPassword,
+  insertPasswordReset,
+  getPasswordReset,
+  deletePasswordResetsBySeller,
   insertSession,
   getSession,
   deleteSession,

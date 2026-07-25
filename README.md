@@ -157,6 +157,16 @@ interest at a fixed price — no offers/negotiation.
   table (not `express-session`), so sellers stay logged in across redeploys
   since it's backed by the same persistent disk as everything else. 30-day
   expiry. Passwords are hashed with `bcryptjs`.
+- **Password reset**: since login is key + password (no username/email),
+  "Forgot your password?" on the login tab asks for the invite key, looks
+  up its account, and — only if that account has an alert email on file —
+  emails a one-time reset link (`POST /api/seller/forgot-password`, token
+  stored in `seller_password_resets`, expires in 1 hour, invalidated after
+  first use). The link opens `/reset-password.html`, which posts the new
+  password to `POST /api/seller/reset-password`. On success, all of that
+  seller's existing sessions are deleted, forcing a fresh login everywhere.
+  Accounts with no alert email set can't self-serve a reset — the error
+  message points them to `admin@preordercards.com`.
 - **Fee model**: `FEE_RATE = 0.025` and `shippingFee(quantity)` in
   `marketplace.js` (both mirrored in `public/seller.js` and
   `public/marketplace.js` for live previews — keep all three in sync if
