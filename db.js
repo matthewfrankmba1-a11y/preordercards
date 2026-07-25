@@ -121,6 +121,16 @@ db.exec(`
     UNIQUE (listing_id, contact_value)
   );
   CREATE INDEX IF NOT EXISTS idx_listing_interests_listing_id ON listing_interests (listing_id);
+
+  CREATE TABLE IF NOT EXISTS slot_submissions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS stats_summary_state (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    last_run_at TEXT
+  );
 `);
 
 // Migrations: add quantity to tables created before this column existed.
@@ -260,6 +270,23 @@ const deleteSellerById = db.prepare(`DELETE FROM sellers WHERE id = ?`);
 
 const deleteInviteKeyByCode = db.prepare(`DELETE FROM seller_invite_keys WHERE key_code = ?`);
 
+// --- Stats summary (Discord notification every 6 hours) ---
+
+const insertSlotSubmission = db.prepare(`INSERT INTO slot_submissions (created_at) VALUES (CURRENT_TIMESTAMP)`);
+
+const countSlotSubmissionsSince = db.prepare(`SELECT COUNT(*) AS c FROM slot_submissions WHERE created_at > ?`);
+
+const countInterestsSince = db.prepare(`SELECT COUNT(*) AS c FROM interests WHERE created_at > ?`);
+
+const countListingInterestsSince = db.prepare(`SELECT COUNT(*) AS c FROM listing_interests WHERE created_at > ?`);
+
+const getStatsSummaryState = db.prepare(`SELECT last_run_at AS lastRunAt FROM stats_summary_state WHERE id = 1`);
+
+const setStatsSummaryState = db.prepare(`
+  INSERT INTO stats_summary_state (id, last_run_at) VALUES (1, @lastRunAt)
+  ON CONFLICT (id) DO UPDATE SET last_run_at = excluded.last_run_at
+`);
+
 module.exports = {
   db,
   upsertInterest,
@@ -299,4 +326,10 @@ module.exports = {
   deleteSessionsBySeller,
   deleteSellerById,
   deleteInviteKeyByCode,
+  insertSlotSubmission,
+  countSlotSubmissionsSince,
+  countInterestsSince,
+  countListingInterestsSince,
+  getStatsSummaryState,
+  setStatsSummaryState,
 };

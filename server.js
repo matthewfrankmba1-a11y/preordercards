@@ -4,8 +4,9 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const helmet = require('helmet');
-const { upsertInterest, countByRelease, getInterestByReleaseAndContact } = require('./db');
+const { upsertInterest, countByRelease, getInterestByReleaseAndContact, insertSlotSubmission } = require('./db');
 const bot = require('./bot');
+const { runStatsSummary, startStatsSummarySchedule } = require('./statsSummary');
 
 const app = express();
 // Render (and most PaaS hosts) put the app behind a reverse proxy. Without this,
@@ -16,6 +17,7 @@ app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 const RELEASES_PATH = path.join(__dirname, 'data', 'releases.json');
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const EMAIL_FROM = process.env.EMAIL_FROM || 'PreorderCards <admin@preordercards.com>';
 const SLOT_FORM_URL =
@@ -297,7 +299,29 @@ app.post('/api/interest', rateLimit, (req, res) => {
   res.status(201).json({ success: true, interestCount: counts[releaseId] || 1 });
 });
 
+// Called by the Slot Details Google Form's Apps Script alongside its Discord
+// post, purely to log a count for the stats-summary — never triggers a
+// notification itself.
+app.post('/api/slot-submission-ping', (req, res) => {
+  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
+    return res.status(403).json({ error: 'Forbidden.' });
+  }
+  insertSlotSubmission.run();
+  res.json({ success: true });
+});
+
+// Manually fires the 6-hourly stats summary early, for testing — does not
+// affect the schedule (still runs every INTERVAL_MS from server start).
+app.post('/api/admin/stats-summary/run', async (req, res) => {
+  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
+    return res.status(403).json({ error: 'Forbidden.' });
+  }
+  const result = await runStatsSummary();
+  res.json({ success: true, ...result });
+});
+
 bot.init({ loadReleases, sendConfirmationEmail });
+startStatsSummarySchedule();
 
 app.listen(PORT, () => {
   console.log(`Topps release tracker running at http://localhost:${PORT}`);

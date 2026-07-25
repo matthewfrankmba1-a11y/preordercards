@@ -25,6 +25,12 @@ services:
         sync: false
       - key: MARKETPLACE_DISCORD_WEBHOOK_URL
         sync: false
+      - key: STATS_SUMMARY_WEBHOOK_URL
+        sync: false
+      - key: GA4_PROPERTY_ID
+        sync: false
+      - key: GA4_SERVICE_ACCOUNT_KEY
+        sync: false
     disk:
       name: data
       mountPath: /var/data

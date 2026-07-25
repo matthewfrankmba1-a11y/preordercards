@@ -258,6 +258,51 @@ To swap in a different GA property, update the ID in both places: the
 `gtag/js?id=...` query param in each HTML file's `<head>`, and the
 `gtag('config', ...)` call in `public/analytics.js`.
 
+## Stats summary (Discord, every 6 hours)
+
+`statsSummary.js` posts a "📊 Site Activity Summary" embed every 6 hours
+(`startStatsSummarySchedule()`, called once at server startup in
+`server.js` via `setInterval` — the process is always-on on Render's
+Starter plan, so no external cron is needed) to
+`STATS_SUMMARY_WEBHOOK_URL` if set, else falling back to the main
+`DISCORD_WEBHOOK_URL`. Swap `STATS_SUMMARY_WEBHOOK_URL` in Render's
+Environment tab to point it elsewhere later without a code change.
+
+Each post covers activity **since the last summary** (tracked in the
+`stats_summary_state` table, a single row) — not all-time totals:
+
+- **Slot Submissions** — count of `slot_submissions` rows. The Google
+  Apps Script (`scripts/slot-form-discord-notify.gs`) pings
+  `POST /api/slot-submission-ping` (header `x-admin-secret`) right after
+  it posts to Discord, purely to log a count here — replace
+  `PASTE_ADMIN_SECRET_HERE` in the script with the real `ADMIN_SECRET`
+  value (Apps Script code is server-side/private, never exposed to form
+  respondents, same trust level as the webhook URL already in that file).
+- **Inquiries** — count of new rows in `interests` (release preorder
+  registrations).
+- **Marketplace Sales** — count of new rows in `listing_interests`
+  (buyer interest registrations on marketplace listings — the fee-paying
+  facilitation event, not necessarily a seller-confirmed "Sold" mark).
+- **Google Analytics — Daily Users** — GA4 `activeUsers` for today so far,
+  via `ga4.js`, which implements the GA4 Data API's OAuth2 service-account
+  flow by hand (RS256-signs a JWT with Node's built-in `crypto`, no
+  `googleapis`/`google-auth-library` dependency). Requires two env vars:
+  - `GA4_PROPERTY_ID` — the numeric GA4 property ID (Admin → Property
+    Settings in Google Analytics — **not** the `G-XXXX` measurement ID
+    used elsewhere in this project).
+  - `GA4_SERVICE_ACCOUNT_KEY` — the full JSON key contents (as one string)
+    for a Google Cloud service account that's been added as a **Viewer**
+    on that GA4 property (Admin → Property Access Management → add the
+    service account's `client_email`). Requires the Google Analytics Data
+    API enabled on that service account's GCP project.
+
+  Until both are set, the summary just shows "Not configured yet" for
+  this field — everything else still works.
+
+Manually trigger a run early for testing without disturbing the 6-hour
+schedule: `POST /api/admin/stats-summary/run` (header `x-admin-secret`) —
+returns the same counts that were just posted to Discord.
+
 ## Deploying (Render)
 
 `render.yaml` defines the service as a Render Blueprint: a web service on
