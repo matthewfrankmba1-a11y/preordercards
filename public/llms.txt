@@ -1,0 +1,19 @@
+# PreorderCards
+
+> PreorderCards (preordercards.com) is an independent site that tracks upcoming Topps trading card release dates and lets visitors register interest for free, with no upfront payment required. It is not affiliated with, endorsed by, or sponsored by Topps, MLB, the NBA, the NFL, the UFC, Disney, Marvel, or any other brand or league referenced on the site. All product names and trademarks belong to their respective owners.
+
+## Key facts
+
+- Registering interest in a preorder is free — no payment is collected at registration.
+- Sold-out releases are marked clearly and their registration form is disabled.
+- The Marketplace is a separate, invite-only section where vetted, trusted sellers list factory-sealed, in-hand Topps inventory at a fixed price (no bidding/offers). A transaction fee applies to Marketplace sales only — see /terms.html for the current rate.
+- Marketplace sellers must keep the original factory seal and the original retailer tracking number visible on every item, and buyers are vetted before a sale completes.
+- Release dates are compiled from public trackers (including Beckett) and can change without notice — PreorderCards recommends confirming on Topps.com before buying.
+
+## Pages
+
+- [Release Calendar](https://preordercards.com/): upcoming Topps releases by date, with free interest registration.
+- [Marketplace](https://preordercards.com/marketplace.html): fixed-price listings from vetted sellers.
+- [Success Stories](https://preordercards.com/success.html): real order-confirmation screenshots from past registrations.
+- [Terms & Conditions](https://preordercards.com/terms.html): buyer/seller policies, authenticity requirements, dispute resolution, and current fee structure.
+- [Seller Dashboard](https://preordercards.com/seller.html): login/signup for invite-key holders to manage Marketplace listings.

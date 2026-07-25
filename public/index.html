@@ -3,10 +3,102 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Topps Preorder Release Calendar</title>
+  <title>Topps Preorder Release Calendar | PreorderCards</title>
+  <meta name="description" content="PreorderCards tracks upcoming Topps trading card release dates and lets you register interest for free — no upfront payment. Independent, not affiliated with Topps." />
+  <meta property="og:title" content="Topps Preorder Release Calendar | PreorderCards" />
+  <meta property="og:description" content="Track upcoming Topps release dates and register interest for free — no upfront payment required." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://preordercards.com/" />
   <link rel="stylesheet" href="style.css" />
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0KK6YZP2DG"></script>
   <script src="/analytics.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "PreorderCards",
+    "url": "https://preordercards.com/",
+    "description": "Independent Topps trading card release-date tracker and free interest-registration service, not affiliated with Topps or any league or brand referenced on the site."
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is PreorderCards?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "PreorderCards is an independent site that tracks upcoming Topps trading card release dates and lets you register interest for free, with no upfront payment required. It is not affiliated with, endorsed by, or sponsored by Topps or any league or brand referenced on the site."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I preorder an upcoming Topps release?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Browse the release calendar on PreorderCards, open a release, choose a quantity, and register your interest with an email address or phone number. No payment is collected at registration."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is there a fee to register interest in a preorder?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Registering interest on PreorderCards is free. A transaction fee only applies if you later buy or sell through the PreorderCards Marketplace — see the Terms & Conditions page for the current fee structure."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens if a Topps release sells out?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "PreorderCards marks sold-out releases clearly with a sold-out label and disables the registration form for that release, so availability shown on the site is always current."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is PreorderCards affiliated with Topps, Marvel, or any sports league?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. PreorderCards is an independent release-tracking and interest-registration service. It is not affiliated with, endorsed by, or sponsored by Topps, MLB, the NBA, the NFL, the UFC, Disney, Marvel, or any other brand or league referenced on the site."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the PreorderCards Marketplace?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The PreorderCards Marketplace lets vetted, trusted sellers list factory-sealed, in-hand Topps inventory at a fixed price. Buyers register interest at that listed price — there is no bidding or offer negotiation."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does PreorderCards help verify authenticity?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Marketplace sellers are required to keep the original factory seal and the original retailer tracking number visible on every item, and buyers are vetted before a sale is completed. Full requirements are on the Terms & Conditions page."
+        }
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Register Interest in a Topps Preorder on PreorderCards",
+    "step": [
+      { "@type": "HowToStep", "name": "Browse the calendar", "text": "Browse upcoming Topps releases by date on the PreorderCards homepage, or filter by sport." },
+      { "@type": "HowToStep", "name": "Check availability", "text": "Open a release and confirm it isn't marked sold out." },
+      { "@type": "HowToStep", "name": "Choose a quantity", "text": "Select how many you want, from 1 to 10." },
+      { "@type": "HowToStep", "name": "Enter contact info", "text": "Enter an email address or phone number." },
+      { "@type": "HowToStep", "name": "Register interest", "text": "Click Register Interest. No payment is collected at this step." }
+    ]
+  }
+  </script>
 </head>
 <body>
   <header class="site-header">
@@ -33,11 +125,53 @@
 
     <div id="status" class="status" hidden></div>
     <div id="releases" class="releases"></div>
+
+    <section class="faq" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Frequently Asked Questions</h2>
+
+      <details>
+        <summary>What is PreorderCards?</summary>
+        <p>PreorderCards is an independent site that tracks upcoming Topps trading card release dates and lets you register interest for free, with no upfront payment required. It is not affiliated with, endorsed by, or sponsored by Topps or any league or brand referenced on the site.</p>
+      </details>
+
+      <details>
+        <summary>How do I preorder an upcoming Topps release?</summary>
+        <p>Browse the release calendar on PreorderCards, open a release, choose a quantity, and register your interest with an email address or phone number. No payment is collected at registration.</p>
+      </details>
+
+      <details>
+        <summary>Is there a fee to register interest in a preorder?</summary>
+        <p>No. Registering interest on PreorderCards is free. A transaction fee only applies if you later buy or sell through the PreorderCards Marketplace — see the <a href="/terms.html">Terms &amp; Conditions</a> page for the current fee structure.</p>
+      </details>
+
+      <details>
+        <summary>What happens if a Topps release sells out?</summary>
+        <p>PreorderCards marks sold-out releases clearly with a sold-out label and disables the registration form for that release, so availability shown on the site is always current.</p>
+      </details>
+
+      <details>
+        <summary>Is PreorderCards affiliated with Topps, Marvel, or any sports league?</summary>
+        <p>No. PreorderCards is an independent release-tracking and interest-registration service. It is not affiliated with, endorsed by, or sponsored by Topps, MLB, the NBA, the NFL, the UFC, Disney, Marvel, or any other brand or league referenced on the site.</p>
+      </details>
+
+      <details>
+        <summary>What is the PreorderCards Marketplace?</summary>
+        <p>The <a href="/marketplace.html">PreorderCards Marketplace</a> lets vetted, trusted sellers list factory-sealed, in-hand Topps inventory at a fixed price. Buyers register interest at that listed price — there is no bidding or offer negotiation.</p>
+      </details>
+
+      <details>
+        <summary>How does PreorderCards help verify authenticity?</summary>
+        <p>Marketplace sellers are required to keep the original factory seal and the original retailer tracking number visible on every item, and buyers are vetted before a sale is completed. Full requirements are on the <a href="/terms.html">Terms &amp; Conditions</a> page.</p>
+      </details>
+    </section>
   </main>
 
   <footer class="site-footer">
     <div class="wrap">
       <p id="source-note"></p>
+      <p class="disclaimer" style="margin-bottom: 0.5rem;">
+        Release dates are compiled from public trackers including <a href="https://www.beckett.com/" target="_blank" rel="noopener">Beckett</a> and Waxstat — always confirm on Topps.com before buying.
+      </p>
       <p class="disclaimer">
         This site is an independent release-tracking and interest-registration service.
         It is not affiliated with, endorsed by, or sponsored by Topps, MLB, the NBA, the NFL,

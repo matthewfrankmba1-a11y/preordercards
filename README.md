@@ -321,3 +321,49 @@ doesn't allow disks) with a 1GB disk mounted at `/var/data`.
 put `preorders.db` — pointing it at the mounted disk instead of the
 app's own directory means registrations survive redeploys. Locally,
 `DATA_DIR` is unset and it just uses `./data` as before.
+
+## GEO (Generative Engine Optimization)
+
+`public/index.html` is set up so AI answer engines (ChatGPT, Perplexity,
+Google AI Overviews, etc.) can find and cite accurate, specific answers
+about the site, following practices from a referenced best-practices
+article:
+
+- A visible **FAQ section** (`<details>`/`<summary>`, short Q&A pairs,
+  each answer front-loaded with plain-language terms like "fee,"
+  "sold out," "affiliated") plus a matching **`FAQPage` JSON-LD** block —
+  the JSON-LD text is byte-for-byte identical to the visible copy (verified
+  by stripping HTML tags and diffing), which matters because mismatched
+  schema risks a manual action from Google.
+- A **`HowTo` JSON-LD** block for "How to Register Interest in a Topps
+  Preorder."
+- An **`Organization` JSON-LD** block for clear entity identity.
+- A **citation-transparency line** in the footer linking to a real,
+  verifiable source (Beckett) rather than just naming it as plain text.
+- Meta `description` and Open Graph tags (title/description/type/url) —
+  didn't exist before, foundational for both traditional SEO and GEO.
+- **`public/llms.txt`** — a plain-language site summary + page index for
+  AI crawlers, following the informal llms.txt convention (served as
+  plain text automatically by `express.static`, no route needed).
+
+**Deliberately NOT done**: exact current fee numbers (2.5%/2.5% +
+scaling shipping fee) are not restated in the FAQ/JSON-LD — it links to
+`/terms.html` instead, since fees have changed three times already in
+this project's history and duplicating exact numbers in two places is a
+staleness risk. If fees stabilize, consider inlining them for more
+directly quotable answers.
+
+**Ongoing practices this doesn't automate** (from the same article,
+these are manual/process steps, not code):
+- Periodically ask AI engines (ChatGPT, Gemini, Perplexity, Copilot)
+  questions a prospective user would ask, and check whether/how
+  preordercards.com is cited.
+- After significant content changes, use Google Search Console's
+  "Request Indexing" to speed up recrawl.
+- Route any AI-drafted public-facing copy through a human review pass
+  before publishing — especially anything touching fees, authenticity,
+  or legitimacy claims — before extending this FAQ further.
+
+If you want the same FAQ/schema treatment added to `marketplace.html`
+or `seller.html`, it wasn't done here (scoped to the homepage only) —
+ask and it can follow the same pattern.
