@@ -501,18 +501,18 @@ function buildTrustedSellerEmail(keyCode, expiresAt) {
     timeZone: 'America/New_York',
   });
   return [
-    'Welcome to PreorderCards!',
+    'Welcome to PreorderCards! The Newest way to buy/sell the most sought after card releases.',
     '',
-    "You've been invited to join as a trusted seller.",
+    "You've been invited to join as a trusted seller. Congratulations!",
     '',
     `Your invite key (valid 24 hours, expires ${expiresLocal} ET): ${keyCode}`,
     '',
-    `Log in here: ${SITE_URL}/seller.html`,
+    `Log in here: ${SITE_URL}/seller.html (bookmark this, it's not on the site anywhere)`,
     `Have questions? Check our FAQ: ${SITE_URL}/#faq`,
     '',
-    'Just reply to this email any time if you need help.',
+    'Just reply to this email any time if you need help. As part of this program, we welcome any and all feedback.',
     '',
-    '— PreorderCards',
+    '— PreorderCards Admin',
   ].join('\n');
 }
 
