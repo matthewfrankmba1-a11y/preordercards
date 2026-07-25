@@ -30,7 +30,8 @@ function updateFeePreview() {
   const net = price * (1 - FEE_RATE);
   const qty = Number(listingQuantitySelect.value) || 1;
   const shipping = shippingFee(qty);
-  listingFeePreview.textContent = `You'll receive $${net.toFixed(2)} per unit after the 2.5% fee. A shipping fee also applies once per completed sale — $${SHIPPING_FEE_BASE} for 1 box, plus $${SHIPPING_FEE_PER_ADDITIONAL_BOX} per additional box (e.g. $${shipping} if a buyer orders all ${qty}), deducted from your payout.`;
+  const totalIfAllSold = net * qty - shipping;
+  listingFeePreview.textContent = `You'll receive $${net.toFixed(2)} per unit after the 2.5% fee. A shipping fee also applies once per completed sale — $${SHIPPING_FEE_BASE} for 1 box, plus $${SHIPPING_FEE_PER_ADDITIONAL_BOX} per additional box (e.g. $${shipping} if a buyer orders all ${qty}), deducted from your payout. If one buyer purchases all ${qty}, you'd receive $${net.toFixed(2)} × ${qty} − $${shipping} = $${totalIfAllSold.toFixed(2)} total.`;
 }
 listingPriceInput.addEventListener('input', updateFeePreview);
 listingQuantitySelect.addEventListener('change', updateFeePreview);
