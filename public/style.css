@@ -708,3 +708,26 @@ body {
 .admin-label-form input[type="file"] {
   font-size: 0.8rem;
 }
+
+.admin-seller-details {
+  background: #fff8e1;
+  border: 1px solid #f0dfa0;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.4rem 0;
+}
+
+.admin-seller-details summary {
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.admin-seller-details p {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin-seller-details { background: #2a2410; border-color: #4a4020; }
+}

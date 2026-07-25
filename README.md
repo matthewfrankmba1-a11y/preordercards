@@ -281,6 +281,14 @@ interest at a fixed price — no offers/negotiation.
   Regular sellers are unaffected — they can still only add listings and
   mark their own sold, exactly as before; `requireAdmin` middleware in
   `marketplace.js` returns `403` if a non-admin tries the admin routes.
+- **Seller details for the admin**: each card in "Admin: All Listings"
+  has a collapsed "Seller Details" `<details>` block — click to reveal
+  that listing's seller's full name, phone, alert email, and Venmo/
+  CashApp/Zelle, so the admin can actually pay them after a sale.
+  `getAllListingsAdmin` (`db.js`) joins these fields in directly —
+  deliberately never selects `password_hash`, and this data is only ever
+  returned by the already admin-gated `GET /api/seller/admin/listings`
+  (`requireSellerAuth` + `requireAdmin`); no other route exposes it.
 
 ## Analytics
 

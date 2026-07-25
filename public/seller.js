@@ -437,6 +437,28 @@ function buildAdminListingCard(listing) {
   status.textContent = listing.status === 'sold' ? 'Sold' : 'Active';
   card.appendChild(status);
 
+  const sellerDetails = document.createElement('details');
+  sellerDetails.className = 'admin-seller-details';
+  const sellerSummary = document.createElement('summary');
+  sellerSummary.textContent = 'Seller Details';
+  sellerDetails.appendChild(sellerSummary);
+
+  const detailRows = [
+    ['Full Name', listing.sellerFullName],
+    ['Phone', listing.sellerPhone],
+    ['Email', listing.sellerEmail],
+    ['Venmo', listing.sellerVenmo],
+    ['CashApp', listing.sellerCashapp],
+    ['Zelle', listing.sellerZelle],
+  ];
+  for (const [label, value] of detailRows) {
+    const row = document.createElement('p');
+    row.className = 'card-desc';
+    row.textContent = `${label}: ${value || 'Not provided'}`;
+    sellerDetails.appendChild(row);
+  }
+  card.appendChild(sellerDetails);
+
   const labelForm = document.createElement('form');
   labelForm.className = 'admin-label-form';
 

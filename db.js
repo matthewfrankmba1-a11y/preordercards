@@ -261,9 +261,14 @@ const upsertListingInterest = db.prepare(`
 
 // --- Admin (super key) ---
 
+// Admin-only (gated by requireAdmin in marketplace.js) — includes seller
+// contact/payout details so the admin can actually pay a seller after a
+// sale. Deliberately never selects password_hash.
 const getAllListingsAdmin = db.prepare(`
   SELECT l.id, l.description, l.sku, l.image_url AS imageUrl, l.price, l.quantity, l.status,
-         l.created_at AS createdAt, s.display_name AS sellerName
+         l.created_at AS createdAt, s.display_name AS sellerName,
+         s.full_name AS sellerFullName, s.phone AS sellerPhone, s.email AS sellerEmail,
+         s.venmo AS sellerVenmo, s.cashapp AS sellerCashapp, s.zelle AS sellerZelle
   FROM listings l
   JOIN sellers s ON s.id = l.seller_id
   ORDER BY l.created_at DESC
