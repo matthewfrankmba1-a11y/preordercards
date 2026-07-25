@@ -130,6 +130,27 @@ appear for those.
   will show that error back to you in Discord (ephemeral reply).
 - `RESEND_API_KEY` is a secret — never commit it, same as the bot token.
 
+## Drop reminder emails (batch)
+
+Separate from the one-at-a-time confirmation email above: `POST
+/api/admin/send-drop-reminder` (header `x-admin-secret`, body
+`{"releaseId": "..."}`) batch-emails everyone who registered interest by
+email for that release and hasn't already received this reminder —
+confirms the inquiry, notes the release date is approaching, and lays
+out the choice between Slots (cheaper, links to the Slot Details form)
+and a traditional preorder (no action needed, allocation email later).
+
+- Deliberately manual and per-release, not scheduled — same "you decide
+  when it fires" preference as the confirmation-email button.
+- Tracked via a separate `reminder_sent_at` column on `interests` (not
+  the same one `email_sent_at` uses for the original confirmation), so
+  re-running it for the same release only emails people who haven't
+  gotten this specific reminder yet — safe to call more than once as new
+  registrants come in.
+- Rejects with `400` if the release is already sold out or past its
+  release date, and `404` if the release ID doesn't exist.
+- Phone-only registrants are skipped — there's no email to send to.
+
 ## admin@preordercards.com replies → Discord
 
 `admin@preordercards.com` forwards for free (via ImprovMX, DNS records at

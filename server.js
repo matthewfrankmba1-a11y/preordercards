@@ -4,7 +4,14 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const helmet = require('helmet');
-const { upsertInterest, countByRelease, getInterestByReleaseAndContact, insertSlotSubmission } = require('./db');
+const {
+  upsertInterest,
+  countByRelease,
+  getInterestByReleaseAndContact,
+  insertSlotSubmission,
+  getPendingReminderInterestsByRelease,
+  markReminderSent,
+} = require('./db');
 const bot = require('./bot');
 const { runStatsSummary, startStatsSummarySchedule } = require('./statsSummary');
 
@@ -133,6 +140,65 @@ async function sendConfirmationEmail(release, { contactType, contactValue, quant
     return { ok: true };
   } catch (err) {
     console.error('Resend email failed:', err.message);
+    return { ok: false, error: err.message };
+  }
+}
+
+// Batch reminder sent to everyone who already registered interest by email
+// for a release, as its date approaches — distinct from sendConfirmationEmail
+// above, which fires once per registrant via the Discord button.
+async function sendDropReminderEmail(release, { contactValue, quantity }) {
+  if (!RESEND_API_KEY) return { ok: false, error: 'RESEND_API_KEY is not configured.' };
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: [contactValue],
+        subject: `${release.title} drops soon — here's what's next`,
+        text: [
+          `This confirms we've received your preorder inquiry for ${release.title} (quantity ${quantity}) — the drop is coming up on ${release.releaseDate}.`,
+          '',
+          "You've got two options:",
+          '',
+          'SLOTS — less expensive than a traditional preorder. If you\'d rather run a slot, fill out our Slot Details form:',
+          SLOT_FORM_URL,
+          '',
+          "TRADITIONAL PREORDER — no action needed. We'll send an allocation email once the release is out and we've secured stock.",
+          '',
+          'Questions? Just reply to this email.',
+          '',
+          '— PreorderCards',
+          '',
+          'PreorderCards is an independent tracker and is not affiliated with Topps or any league/brand referenced.',
+        ].join('\n'),
+        html: `
+          <p>This confirms we've received your preorder inquiry for <strong>${escapeHtml(release.title)}</strong>
+          (quantity ${quantity}) — the drop is coming up on ${release.releaseDate}.</p>
+          <p>You've got two options:</p>
+          <p><strong>Slots</strong> — less expensive than a traditional preorder. If you'd rather run a
+          slot, fill out our <a href="${SLOT_FORM_URL}">Slot Details form</a>.</p>
+          <p><strong>Traditional preorder</strong> — no action needed. We'll send an allocation email
+          once the release is out and we've secured stock.</p>
+          <p>Questions? Just reply to this email.</p>
+          <p>— PreorderCards</p>
+          <p style="color:#888;font-size:12px">PreorderCards is an independent tracker and is
+          not affiliated with Topps or any league/brand referenced.</p>
+        `,
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      console.error('Drop reminder email failed:', res.status, body);
+      return { ok: false, error: `Resend ${res.status}: ${body}` };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error('Drop reminder email failed:', err.message);
     return { ok: false, error: err.message };
   }
 }
@@ -318,6 +384,38 @@ app.post('/api/admin/stats-summary/run', async (req, res) => {
   }
   const result = await runStatsSummary();
   res.json({ success: true, ...result });
+});
+
+// Batch-sends the "drop is coming up" reminder to everyone who registered
+// interest by email in a specific release and hasn't already received it.
+// Deliberately manual (per release, admin-triggered) rather than scheduled.
+app.post('/api/admin/send-drop-reminder', async (req, res) => {
+  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
+    return res.status(403).json({ error: 'Forbidden.' });
+  }
+  const releaseId = req.body?.releaseId;
+  if (!releaseId) return res.status(400).json({ error: 'Missing releaseId.' });
+
+  const data = loadReleases();
+  const release = data.releases.find((r) => r.id === releaseId);
+  if (!release) return res.status(404).json({ error: 'Release not found.' });
+  if (release.soldOut === true || release.releaseDate < todayISO()) {
+    return res.status(400).json({ error: 'This release is already sold out or past its release date.' });
+  }
+
+  const pending = getPendingReminderInterestsByRelease.all(releaseId);
+  let sent = 0;
+  let failed = 0;
+  for (const row of pending) {
+    const result = await sendDropReminderEmail(release, { contactValue: row.contactValue, quantity: row.quantity });
+    if (result.ok) {
+      markReminderSent.run({ id: row.id, sentAt: new Date().toISOString() });
+      sent += 1;
+    } else {
+      failed += 1;
+    }
+  }
+  res.json({ success: true, releaseId, releaseTitle: release.title, sent, failed, totalPending: pending.length });
 });
 
 bot.init({ loadReleases, sendConfirmationEmail });

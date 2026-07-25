@@ -32,6 +32,15 @@ if (!hasEmailSentAt) {
   db.exec(`ALTER TABLE interests ADD COLUMN email_sent_at TEXT`);
 }
 
+// Tracks the separate "drop is coming up" reminder email, distinct from the
+// original one-at-a-time confirmation email (email_sent_at above).
+const hasReminderSentAt = db
+  .prepare(`SELECT COUNT(*) AS c FROM pragma_table_info('interests') WHERE name = 'reminder_sent_at'`)
+  .get().c > 0;
+if (!hasReminderSentAt) {
+  db.exec(`ALTER TABLE interests ADD COLUMN reminder_sent_at TEXT`);
+}
+
 const upsertInterest = db.prepare(`
   INSERT INTO interests (release_id, contact_type, contact_value, quantity)
   VALUES (@releaseId, @contactType, @contactValue, @quantity)
@@ -53,6 +62,19 @@ const getInterestById = db.prepare(`
 
 const markEmailSent = db.prepare(`
   UPDATE interests SET email_sent_at = @sentAt WHERE id = @id
+`);
+
+// Everyone who registered by email for a release and hasn't yet received
+// the "drop is coming up" reminder — used for the batch send, not the
+// one-at-a-time Discord confirmation button.
+const getPendingReminderInterestsByRelease = db.prepare(`
+  SELECT id, release_id AS releaseId, contact_type AS contactType, contact_value AS contactValue, quantity
+  FROM interests
+  WHERE release_id = ? AND contact_type = 'email' AND reminder_sent_at IS NULL
+`);
+
+const markReminderSent = db.prepare(`
+  UPDATE interests SET reminder_sent_at = @sentAt WHERE id = @id
 `);
 
 const countByRelease = db.prepare(`
@@ -318,6 +340,8 @@ module.exports = {
   getInterestByReleaseAndContact,
   getInterestById,
   markEmailSent,
+  getPendingReminderInterestsByRelease,
+  markReminderSent,
   insertInviteKey,
   getInviteKey,
   markInviteKeyUsed,
