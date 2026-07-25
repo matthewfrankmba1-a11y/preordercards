@@ -162,6 +162,12 @@ db.exec(`
     id INTEGER PRIMARY KEY CHECK (id = 1),
     last_run_at TEXT
   );
+
+  CREATE TABLE IF NOT EXISTS discount_signups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
 `);
 
 // Migrations: add quantity to tables created before this column existed.
@@ -342,6 +348,12 @@ const setStatsSummaryState = db.prepare(`
   ON CONFLICT (id) DO UPDATE SET last_run_at = excluded.last_run_at
 `);
 
+// --- Discount banner email signups ---
+
+const insertDiscountSignup = db.prepare(`
+  INSERT OR IGNORE INTO discount_signups (email) VALUES (?)
+`);
+
 module.exports = {
   db,
   upsertInterest,
@@ -392,4 +404,5 @@ module.exports = {
   countListingInterestsSince,
   getStatsSummaryState,
   setStatsSummaryState,
+  insertDiscountSignup,
 };

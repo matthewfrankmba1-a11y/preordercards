@@ -31,6 +31,8 @@ services:
         sync: false
       - key: GA4_SERVICE_ACCOUNT_KEY
         sync: false
+      - key: DISCOUNT_SIGNUP_WEBHOOK_URL
+        sync: false
     disk:
       name: data
       mountPath: /var/data

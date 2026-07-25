@@ -101,6 +101,18 @@
   </script>
 </head>
 <body>
+  <div id="discount-banner" class="discount-banner">
+    <div class="wrap discount-banner-inner">
+      <p class="discount-banner-text"><strong>Get 5% off your first order</strong> — sign up with your email below.</p>
+      <form id="discount-banner-form" class="discount-banner-form">
+        <input type="email" id="discount-banner-email" placeholder="you@example.com" aria-label="Email address" required />
+        <button type="submit" class="discount-banner-btn">Sign Up &amp; Save 5%</button>
+      </form>
+      <p class="discount-banner-message" id="discount-banner-message" hidden></p>
+      <button type="button" class="discount-banner-dismiss" id="discount-banner-dismiss" aria-label="Dismiss">×</button>
+    </div>
+  </div>
+
   <header class="site-header">
     <div class="header-scrim"></div>
     <div class="wrap header-content">
@@ -215,6 +227,7 @@
     </article>
   </template>
 
+  <script src="discount-banner.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -324,6 +324,29 @@ To swap in a different GA property, update the ID in both places: the
 `gtag/js?id=...` query param in each HTML file's `<head>`, and the
 `gtag('config', ...)` call in `public/analytics.js`.
 
+## Discount banner (5% off first order)
+
+A dismissible banner at the top of the homepage (`#discount-banner` in
+`index.html`, logic in `public/discount-banner.js`) offers 5% off a
+first order in exchange for an email address. Not tied to any release —
+just a lead list, stored in a new `discount_signups` table (email is
+`UNIQUE`, so re-submitting the same address doesn't create a duplicate
+row or re-notify Discord) and posted to its own dedicated
+`DISCOUNT_SIGNUP_WEBHOOK_URL`.
+
+- Once someone signs up (or dismisses via the × button), `localStorage`
+  remembers that choice so the banner doesn't nag them again on later
+  visits — no cookie/session needed since it's purely cosmetic state.
+- `POST /api/discount-signup` validates the email, rate-limited the
+  same way `/api/interest` is, and returns `alreadySignedUp: true`
+  (still `200`, not an error) if that address already signed up.
+- There's no automated way to actually *apply* the 5% discount — this
+  site has no checkout/payment flow. The admin applies it manually when
+  facilitating a sale for someone on this list, same as everything else
+  here.
+- Currently homepage-only; the markup/script/CSS could be dropped into
+  `marketplace.html` or other pages the same way if wanted later.
+
 ## Stats summary (Discord, every 6 hours)
 
 `statsSummary.js` posts a "📊 Site Activity Summary" embed every 6 hours

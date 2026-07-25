@@ -550,6 +550,85 @@ body {
   margin-bottom: 1.5rem;
 }
 
+.discount-banner {
+  background: var(--navy);
+  color: #fff;
+}
+
+.discount-banner-inner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  padding: 0.65rem 1.5rem;
+  position: relative;
+}
+
+.discount-banner-text {
+  margin: 0;
+  font-size: 0.9rem;
+  flex: 1 1 auto;
+  min-width: 200px;
+}
+
+.discount-banner-text strong {
+  color: #ffd166;
+}
+
+.discount-banner-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.discount-banner-form input[type="email"] {
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 0.85rem;
+  min-width: 200px;
+}
+
+.discount-banner-btn {
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--red);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.discount-banner-btn:hover { background: var(--red-dark); }
+.discount-banner-btn:disabled { opacity: 0.6; cursor: default; }
+
+.discount-banner-message {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffd166;
+}
+
+.discount-banner-dismiss {
+  background: none;
+  border: none;
+  color: #fff;
+  opacity: 0.7;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.25rem;
+}
+
+.discount-banner-dismiss:hover { opacity: 1; }
+
+@media (max-width: 560px) {
+  .discount-banner-inner { padding-right: 2.5rem; }
+  .discount-banner-dismiss { position: absolute; top: 0.5rem; right: 0.75rem; }
+}
+
 .faq {
   max-width: 720px;
   margin: 2.5rem auto 3rem;

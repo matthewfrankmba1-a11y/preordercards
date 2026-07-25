@@ -12,6 +12,7 @@ const {
   getPendingReminderInterestsByRelease,
   markReminderSent,
   markAllPendingRemindersSentExcept,
+  insertDiscountSignup,
 } = require('./db');
 const bot = require('./bot');
 const { runStatsSummary, startStatsSummarySchedule } = require('./statsSummary');
@@ -25,6 +26,7 @@ app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 const RELEASES_PATH = path.join(__dirname, 'data', 'releases.json');
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+const DISCOUNT_SIGNUP_WEBHOOK_URL = process.env.DISCOUNT_SIGNUP_WEBHOOK_URL;
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const EMAIL_FROM = process.env.EMAIL_FROM || 'PreorderCards <admin@preordercards.com>';
@@ -299,6 +301,43 @@ app.get('/api/releases', (req, res) => {
     .map((r) => ({ ...r, interestCount: counts[r.id] || 0 }))
     .sort((a, b) => a.releaseDate.localeCompare(b.releaseDate));
   res.json({ lastUpdated: data.lastUpdated, sourceNote: data.sourceNote, releases });
+});
+
+// Homepage banner: "5% off your first order" email capture. Not tied to any
+// specific release — just a lead list, posted to its own dedicated webhook.
+app.post('/api/discount-signup', rateLimit, async (req, res) => {
+  const { email } = req.body || {};
+  if (typeof email !== 'string' || !EMAIL_RE.test(email.trim()) || email.length > 254) {
+    return res.status(400).json({ error: 'Enter a valid email address.' });
+  }
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const result = insertDiscountSignup.run(normalizedEmail);
+  const isNew = result.changes > 0;
+
+  if (isNew && DISCOUNT_SIGNUP_WEBHOOK_URL) {
+    try {
+      await fetch(DISCOUNT_SIGNUP_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: 'New Preorder!',
+          embeds: [
+            {
+              title: '🎉 New 5% discount signup',
+              color: 13770556,
+              fields: [{ name: 'Email', value: normalizedEmail }],
+              timestamp: new Date().toISOString(),
+            },
+          ],
+        }),
+      });
+    } catch (err) {
+      console.error('Discount signup Discord webhook failed:', err.message);
+    }
+  }
+
+  res.status(201).json({ success: true, alreadySignedUp: !isNew });
 });
 
 app.post('/api/interest', rateLimit, (req, res) => {
