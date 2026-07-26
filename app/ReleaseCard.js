@@ -125,11 +125,13 @@ export default function ReleaseCard({ release, soldOut }) {
       <div className="card-header">
         <span className="badge sport-badge">{release.sport}</span>
         <span className="badge format-badge">{release.format}</span>
+        {release.eql && <span className="badge eql-badge">EQL</span>}
       </div>
       <h3 className="card-title">{release.title}</h3>
       <p className="card-date">{formatDate(release.releaseDate)}</p>
       <p className="card-desc">{release.description || ''}</p>
       <p className="card-preorder-note">{release.isPreorderOpenDate ? 'This date is when preorders open, not the ship date.' : ''}</p>
+      <p className="card-preorder-note">{release.eql ? 'Sold via EQL raffle entry, not first-come-first-served.' : ''}</p>
       <p className="card-count">{soldOut ? 'This release has already shipped.' : countText(interestCount)}</p>
 
       <form className="signup-form" onSubmit={handleSubmit}>

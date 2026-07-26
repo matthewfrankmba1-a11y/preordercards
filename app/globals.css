@@ -340,6 +340,11 @@ body {
   color: var(--red-dark);
 }
 
+.eql-badge {
+  background: #fef3c7;
+  color: #92400e;
+}
+
 .card-title {
   margin: 0.2rem 0 0;
   font-size: 1.05rem;
@@ -684,6 +689,7 @@ body {
   .form-field select { background: #101319; color: var(--text); }
   .sport-badge { background: #1b2440; color: #b9c6ff; }
   .format-badge { background: #3a1c22; color: #ffb3bb; }
+  .eql-badge { background: #3a2e0f; color: #fcd34d; }
   .seller-auth-form input, .seller-listing-form input, .seller-listing-form textarea {
     background: #101319;
     color: var(--text);
