@@ -1,0 +1,89 @@
+export const metadata = {
+  title: 'Terms & Conditions — Topps Preorder Release Calendar',
+};
+
+export default function TermsPage() {
+  return (
+    <>
+      <header className="site-header compact">
+        <div className="header-scrim"></div>
+        <div className="wrap header-content">
+          <h1>Terms &amp; Conditions</h1>
+          <p className="tagline">The policies governing preorder registrations and transactions on this site.</p>
+          <a className="header-nav-link" href="/">← Back to Releases</a>
+        </div>
+      </header>
+
+      <main className="wrap">
+        <div className="legal">
+          <div className="legal-notice">
+            This page is a plain-language summary of our policies, not a substitute for
+            professional legal advice, and it has not been reviewed by an attorney. Anyone
+            relying on it to govern real money transactions should have it reviewed by a
+            lawyer first.
+          </div>
+
+          <h2>1. Overview</h2>
+          <p>
+            These terms govern preorder interest registrations and any resulting transactions
+            between buyers and sellers facilitated through this site. By registering interest
+            or completing a transaction here, you agree to the terms below.
+          </p>
+
+          <h2>2. Buyer Vetting</h2>
+          <p>
+            Buyers participating in transactions are vetted by our team before a sale is
+            completed. We reserve the right to decline or limit service to any buyer at our
+            discretion, including in cases of a suspicious pattern of excessive or abusive
+            preorder activity.
+          </p>
+
+          <h2>3. Product Condition &amp; Authenticity</h2>
+          <ul>
+            <li>All preorder items must be factory sealed.</li>
+            <li>Sellers must provide a photo showing the original seal or label has not been
+            peeled or tampered with, to help guarantee authenticity before a sale is completed.</li>
+            <li>Buyers are encouraged to photograph the item immediately upon receipt if the
+            seal appears broken or tampered with, to support any dispute claim.</li>
+          </ul>
+
+          <h2>4. Dispute Resolution</h2>
+          <p>
+            In the event of a dispute between a buyer and seller, all decisions are made at the
+            sole discretion of our team. Our decision on any dispute is final.
+          </p>
+
+          <h2>5. Transaction Fees</h2>
+          <p>
+            The standard transaction fee is 2.5% deducted from the seller's payout and 2.5%
+            added to the price the buyer pays, applied independently on each side (a 5% total
+            spread). A shipping-label fee also applies once per completed sale on each side —
+            $6 for the first box, plus $1 per additional box in the same sale — deducted from
+            the seller's payout and added to the buyer's total. Fees are subject to change with
+            a 90-day advance notice period, followed by a 10-day grace period, before any new
+            fee takes effect.
+          </p>
+
+          <h2>6. Changes to These Terms</h2>
+          <p>
+            We may update these terms from time to time. Continued use of the site after
+            changes are posted constitutes acceptance of the updated terms.
+          </p>
+
+          <p style={{ marginTop: '2rem', fontSize: '0.8rem', color: 'var(--muted)' }}>Last updated: 2026-07-24</p>
+        </div>
+      </main>
+
+      <footer className="site-footer">
+        <div className="wrap">
+          <p className="disclaimer">
+            This site is an independent release-tracking and interest-registration service.
+            It is not affiliated with, endorsed by, or sponsored by Topps, MLB, the NBA, the NFL,
+            the UFC, Disney, Marvel, or any other brand or league referenced here. All product
+            names and trademarks belong to their respective owners.
+          </p>
+        </div>
+      </footer>
+    </>
+  );
+}
