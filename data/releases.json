@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-07-24",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat) as of 2026-07-21. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-07-26",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat) as of 2026-07-26. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -129,6 +129,22 @@
       "description": "UFC-licensed release themed around the Freedom 250 card design."
     },
     {
+      "id": "2026-topps-chrome-baseball-mega",
+      "title": "2026 Topps Chrome Baseball Mega Box",
+      "sport": "Baseball",
+      "format": "Mega Box",
+      "releaseDate": "2026-08-05",
+      "description": "Mega-box configuration of Topps Chrome Baseball, releasing after the hobby wave."
+    },
+    {
+      "id": "2026-topps-chrome-baseball-value",
+      "title": "2026 Topps Chrome Baseball Value Box",
+      "sport": "Baseball",
+      "format": "Value Box",
+      "releaseDate": "2026-08-05",
+      "description": "Value-box configuration of Topps Chrome Baseball, releasing after the hobby wave."
+    },
+    {
       "id": "2026-topps-pristine",
       "title": "2026 Topps Pristine",
       "sport": "Baseball",
@@ -137,12 +153,36 @@
       "description": "Premium on-card autograph baseball product with refractor parallels."
     },
     {
+      "id": "2026-topps-star-wars-chrome-galaxy-hobby",
+      "title": "2026 Topps Star Wars Chrome Galaxy Hobby Box",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-12",
+      "description": "Chrome-format Star Wars release spanning the Galaxy of characters and moments."
+    },
+    {
+      "id": "2026-topps-star-wars-chrome-galaxy-case",
+      "title": "2026 Topps Star Wars Chrome Galaxy Hobby 12-Box Case",
+      "sport": "Entertainment",
+      "format": "12-Box Case",
+      "releaseDate": "2026-08-12",
+      "description": "Case configuration of Topps Star Wars Chrome Galaxy."
+    },
+    {
       "id": "2026-topps-ufc-stadium-club",
       "title": "2026 Topps UFC Stadium Club Hobby Box",
       "sport": "MMA",
       "format": "Hobby Box",
       "releaseDate": "2026-08-14",
       "description": "Stadium Club design language applied to the UFC roster."
+    },
+    {
+      "id": "2026-topps-ufc-stadium-club-mega",
+      "title": "2026 Topps UFC Stadium Club Mega Box",
+      "sport": "MMA",
+      "format": "Mega Box",
+      "releaseDate": "2026-08-14",
+      "description": "Mega-box configuration of Topps UFC Stadium Club."
     },
     {
       "id": "2026-topps-five-star-baseball",
@@ -169,6 +209,30 @@
       "description": "Traded players, rookies, and season highlights rounding out the flagship set."
     },
     {
+      "id": "2026-topps-holiday-baseball",
+      "title": "2026 Topps Holiday Baseball",
+      "sport": "Baseball",
+      "format": "Retail Box",
+      "releaseDate": "2026-10-22",
+      "description": "Holiday-themed retail release with snow-parallel variations."
+    },
+    {
+      "id": "2026-bowman-sterling-baseball",
+      "title": "2026 Bowman Sterling Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-31",
+      "description": "On-card autograph prospect release in Bowman's premium Sterling line."
+    },
+    {
+      "id": "2026-bowman-university-chrome-football",
+      "title": "2026 Bowman University Chrome Football",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-31",
+      "description": "Chrome-format college football prospect release under the Bowman University line."
+    },
+    {
       "id": "2026-topps-stadium-club-baseball",
       "title": "2026 Topps Stadium Club Baseball Hobby Box",
       "sport": "Baseball",
@@ -193,12 +257,76 @@
       "description": "Retro-styled baseball release reviving classic Topps designs."
     },
     {
+      "id": "2026-topps-heritage-high-number-baseball",
+      "title": "2026 Topps Heritage High Number Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-12-17",
+      "description": "High-number update to the vintage-styled Heritage baseball set."
+    },
+    {
+      "id": "2026-topps-triple-threads-baseball",
+      "title": "2026 Topps Triple Threads Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-12-19",
+      "description": "High-end relic and autograph release with multi-swatch memorabilia cards."
+    },
+    {
+      "id": "2026-bowman-baseball",
+      "title": "2026 Bowman Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-12-31",
+      "description": "Flagship Bowman prospect release for the 2026 season."
+    },
+    {
+      "id": "2026-topps-allen-ginter-baseball",
+      "title": "2026 Topps Allen & Ginter Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-12-31",
+      "description": "Vintage-styled release mixing baseball with non-sport subjects, a longtime Allen & Ginter tradition."
+    },
+    {
+      "id": "2026-topps-cosmic-chrome-football",
+      "title": "2026 Topps Cosmic Chrome Football Hobby Box",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-12-31",
+      "description": "High-end Chrome football release with cosmic-themed parallels."
+    },
+    {
+      "id": "2026-bowman-draft-baseball",
+      "title": "2026 Bowman Draft Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2027-01-14",
+      "description": "Draft-class prospect release under the Bowman brand."
+    },
+    {
       "id": "2026-27-topps-midnight-basketball",
       "title": "2026-27 Topps Midnight Basketball Hobby 8-Box Case",
       "sport": "Basketball",
       "format": "8-Box Case",
       "releaseDate": "2027-01-29",
       "description": "Case-only Midnight basketball release for the 2026-27 NBA season."
+    },
+    {
+      "id": "2026-topps-wwe-universe",
+      "title": "2026 Topps WWE Universe",
+      "sport": "Entertainment",
+      "format": "Blaster Box",
+      "releaseDate": "2027-01-30",
+      "description": "Retail-focused WWE release covering the current wrestling roster."
+    },
+    {
+      "id": "2026-topps-mls-chrome-soccer",
+      "title": "2026 Topps MLS Chrome Soccer Hobby Box",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2027-02-06",
+      "description": "Chrome-format release covering Major League Soccer."
     },
     {
       "id": "2026-bowmans-best-baseball",
