@@ -1,0 +1,201 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import DiscountBanner from './DiscountBanner';
+import ReleaseCard from './ReleaseCard';
+
+function todayISO() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function isSoldOut(release) {
+  return release.releaseDate < todayISO() || release.soldOut === true;
+}
+
+// Cap how many sold-out cards ever appear at once, so the page doesn't read as
+// "mostly sold out" — only the most recent MAX_SOLD_OUT_SHOWN are kept; older
+// sold-out releases are dropped from the listing entirely.
+const MAX_SOLD_OUT_SHOWN = 1;
+
+function limitSoldOut(releases) {
+  const active = releases.filter((r) => !isSoldOut(r));
+  const soldOut = releases
+    .filter((r) => isSoldOut(r))
+    .sort((a, b) => b.releaseDate.localeCompare(a.releaseDate))
+    .slice(0, MAX_SOLD_OUT_SHOWN);
+  return [...active, ...soldOut];
+}
+
+function formatGroupLabel(isoDate) {
+  const d = new Date(isoDate + 'T00:00:00');
+  return d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+}
+
+export default function HomeClient() {
+  const [allReleases, setAllReleases] = useState(null);
+  const [error, setError] = useState(false);
+  const [sourceNote, setSourceNote] = useState('');
+  const [sportFilter, setSportFilter] = useState('all');
+  const [inStockOnly, setInStockOnly] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/releases')
+      .then((res) => {
+        if (!res.ok) throw new Error('Request failed');
+        return res.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+        setAllReleases(limitSoldOut(data.releases));
+        setSourceNote(data.sourceNote ? `${data.sourceNote} Last updated ${data.lastUpdated}.` : '');
+      })
+      .catch(() => {
+        if (!cancelled) setError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const sports = useMemo(() => {
+    if (!allReleases) return [];
+    return [...new Set(allReleases.map((r) => r.sport))].sort();
+  }, [allReleases]);
+
+  const filtered = useMemo(() => {
+    if (!allReleases) return [];
+    let result = sportFilter === 'all' ? allReleases : allReleases.filter((r) => r.sport === sportFilter);
+    if (inStockOnly) {
+      result = result.filter((r) => !isSoldOut(r));
+    }
+    return result;
+  }, [allReleases, sportFilter, inStockOnly]);
+
+  const sorted = useMemo(
+    () => [...filtered].sort((a, b) => a.releaseDate.localeCompare(b.releaseDate)),
+    [filtered]
+  );
+
+  let status = null;
+  if (error) {
+    status = 'Could not load release data. Please refresh the page.';
+  } else if (allReleases && sorted.length === 0) {
+    status = 'No upcoming releases match this filter.';
+  }
+
+  let currentGroup = null;
+
+  return (
+    <>
+      <DiscountBanner />
+
+      <header className="site-header">
+        <div className="header-scrim"></div>
+        <div className="wrap header-content">
+          <h1>Topps Preorder Release Calendar</h1>
+          <p className="tagline">Upcoming Topps Releases, by date. Register your interest, no upfront payment required, pricing guaranteed to be lower than market.</p>
+          <div className="header-nav-links">
+            <a className="header-nav-link" href="/success.html">See Success Stories →</a>
+            <a className="header-nav-link" href="/marketplace.html">Browse Marketplace →</a>
+            <a className="header-nav-link" href="https://docs.google.com/forms/d/e/1FAIpQLScFl_nJ4tvYHxAmU6X-cQ5RoheIe4GJxTJnbQI5zUxqj4Ea3Q/viewform?usp=sharing&ouid=105723711896896295891" target="_blank" rel="noopener">Submit Slot Details →</a>
+            <a className="header-nav-link" href="/pokemon-autocheckout.html">Pokemon Center Autocheckout →</a>
+          </div>
+        </div>
+      </header>
+
+      <main className="wrap">
+        <div className="controls">
+          <label htmlFor="sport-filter">Filter by sport</label>
+          <select id="sport-filter" value={sportFilter} onChange={(e) => setSportFilter(e.target.value)}>
+            <option value="all">All sports</option>
+            {sports.map((sport) => <option value={sport} key={sport}>{sport}</option>)}
+          </select>
+          <button
+            id="in-stock-toggle"
+            type="button"
+            className={`stock-toggle-btn${inStockOnly ? ' active' : ''}`}
+            aria-pressed={inStockOnly}
+            onClick={() => setInStockOnly(!inStockOnly)}
+          >
+            In Stock Only
+          </button>
+        </div>
+
+        {status && <div className="status">{status}</div>}
+        <div className="releases">
+          {sorted.map((release) => {
+            const groupLabel = formatGroupLabel(release.releaseDate);
+            const showGroup = groupLabel !== currentGroup;
+            currentGroup = groupLabel;
+            return (
+              <div key={release.id} style={{ display: 'contents' }}>
+                {showGroup && <div className="date-group">{groupLabel}</div>}
+                <ReleaseCard release={release} soldOut={isSoldOut(release)} />
+              </div>
+            );
+          })}
+        </div>
+
+        <section id="faq" className="faq" aria-labelledby="faq-heading">
+          <h2 id="faq-heading">Frequently Asked Questions</h2>
+
+          <details>
+            <summary>What is PreorderCards?</summary>
+            <p>PreorderCards is an independent site that tracks upcoming Topps trading card release dates and lets you register interest for free, with no upfront payment required. It is not affiliated with, endorsed by, or sponsored by Topps or any league or brand referenced on the site.</p>
+          </details>
+
+          <details>
+            <summary>How do I preorder an upcoming Topps release?</summary>
+            <p>Browse the release calendar on PreorderCards, open a release, choose a quantity, and register your interest with an email address or phone number. No payment is collected at registration.</p>
+          </details>
+
+          <details>
+            <summary>Is there a fee to register interest in a preorder?</summary>
+            <p>No. Registering interest on PreorderCards is free. A transaction fee only applies if you later buy or sell through the PreorderCards Marketplace — see the <a href="/terms.html">Terms &amp; Conditions</a> page for the current fee structure.</p>
+          </details>
+
+          <details>
+            <summary>What happens if a Topps release sells out?</summary>
+            <p>PreorderCards marks sold-out releases clearly with a sold-out label and disables the registration form for that release, so availability shown on the site is always current.</p>
+          </details>
+
+          <details>
+            <summary>Is PreorderCards affiliated with Topps, Marvel, or any sports league?</summary>
+            <p>No. PreorderCards is an independent release-tracking and interest-registration service. It is not affiliated with, endorsed by, or sponsored by Topps, MLB, the NBA, the NFL, the UFC, Disney, Marvel, or any other brand or league referenced on the site.</p>
+          </details>
+
+          <details>
+            <summary>What is the PreorderCards Marketplace?</summary>
+            <p>The <a href="/marketplace.html">PreorderCards Marketplace</a> lets vetted, trusted sellers list factory-sealed, in-hand Topps inventory at a fixed price. Buyers register interest at that listed price — there is no bidding or offer negotiation.</p>
+          </details>
+
+          <details>
+            <summary>How does PreorderCards help verify authenticity?</summary>
+            <p>Marketplace sellers are required to keep the original factory seal and the original retailer tracking number visible on every item, and buyers are vetted before a sale is completed. Full requirements are on the <a href="/terms.html">Terms &amp; Conditions</a> page.</p>
+          </details>
+        </section>
+      </main>
+
+      <footer className="site-footer">
+        <div className="wrap">
+          <p id="source-note">{sourceNote}</p>
+          <p className="disclaimer" style={{ marginBottom: '0.5rem' }}>
+            Release dates are compiled from public trackers including <a href="https://www.beckett.com/" target="_blank" rel="noopener">Beckett</a> and Waxstat — always confirm on Topps.com before buying.
+          </p>
+          <p className="disclaimer">
+            This site is an independent release-tracking and interest-registration service.
+            It is not affiliated with, endorsed by, or sponsored by Topps, MLB, the NBA, the NFL,
+            the UFC, Disney, Marvel, or any other brand or league referenced here. All product
+            names and trademarks belong to their respective owners.
+          </p>
+          <p className="footer-links"><a href="/terms.html">Terms &amp; Conditions</a></p>
+        </div>
+      </footer>
+    </>
+  );
+}
