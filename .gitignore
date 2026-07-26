@@ -1,4 +1,5 @@
 node_modules/
+.next/
 data/preorders.db
 data/preorders.db-shm
 data/preorders.db-wal

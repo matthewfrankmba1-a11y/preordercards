@@ -1,0 +1,812 @@
+:root {
+  --navy: #0b1f3a;
+  --navy-light: #16305a;
+  --red: #d21f3c;
+  --red-dark: #a6172e;
+  --bg: #f5f6f8;
+  --card-bg: #ffffff;
+  --text: #1c1f26;
+  --muted: #6b7280;
+  --border: #e3e5ea;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.site-header {
+  position: relative;
+  overflow: hidden;
+  min-height: 340px;
+  display: flex;
+  align-items: flex-end;
+  background: linear-gradient(135deg, var(--navy), var(--navy-light)), url('/images/banner.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-blend-mode: overlay;
+  color: #fff;
+}
+
+.site-header.compact {
+  min-height: 190px;
+}
+
+/* Sport-color gradients — still used by release-card product-image thumbnails
+   (public/app.js buildProductImage), even though the header no longer shows
+   the fanned card montage. Do not remove without checking app.js first. */
+.tile-baseball { background: linear-gradient(160deg, #d62828, #6a040f); }
+.tile-basketball { background: linear-gradient(160deg, #f77f00, #a63c06); }
+.tile-football { background: linear-gradient(160deg, #6a9c1f, #294a0a); }
+.tile-mma { background: linear-gradient(160deg, #343a40, #101214); }
+.tile-soccer { background: linear-gradient(160deg, #0077b6, #023e8a); }
+.tile-entertainment { background: linear-gradient(160deg, #9d4edd, #ff006e); }
+
+.header-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(11, 31, 58, 0.1) 0%,
+    rgba(11, 31, 58, 0.55) 55%,
+    rgba(11, 31, 58, 0.95) 100%
+  );
+  pointer-events: none;
+}
+
+.header-content {
+  position: relative;
+  z-index: 2;
+  padding: 2rem 1.5rem 2.25rem;
+}
+
+.site-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2.1rem;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.tagline {
+  margin: 0;
+  color: #e3e8f2;
+  max-width: 640px;
+  line-height: 1.5;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.header-nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.header-nav-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.header-nav-link:hover {
+  border-bottom-color: #fff;
+}
+
+@media (max-width: 640px) {
+  .site-header { min-height: 260px; }
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.75rem 0 1.25rem;
+}
+
+.controls label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.controls select {
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 0.95rem;
+}
+
+.stock-toggle-btn {
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.stock-toggle-btn:hover {
+  border-color: var(--navy);
+  color: var(--navy);
+}
+
+.stock-toggle-btn.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
+.status {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: #fff3f3;
+  color: var(--red-dark);
+  margin-bottom: 1rem;
+}
+
+.date-group {
+  margin: 2rem 0 0.75rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--navy);
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0.4rem;
+}
+
+.releases {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  padding-bottom: 3rem;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+  padding: 1.75rem 0 3rem;
+}
+
+.photo-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.photo-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  object-fit: contain;
+  background: #fff;
+}
+
+.marketplace-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  padding-bottom: 3rem;
+}
+
+.listing-image {
+  margin: -1.1rem -1.1rem 0.2rem;
+  height: 180px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  overflow: hidden;
+  background: #f0f1f4;
+}
+
+.listing-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.date-group {
+  grid-column: 1 / -1;
+}
+
+.card {
+  position: relative;
+  overflow: hidden;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.card-dim {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+  filter: grayscale(0.9);
+  opacity: 0.55;
+}
+
+.card.sold-out .signup-form select:disabled,
+.card.sold-out .signup-form input:disabled,
+.card.sold-out .signup-form button:disabled,
+.card.sold-out .toggle-btn:disabled {
+  cursor: not-allowed;
+}
+
+.sold-out-ribbon {
+  position: absolute;
+  top: 16px;
+  left: -38px;
+  width: 150px;
+  padding: 4px 0;
+  background: #1c1f26;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: center;
+  transform: rotate(-45deg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.product-image {
+  margin: -1.1rem -1.1rem 0.2rem;
+  height: 130px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.product-image::before {
+  content: "TOPPS";
+  position: absolute;
+  top: 0.5rem;
+  left: 0.6rem;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.product-image-format {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.card-header {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+}
+
+.sport-badge {
+  background: #eef2ff;
+  color: var(--navy);
+}
+
+.format-badge {
+  background: #fdeceb;
+  color: var(--red-dark);
+}
+
+.card-title {
+  margin: 0.2rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.card-date {
+  margin: 0;
+  font-weight: 600;
+  color: var(--red-dark);
+  font-size: 0.9rem;
+}
+
+.card-desc {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  flex-grow: 1;
+}
+
+.card-preorder-note {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.card-count {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.signup-form {
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.form-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+.form-field select {
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.contact-toggle {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toggle-btn.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
+.signup-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.contact-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.contact-input:focus {
+  outline: 2px solid var(--red);
+  outline-offset: 1px;
+}
+
+.notify-btn {
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--red);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.notify-btn:hover {
+  background: var(--red-dark);
+}
+
+.notify-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.form-message {
+  margin: 0;
+  font-size: 0.8rem;
+  min-height: 1.1em;
+}
+
+.form-message.success { color: #1a7f37; }
+.form-message.error { color: var(--red-dark); }
+
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--navy-light, #2b5c8a);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.site-footer {
+  padding: 1.5rem 0 2.5rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.disclaimer {
+  max-width: 640px;
+  margin: 0.75rem auto 0;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+.footer-links {
+  margin: 0.6rem 0 0;
+  font-size: 0.78rem;
+}
+
+.footer-links a {
+  color: var(--muted);
+  text-decoration: underline;
+}
+
+.footer-links a:hover {
+  color: var(--navy);
+}
+
+.legal {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem 0 3.5rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.legal h2 {
+  font-size: 1.15rem;
+  margin: 2rem 0 0.5rem;
+}
+
+.legal h2:first-child {
+  margin-top: 0;
+}
+
+.legal p, .legal li {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.legal-notice {
+  background: #fff3f3;
+  border: 1px solid #fbdada;
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  color: var(--red-dark);
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.discount-banner {
+  background: var(--navy);
+  color: #fff;
+}
+
+.discount-banner-inner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  padding: 0.65rem 1.5rem;
+  position: relative;
+}
+
+.discount-banner-text {
+  margin: 0;
+  font-size: 0.9rem;
+  flex: 1 1 auto;
+  min-width: 200px;
+}
+
+.discount-banner-text strong {
+  color: #ffd166;
+}
+
+.discount-banner-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.discount-banner-form input[type="email"] {
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 0.85rem;
+  min-width: 200px;
+}
+
+.discount-banner-btn {
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--red);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.discount-banner-btn:hover { background: var(--red-dark); }
+.discount-banner-btn:disabled { opacity: 0.6; cursor: default; }
+
+.discount-banner-message {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffd166;
+}
+
+.discount-banner-dismiss {
+  background: none;
+  border: none;
+  color: #fff;
+  opacity: 0.7;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.25rem;
+}
+
+.discount-banner-dismiss:hover { opacity: 1; }
+
+@media (max-width: 560px) {
+  .discount-banner-inner { padding-right: 2.5rem; }
+  .discount-banner-dismiss { position: absolute; top: 0.5rem; right: 0.75rem; }
+}
+
+.faq {
+  max-width: 720px;
+  margin: 2.5rem auto 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.faq h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.faq details {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.faq summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.faq details p {
+  margin: 0.6rem 0 0.1rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .faq details { background: #161b26; border-color: #2a3040; }
+}
+
+@media (prefers-color-scheme: dark) {
+  .legal-notice { background: #2a1416; border-color: #4a2226; color: #ffb3bb; }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --card-bg: #171a21;
+    --text: #e7e9ee;
+    --muted: #9aa1ad;
+    --border: #2a2e37;
+  }
+  .controls select { background: #171a21; color: var(--text); }
+  .stock-toggle-btn { background: #171a21; color: var(--muted); }
+  .toggle-btn { background: #171a21; color: var(--muted); }
+  .contact-input { background: #101319; color: var(--text); }
+  .form-field select { background: #101319; color: var(--text); }
+  .sport-badge { background: #1b2440; color: #b9c6ff; }
+  .format-badge { background: #3a1c22; color: #ffb3bb; }
+  .seller-auth-form input, .seller-listing-form input, .seller-listing-form textarea {
+    background: #101319;
+    color: var(--text);
+  }
+}
+
+/* Seller dashboard */
+
+.seller-auth-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1.5rem 0 1rem;
+}
+
+.seller-tab-btn {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.seller-tab-btn.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
+.seller-auth-form {
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 3rem;
+}
+
+.seller-auth-form[hidden] {
+  display: none;
+}
+
+.seller-auth-form input {
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.seller-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1.5rem 0 1rem;
+}
+
+.seller-listing-form {
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.seller-listing-form input,
+.seller-listing-form textarea,
+.seller-listing-form select {
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.fee-preview {
+  margin: -0.25rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.seller-listings {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  padding-bottom: 3rem;
+}
+
+.seller-listing-card {
+  gap: 0.5rem;
+}
+
+.admin-label-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.25rem 0;
+}
+
+.admin-label-form input[type="file"] {
+  font-size: 0.8rem;
+}
+
+.admin-seller-details {
+  background: #fff8e1;
+  border: 1px solid #f0dfa0;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.4rem 0;
+}
+
+.admin-seller-details summary {
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.admin-seller-details p {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin-seller-details { background: #2a2410; border-color: #4a4020; }
+}
