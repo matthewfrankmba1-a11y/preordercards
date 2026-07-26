@@ -347,15 +347,28 @@ row or re-notify Discord) and posted to its own dedicated
 - Currently homepage-only; the markup/script/CSS could be dropped into
   `marketplace.html` or other pages the same way if wanted later.
 
-## Stats summary (Discord, every 6 hours)
+## Stats summary (Discord, once daily at 9am ET)
 
-`statsSummary.js` posts a "📊 Site Activity Summary" embed every 6 hours
-(`startStatsSummarySchedule()`, called once at server startup in
-`server.js` via `setInterval` — the process is always-on on Render's
-Starter plan, so no external cron is needed) to
-`STATS_SUMMARY_WEBHOOK_URL` if set, else falling back to the main
-`DISCORD_WEBHOOK_URL`. Swap `STATS_SUMMARY_WEBHOOK_URL` in Render's
-Environment tab to point it elsewhere later without a code change.
+`statsSummary.js` posts a "📊 Site Activity Summary" embed once a day at
+9am America/New_York (`startStatsSummarySchedule()`, called once at
+server startup in `server.js`) to `STATS_SUMMARY_WEBHOOK_URL` if set,
+else falling back to the main `DISCORD_WEBHOOK_URL`. Swap
+`STATS_SUMMARY_WEBHOOK_URL` in Render's Environment tab to point it
+elsewhere later without a code change.
+
+Was every 6 hours (4x/day) — changed to once daily because it was
+generating too many alerts. Implemented as a 5-minute `setInterval`
+tick that checks the wall-clock hour in `America/New_York` via
+`Intl.DateTimeFormat` (DST-safe — verified against both summer/EDT and
+winter/EST) rather than a fixed 24-hour timer, so it fires at a
+consistent time of day instead of drifting with every server
+restart/redeploy. A "ran today already" guard (comparing the stored
+`last_run_at` date-in-ET against today's date-in-ET) keeps it from
+firing more than once even though the tick checks every 5 minutes
+throughout the entire 9am hour. If the process happens to be
+mid-deploy for the whole 9am hour, that day's summary is simply
+skipped — no catch-up mechanism, and not worth building one for a
+once-daily digest.
 
 Each post covers activity **since the last summary** (tracked in the
 `stats_summary_state` table, a single row) — not all-time totals:
@@ -388,7 +401,7 @@ Each post covers activity **since the last summary** (tracked in the
   Until both are set, the summary just shows "Not configured yet" for
   this field — everything else still works.
 
-Manually trigger a run early for testing without disturbing the 6-hour
+Manually trigger a run early for testing without disturbing the daily
 schedule: `POST /api/admin/stats-summary/run` (header `x-admin-secret`) —
 returns the same counts that were just posted to Discord.
 

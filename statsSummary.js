@@ -10,7 +10,27 @@ const { getDailyActiveUsers } = require('./ga4');
 // Defaults to the main site webhook for now — swap STATS_SUMMARY_WEBHOOK_URL
 // in the environment to point this at a different one later without a code change.
 const WEBHOOK_URL = process.env.STATS_SUMMARY_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL;
-const INTERVAL_MS = 6 * 60 * 60 * 1000;
+
+// Fires once daily, not on a fixed interval — was every 6 hours, which
+// posted 4x/day and was too noisy. Checked via a 5-minute tick against wall
+// -clock time (not a 24h setInterval) so it lands at a specific hour rather
+// than drifting with every server restart/redeploy.
+const LOOKBACK_MS = 24 * 60 * 60 * 1000;
+const TICK_INTERVAL_MS = 5 * 60 * 1000;
+const TARGET_HOUR = 9; // 9am
+const TARGET_TIMEZONE = 'America/New_York';
+
+function sqlToDate(sql) {
+  return new Date(sql.replace(' ', 'T') + 'Z');
+}
+
+function hourInTZ(date, timeZone) {
+  return Number(new Intl.DateTimeFormat('en-US', { timeZone, hour: '2-digit', hour12: false }).format(date));
+}
+
+function dateStringInTZ(date, timeZone) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone }).format(date); // YYYY-MM-DD
+}
 
 // SQLite's CURRENT_TIMESTAMP (used by every created_at column in this app)
 // produces 'YYYY-MM-DD HH:MM:SS' in UTC — no 'T', no 'Z', no milliseconds.
@@ -23,7 +43,7 @@ function sqliteUtcNow(date = new Date()) {
 
 async function runStatsSummary() {
   const state = getStatsSummaryState.get();
-  const sinceSql = state && state.lastRunAt ? state.lastRunAt : sqliteUtcNow(new Date(Date.now() - INTERVAL_MS));
+  const sinceSql = state && state.lastRunAt ? state.lastRunAt : sqliteUtcNow(new Date(Date.now() - LOOKBACK_MS));
   const nowSql = sqliteUtcNow();
 
   const slotCount = countSlotSubmissionsSince.get(sinceSql).c;
@@ -75,8 +95,16 @@ async function runStatsSummary() {
 
 function startStatsSummarySchedule() {
   setInterval(() => {
+    const now = new Date();
+    if (hourInTZ(now, TARGET_TIMEZONE) !== TARGET_HOUR) return;
+
+    const state = getStatsSummaryState.get();
+    const alreadyRanToday =
+      state && state.lastRunAt && dateStringInTZ(sqlToDate(state.lastRunAt), TARGET_TIMEZONE) === dateStringInTZ(now, TARGET_TIMEZONE);
+    if (alreadyRanToday) return;
+
     runStatsSummary().catch((err) => console.error('Stats summary run failed:', err.message));
-  }, INTERVAL_MS);
+  }, TICK_INTERVAL_MS);
 }
 
 module.exports = { runStatsSummary, startStatsSummarySchedule };
