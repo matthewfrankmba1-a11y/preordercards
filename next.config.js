@@ -19,6 +19,14 @@ const CSP = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // discord.js's WebSocket layer optionally lazy-loads compression libs
+  // (zlib-sync, bufferutil) via a runtime try/catch dynamic import — it
+  // works fine without them, but Turbopack/webpack try to statically
+  // resolve that import at bundle time and fail since they're not
+  // installed. Marking discord.js external tells Next.js to just
+  // require() it directly at runtime like plain Node code, same as it
+  // always worked under the old Express server (no bundler at all).
+  serverExternalPackages: ['discord.js', '@discordjs/ws', 'better-sqlite3'],
   async headers() {
     return [
       {
