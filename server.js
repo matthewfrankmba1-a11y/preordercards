@@ -16,6 +16,8 @@ const {
 } = require('./db');
 const bot = require('./bot');
 const { runStatsSummary, startStatsSummarySchedule } = require('./statsSummary');
+const { EMAIL_RE, normalizePhone, createRateLimiter, requireAdminSecret, SPORT_EMOJI } = require('./utils');
+const { sendEmail, isEmailConfigured } = require('./email');
 
 const app = express();
 // Render (and most PaaS hosts) put the app behind a reverse proxy. Without this,
@@ -27,26 +29,12 @@ const PORT = process.env.PORT || 3000;
 const RELEASES_PATH = path.join(__dirname, 'data', 'releases.json');
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const DISCOUNT_SIGNUP_WEBHOOK_URL = process.env.DISCOUNT_SIGNUP_WEBHOOK_URL;
-const ADMIN_SECRET = process.env.ADMIN_SECRET;
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const EMAIL_FROM = process.env.EMAIL_FROM || 'PreorderCards <admin@preordercards.com>';
 const SLOT_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLScFl_nJ4tvYHxAmU6X-cQ5RoheIe4GJxTJnbQI5zUxqj4Ea3Q/viewform?usp=sharing&ouid=105723711896896295891';
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
-
-const SPORT_EMOJI = {
-  Baseball: '⚾',
-  Basketball: '🏀',
-  Football: '🏈',
-  MMA: '🥊',
-  Soccer: '⚽',
-  Entertainment: '🎬',
-};
 
 // Fire-and-forget Discord alert — never let a webhook hiccup block or fail the signup itself.
 async function notifyDiscord(release, { contactType, contactValue, quantity }) {
@@ -83,127 +71,89 @@ async function notifyDiscord(release, { contactType, contactValue, quantity }) {
 // clicked "Send Confirmation Email" (e.g. "domain not verified").
 async function sendConfirmationEmail(release, { contactType, contactValue, quantity }) {
   if (contactType !== 'email') return { ok: false, error: 'No email address on file.' };
-  if (!RESEND_API_KEY) return { ok: false, error: 'RESEND_API_KEY is not configured.' };
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: EMAIL_FROM,
-        to: [contactValue],
-        subject: `We've received your inquiry — ${release.title}`,
-        text: [
-          `We've received your inquiry about ${release.title} (releasing ${release.releaseDate}), quantity ${quantity}.`,
-          '',
-          "No payment was collected — this acknowledges your inquiry. We'll be in touch when the product is released and we've secured our allocation.",
-          '',
-          "For Slots: you'll know the service fee per successful box checkout ahead of the scheduled release. Orders ship directly from the retailer to you — the retailer handles product billing, and the service fee is paid separately via PayPal, Venmo, or Stripe.",
-          '',
-          'For Preorder: the price per box is set once the market has established an average from the first 5-10 public sales, discounted 6-7% off that average, with free shipping.',
-          '',
-          "If you're looking to lock in a slot, fill out our Slot Details form here:",
-          SLOT_FORM_URL,
-          '',
-          'You can also find this same link anytime at the top of our homepage under "Submit Slot Details."',
-          '',
-          '— PreorderCards',
-          '',
-          'PreorderCards is an independent tracker and is not affiliated with Topps or any league/brand referenced.',
-        ].join('\n'),
-        html: `
-          <p>We've received your inquiry about <strong>${escapeHtml(release.title)}</strong>
-          (releasing ${release.releaseDate}), quantity ${quantity}.</p>
-          <p>No payment was collected — this acknowledges your inquiry. We'll be in touch
-          when the product is released and we've secured our allocation.</p>
-          <p><strong>For Slots:</strong> you'll know the service fee per successful box checkout
-          ahead of the scheduled release. Orders ship directly from the retailer to you — the
-          retailer handles product billing, and the service fee is paid separately via PayPal,
-          Venmo, or Stripe.</p>
-          <p><strong>For Preorder:</strong> the price per box is set once the market has
-          established an average from the first 5-10 public sales, discounted 6-7% off that
-          average, with free shipping.</p>
-          <p>If you're looking to lock in a slot, fill out our
-          <a href="${SLOT_FORM_URL}">Slot Details form</a>.
-          You can also find this same link anytime at the top of our homepage under
-          "Submit Slot Details."</p>
-          <p>— PreorderCards</p>
-          <p style="color:#888;font-size:12px">PreorderCards is an independent tracker and is
-          not affiliated with Topps or any league/brand referenced.</p>
-        `,
-      }),
-    });
-    if (!res.ok) {
-      const body = await res.text();
-      console.error('Resend email failed:', res.status, body);
-      return { ok: false, error: `Resend ${res.status}: ${body}` };
-    }
-    return { ok: true };
-  } catch (err) {
-    console.error('Resend email failed:', err.message);
-    return { ok: false, error: err.message };
-  }
+  if (!isEmailConfigured()) return { ok: false, error: 'RESEND_API_KEY is not configured.' };
+  return sendEmail({
+    to: contactValue,
+    subject: `We've received your inquiry — ${release.title}`,
+    text: [
+      `We've received your inquiry about ${release.title} (releasing ${release.releaseDate}), quantity ${quantity}.`,
+      '',
+      "No payment was collected — this acknowledges your inquiry. We'll be in touch when the product is released and we've secured our allocation.",
+      '',
+      "For Slots: you'll know the service fee per successful box checkout ahead of the scheduled release. Orders ship directly from the retailer to you — the retailer handles product billing, and the service fee is paid separately via PayPal, Venmo, or Stripe.",
+      '',
+      'For Preorder: the price per box is set once the market has established an average from the first 5-10 public sales, discounted 6-7% off that average, with free shipping.',
+      '',
+      "If you're looking to lock in a slot, fill out our Slot Details form here:",
+      SLOT_FORM_URL,
+      '',
+      'You can also find this same link anytime at the top of our homepage under "Submit Slot Details."',
+      '',
+      '— PreorderCards',
+      '',
+      'PreorderCards is an independent tracker and is not affiliated with Topps or any league/brand referenced.',
+    ].join('\n'),
+    html: `
+      <p>We've received your inquiry about <strong>${escapeHtml(release.title)}</strong>
+      (releasing ${release.releaseDate}), quantity ${quantity}.</p>
+      <p>No payment was collected — this acknowledges your inquiry. We'll be in touch
+      when the product is released and we've secured our allocation.</p>
+      <p><strong>For Slots:</strong> you'll know the service fee per successful box checkout
+      ahead of the scheduled release. Orders ship directly from the retailer to you — the
+      retailer handles product billing, and the service fee is paid separately via PayPal,
+      Venmo, or Stripe.</p>
+      <p><strong>For Preorder:</strong> the price per box is set once the market has
+      established an average from the first 5-10 public sales, discounted 6-7% off that
+      average, with free shipping.</p>
+      <p>If you're looking to lock in a slot, fill out our
+      <a href="${SLOT_FORM_URL}">Slot Details form</a>.
+      You can also find this same link anytime at the top of our homepage under
+      "Submit Slot Details."</p>
+      <p>— PreorderCards</p>
+      <p style="color:#888;font-size:12px">PreorderCards is an independent tracker and is
+      not affiliated with Topps or any league/brand referenced.</p>
+    `,
+  });
 }
 
 // Batch reminder sent to everyone who already registered interest by email
 // for a release, as its date approaches — distinct from sendConfirmationEmail
 // above, which fires once per registrant via the Discord button.
 async function sendDropReminderEmail(release, { contactValue, quantity }) {
-  if (!RESEND_API_KEY) return { ok: false, error: 'RESEND_API_KEY is not configured.' };
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: EMAIL_FROM,
-        to: [contactValue],
-        subject: `${release.title} drops soon — here's what's next`,
-        text: [
-          `This confirms we've received your preorder inquiry for ${release.title} (quantity ${quantity}) — the drop is coming up on ${release.releaseDate}.`,
-          '',
-          "You've got two options:",
-          '',
-          'SLOTS — less expensive than a traditional preorder. If you\'d rather run a slot, fill out our Slot Details form:',
-          SLOT_FORM_URL,
-          '',
-          "TRADITIONAL PREORDER — no action needed. We'll send an allocation email once the release is out and we've secured stock.",
-          '',
-          'Questions? Just reply to this email.',
-          '',
-          '— PreorderCards',
-          '',
-          'PreorderCards is an independent tracker and is not affiliated with Topps or any league/brand referenced.',
-        ].join('\n'),
-        html: `
-          <p>This confirms we've received your preorder inquiry for <strong>${escapeHtml(release.title)}</strong>
-          (quantity ${quantity}) — the drop is coming up on ${release.releaseDate}.</p>
-          <p>You've got two options:</p>
-          <p><strong>Slots</strong> — less expensive than a traditional preorder. If you'd rather run a
-          slot, fill out our <a href="${SLOT_FORM_URL}">Slot Details form</a>.</p>
-          <p><strong>Traditional preorder</strong> — no action needed. We'll send an allocation email
-          once the release is out and we've secured stock.</p>
-          <p>Questions? Just reply to this email.</p>
-          <p>— PreorderCards</p>
-          <p style="color:#888;font-size:12px">PreorderCards is an independent tracker and is
-          not affiliated with Topps or any league/brand referenced.</p>
-        `,
-      }),
-    });
-    if (!res.ok) {
-      const body = await res.text();
-      console.error('Drop reminder email failed:', res.status, body);
-      return { ok: false, error: `Resend ${res.status}: ${body}` };
-    }
-    return { ok: true };
-  } catch (err) {
-    console.error('Drop reminder email failed:', err.message);
-    return { ok: false, error: err.message };
-  }
+  if (!isEmailConfigured()) return { ok: false, error: 'RESEND_API_KEY is not configured.' };
+  return sendEmail({
+    to: contactValue,
+    subject: `${release.title} drops soon — here's what's next`,
+    text: [
+      `This confirms we've received your preorder inquiry for ${release.title} (quantity ${quantity}) — the drop is coming up on ${release.releaseDate}.`,
+      '',
+      "You've got two options:",
+      '',
+      'SLOTS — less expensive than a traditional preorder. If you\'d rather run a slot, fill out our Slot Details form:',
+      SLOT_FORM_URL,
+      '',
+      "TRADITIONAL PREORDER — no action needed. We'll send an allocation email once the release is out and we've secured stock.",
+      '',
+      'Questions? Just reply to this email.',
+      '',
+      '— PreorderCards',
+      '',
+      'PreorderCards is an independent tracker and is not affiliated with Topps or any league/brand referenced.',
+    ].join('\n'),
+    html: `
+      <p>This confirms we've received your preorder inquiry for <strong>${escapeHtml(release.title)}</strong>
+      (quantity ${quantity}) — the drop is coming up on ${release.releaseDate}.</p>
+      <p>You've got two options:</p>
+      <p><strong>Slots</strong> — less expensive than a traditional preorder. If you'd rather run a
+      slot, fill out our <a href="${SLOT_FORM_URL}">Slot Details form</a>.</p>
+      <p><strong>Traditional preorder</strong> — no action needed. We'll send an allocation email
+      once the release is out and we've secured stock.</p>
+      <p>Questions? Just reply to this email.</p>
+      <p>— PreorderCards</p>
+      <p style="color:#888;font-size:12px">PreorderCards is an independent tracker and is
+      not affiliated with Topps or any league/brand referenced.</p>
+    `,
+  });
 }
 
 // Extend the default CSP (script-src 'self' etc.) just enough to allow Google
@@ -268,31 +218,8 @@ function todayISO() {
   return `${y}-${m}-${day}`;
 }
 
-function normalizePhone(value) {
-  const trimmed = value.trim();
-  const hasPlus = trimmed.startsWith('+');
-  const digits = trimmed.replace(/\D/g, '');
-  if (digits.length < 10 || digits.length > 15) return null;
-  return (hasPlus ? '+' : '') + digits;
-}
-
-// Simple in-memory rate limiter: N requests per window per IP, to slow down
-// signup abuse without adding an external dependency for this small app.
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
-const RATE_LIMIT_MAX = 20;
-const hitsByIp = new Map();
-
-function rateLimit(req, res, next) {
-  const ip = req.ip;
-  const now = Date.now();
-  const hits = (hitsByIp.get(ip) || []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
-  if (hits.length >= RATE_LIMIT_MAX) {
-    return res.status(429).json({ error: 'Too many requests from this address. Try again later.' });
-  }
-  hits.push(now);
-  hitsByIp.set(ip, hits);
-  next();
-}
+// Own bucket, independent from sellerAuth.js's and marketplace.js's limiters.
+const rateLimit = createRateLimiter();
 
 app.get('/api/releases', (req, res) => {
   const data = loadReleases();
@@ -408,20 +335,14 @@ app.post('/api/interest', rateLimit, (req, res) => {
 // Called by the Slot Details Google Form's Apps Script alongside its Discord
 // post, purely to log a count for the stats-summary — never triggers a
 // notification itself.
-app.post('/api/slot-submission-ping', (req, res) => {
-  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
-    return res.status(403).json({ error: 'Forbidden.' });
-  }
+app.post('/api/slot-submission-ping', requireAdminSecret, (req, res) => {
   insertSlotSubmission.run();
   res.json({ success: true });
 });
 
 // Manually fires the 6-hourly stats summary early, for testing — does not
 // affect the schedule (still runs every INTERVAL_MS from server start).
-app.post('/api/admin/stats-summary/run', async (req, res) => {
-  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
-    return res.status(403).json({ error: 'Forbidden.' });
-  }
+app.post('/api/admin/stats-summary/run', requireAdminSecret, async (req, res) => {
   const result = await runStatsSummary();
   res.json({ success: true, ...result });
 });
@@ -429,10 +350,7 @@ app.post('/api/admin/stats-summary/run', async (req, res) => {
 // Batch-sends the "drop is coming up" reminder to everyone who registered
 // interest by email in a specific release and hasn't already received it.
 // Deliberately manual (per release, admin-triggered) rather than scheduled.
-app.post('/api/admin/send-drop-reminder', async (req, res) => {
-  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
-    return res.status(403).json({ error: 'Forbidden.' });
-  }
+app.post('/api/admin/send-drop-reminder', requireAdminSecret, async (req, res) => {
   const releaseId = req.body?.releaseId;
   if (!releaseId) return res.status(400).json({ error: 'Missing releaseId.' });
 
@@ -461,10 +379,7 @@ app.post('/api/admin/send-drop-reminder', async (req, res) => {
 // Skips everyone else pending for a release (marks reminded without
 // emailing) so a single address can be tested in isolation before firing
 // a real batch send to everyone.
-app.post('/api/admin/skip-drop-reminder-except', (req, res) => {
-  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
-    return res.status(403).json({ error: 'Forbidden.' });
-  }
+app.post('/api/admin/skip-drop-reminder-except', requireAdminSecret, (req, res) => {
   const { releaseId, exceptContactValue } = req.body || {};
   if (!releaseId || !exceptContactValue) {
     return res.status(400).json({ error: 'Missing releaseId or exceptContactValue.' });

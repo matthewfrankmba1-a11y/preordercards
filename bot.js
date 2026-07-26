@@ -7,18 +7,10 @@ const {
   ButtonStyle,
 } = require('discord.js');
 const { getInterestById, markEmailSent } = require('./db');
+const { SPORT_EMOJI } = require('./utils');
 
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
-
-const SPORT_EMOJI = {
-  Baseball: '⚾',
-  Basketball: '🏀',
-  Football: '🏈',
-  MMA: '🥊',
-  Soccer: '⚽',
-  Entertainment: '🎬',
-};
 
 let client = null;
 let ready = false;

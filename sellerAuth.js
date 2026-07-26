@@ -26,23 +26,13 @@ const {
   deleteSellerById,
   deleteInviteKeyByCode,
 } = require('./db');
+const { EMAIL_RE, normalizePhone, createRateLimiter, requireAdminSecret } = require('./utils');
+const { sendEmail, isEmailConfigured } = require('./email');
 
 const SESSION_COOKIE = 'seller_session';
 const SESSION_DAYS = 30;
-const ADMIN_SECRET = process.env.ADMIN_SECRET;
 const KEY_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I to avoid confusion
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const EMAIL_FROM = process.env.EMAIL_FROM || 'PreorderCards <admin@preordercards.com>';
 const SITE_URL = process.env.SITE_URL || 'https://preordercards.com';
-
-function normalizePhone(value) {
-  const trimmed = value.trim();
-  const hasPlus = trimmed.startsWith('+');
-  const digits = trimmed.replace(/\D/g, '');
-  if (digits.length < 10 || digits.length > 15) return null;
-  return (hasPlus ? '+' : '') + digits;
-}
 
 function generateInviteKeyCode() {
   const groups = [];
@@ -133,23 +123,8 @@ function requireSellerAuth(req, res, next) {
   next();
 }
 
-// Simple in-memory rate limiter for auth attempts, mirroring the pattern
-// already used for /api/interest in server.js.
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
-const RATE_LIMIT_MAX = 20;
-const hitsByIp = new Map();
-
-function rateLimit(req, res, next) {
-  const ip = req.ip;
-  const now = Date.now();
-  const hits = (hitsByIp.get(ip) || []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
-  if (hits.length >= RATE_LIMIT_MAX) {
-    return res.status(429).json({ error: 'Too many attempts from this address. Try again later.' });
-  }
-  hits.push(now);
-  hitsByIp.set(ip, hits);
-  next();
-}
+// Own bucket, independent from server.js's and marketplace.js's limiters.
+const rateLimit = createRateLimiter({ message: 'Too many attempts from this address. Try again later.' });
 
 const router = express.Router();
 
@@ -298,7 +273,7 @@ async function issuePasswordResetEmail(seller, noEmailMessage) {
   if (!seller.email) {
     return { ok: false, status: 400, error: noEmailMessage };
   }
-  if (!RESEND_API_KEY) {
+  if (!isEmailConfigured()) {
     return { ok: false, status: 500, error: 'Email sending is not configured.' };
   }
 
@@ -308,26 +283,12 @@ async function issuePasswordResetEmail(seller, noEmailMessage) {
   insertPasswordReset.run({ token, sellerId: seller.id, expiresAt: expiresAt.toISOString() });
 
   const resetUrl = `${SITE_URL}/reset-password.html?token=${token}`;
-  try {
-    const emailRes = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: EMAIL_FROM,
-        to: [seller.email],
-        subject: 'Reset your PreorderCards seller password',
-        text: `Someone requested a password reset for your PreorderCards seller account.\n\nReset your password here (this link expires in 1 hour): ${resetUrl}\n\nIf you didn't request this, you can ignore this email — your password won't change.`,
-      }),
-    });
-    if (!emailRes.ok) {
-      console.error('Password reset email failed:', emailRes.status, await emailRes.text());
-      return { ok: false, status: 502, error: 'Failed to send the reset email. Try again later.' };
-    }
-  } catch (err) {
-    console.error('Password reset email failed:', err.message);
+  const result = await sendEmail({
+    to: seller.email,
+    subject: 'Reset your PreorderCards seller password',
+    text: `Someone requested a password reset for your PreorderCards seller account.\n\nReset your password here (this link expires in 1 hour): ${resetUrl}\n\nIf you didn't request this, you can ignore this email — your password won't change.`,
+  });
+  if (!result.ok) {
     return { ok: false, status: 502, error: 'Failed to send the reset email. Try again later.' };
   }
   return { ok: true };
@@ -360,7 +321,7 @@ async function issueAccountRecoveryEmail(seller) {
   if (!seller.email) {
     return { ok: false, status: 400, error: 'This account has no alert email on file. Contact admin@preordercards.com to recover your account.' };
   }
-  if (!RESEND_API_KEY) {
+  if (!isEmailConfigured()) {
     return { ok: false, status: 500, error: 'Email sending is not configured.' };
   }
 
@@ -370,26 +331,12 @@ async function issueAccountRecoveryEmail(seller) {
   insertPasswordReset.run({ token, sellerId: seller.id, expiresAt: expiresAt.toISOString() });
   const resetUrl = `${SITE_URL}/reset-password.html?token=${token}`;
 
-  try {
-    const emailRes = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: EMAIL_FROM,
-        to: [seller.email],
-        subject: 'Your PreorderCards account recovery',
-        text: `Someone requested account recovery for your PreorderCards seller account using your name and phone number.\n\nYour invite key: ${seller.invite_key}\n\nIf you'd also like to set a new password, use this link (expires in 1 hour): ${resetUrl}\n\nIf you didn't request this, you can ignore this email — nothing has changed on your account.`,
-      }),
-    });
-    if (!emailRes.ok) {
-      console.error('Account recovery email failed:', emailRes.status, await emailRes.text());
-      return { ok: false, status: 502, error: 'Failed to send the recovery email. Try again later.' };
-    }
-  } catch (err) {
-    console.error('Account recovery email failed:', err.message);
+  const result = await sendEmail({
+    to: seller.email,
+    subject: 'Your PreorderCards account recovery',
+    text: `Someone requested account recovery for your PreorderCards seller account using your name and phone number.\n\nYour invite key: ${seller.invite_key}\n\nIf you'd also like to set a new password, use this link (expires in 1 hour): ${resetUrl}\n\nIf you didn't request this, you can ignore this email — nothing has changed on your account.`,
+  });
+  if (!result.ok) {
     return { ok: false, status: 502, error: 'Failed to send the recovery email. Try again later.' };
   }
   return { ok: true };
@@ -441,19 +388,13 @@ router.post('/reset-password', rateLimit, (req, res) => {
 
 // Read-only listing of every invite key ever generated, plus the real alias
 // (display_name) if it's been used to sign up — for admin record-keeping.
-router.get('/admin/keys', (req, res) => {
-  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
-    return res.status(403).json({ error: 'Forbidden.' });
-  }
+router.get('/admin/keys', requireAdminSecret, (req, res) => {
   res.json({ keys: listInviteKeysWithAlias.all() });
 });
 
 // Read-only: look up a key + its seller (if used) and their listing count,
 // so the admin can decide what a revoke would affect before doing it.
-router.get('/admin/lookup-key', (req, res) => {
-  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
-    return res.status(403).json({ error: 'Forbidden.' });
-  }
+router.get('/admin/lookup-key', requireAdminSecret, (req, res) => {
   const keyCode = String(req.query.key || '').trim().toUpperCase();
   const keyRow = getInviteKey.get(keyCode);
   if (!keyRow) return res.status(404).json({ error: 'Key not found.' });
@@ -472,10 +413,7 @@ router.get('/admin/lookup-key', (req, res) => {
 // their listings, listing interests, and sessions, then deletes the key
 // itself. Irreversible — meant to be called after the admin has confirmed
 // what it will affect via /admin/lookup-key.
-router.post('/admin/revoke-key', (req, res) => {
-  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
-    return res.status(403).json({ error: 'Forbidden.' });
-  }
+router.post('/admin/revoke-key', requireAdminSecret, (req, res) => {
   const keyCode = String(req.body?.keyCode || '').trim().toUpperCase();
   const keyRow = getInviteKey.get(keyCode);
   if (!keyRow) return res.status(404).json({ error: 'Key not found.' });
@@ -520,15 +458,12 @@ function buildTrustedSellerEmail(keyCode, expiresAt) {
 // seller with the full onboarding rundown (fees, listing rules, product
 // integrity requirements, escrow terms). Protected by the same shared
 // admin secret as the other key-management routes.
-router.post('/admin/invite-trusted-seller', async (req, res) => {
-  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
-    return res.status(403).json({ error: 'Forbidden.' });
-  }
+router.post('/admin/invite-trusted-seller', requireAdminSecret, async (req, res) => {
   const email = String(req.body?.email || '').trim().toLowerCase();
   if (!EMAIL_RE.test(email) || email.length > 254) {
     return res.status(400).json({ error: 'Enter a valid email address.' });
   }
-  if (!RESEND_API_KEY) {
+  if (!isEmailConfigured()) {
     return res.status(500).json({ error: 'Email sending is not configured.' });
   }
 
@@ -536,27 +471,12 @@ router.post('/admin/invite-trusted-seller', async (req, res) => {
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
   insertInviteKey.run({ keyCode, keyType: 'seller', expiresAt: expiresAt.toISOString() });
 
-  try {
-    const emailRes = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: EMAIL_FROM,
-        to: [email],
-        subject: "You're invited: PreorderCards Trusted Seller Program",
-        text: buildTrustedSellerEmail(keyCode, expiresAt),
-      }),
-    });
-    if (!emailRes.ok) {
-      const body = await emailRes.text();
-      console.error('Trusted-seller invite email failed:', emailRes.status, body);
-      return res.status(502).json({ error: 'Key was created, but the invite email failed to send.', keyCode, expiresAt: expiresAt.toISOString() });
-    }
-  } catch (err) {
-    console.error('Trusted-seller invite email failed:', err.message);
+  const result = await sendEmail({
+    to: email,
+    subject: "You're invited: PreorderCards Trusted Seller Program",
+    text: buildTrustedSellerEmail(keyCode, expiresAt),
+  });
+  if (!result.ok) {
     return res.status(502).json({ error: 'Key was created, but the invite email failed to send.', keyCode, expiresAt: expiresAt.toISOString() });
   }
 
@@ -565,10 +485,7 @@ router.post('/admin/invite-trusted-seller', async (req, res) => {
 
 // Lets new (regular) invite keys be minted against the live database without
 // shell access to the host — protected by a shared secret, not seller auth.
-router.post('/admin/generate-keys', (req, res) => {
-  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
-    return res.status(403).json({ error: 'Forbidden.' });
-  }
+router.post('/admin/generate-keys', requireAdminSecret, (req, res) => {
   const count = Math.min(Math.max(Number(req.body?.count) || 10, 1), 100);
   const keys = [];
   for (let i = 0; i < count; i++) {
@@ -581,10 +498,7 @@ router.post('/admin/generate-keys', (req, res) => {
 
 // Mints the one-and-only super key that creates an admin seller account on
 // signup. Rejects if a super key already exists — only one may ever be made.
-router.post('/admin/generate-super-key', (req, res) => {
-  if (!ADMIN_SECRET || req.headers['x-admin-secret'] !== ADMIN_SECRET) {
-    return res.status(403).json({ error: 'Forbidden.' });
-  }
+router.post('/admin/generate-super-key', requireAdminSecret, (req, res) => {
   if (countSuperKeys.get().c > 0) {
     return res.status(409).json({ error: 'A super key has already been generated. Only one may ever exist.' });
   }

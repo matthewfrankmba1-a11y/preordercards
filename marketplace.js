@@ -13,7 +13,12 @@ const {
   deleteListingByIdAdmin,
 } = require('./db');
 const { requireSellerAuth } = require('./sellerAuth');
+const { EMAIL_RE, normalizePhone, createRateLimiter } = require('./utils');
+const { sendEmail, isEmailConfigured } = require('./email');
 
+// Checks the authenticated seller session's is_admin flag — distinct from
+// utils.js's requireAdminSecret, which gates the shared-secret key-
+// management routes instead. Not interchangeable with each other.
 function requireAdmin(req, res, next) {
   if (!req.seller.isAdmin) {
     return res.status(403).json({ error: 'Admin access required.' });
@@ -21,7 +26,6 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const FEE_RATE = 0.025;
 const SHIPPING_FEE_BASE = 6;
 const SHIPPING_FEE_PER_ADDITIONAL_BOX = 1;
@@ -29,21 +33,11 @@ function shippingFee(quantity) {
   return SHIPPING_FEE_BASE + (quantity - 1) * SHIPPING_FEE_PER_ADDITIONAL_BOX;
 }
 const MARKETPLACE_WEBHOOK_URL = process.env.MARKETPLACE_DISCORD_WEBHOOK_URL;
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const EMAIL_FROM = process.env.EMAIL_FROM || 'PreorderCards <admin@preordercards.com>';
 const LABEL_MIME_TYPES = new Set(['application/pdf', 'image/png', 'image/jpeg']);
 const uploadLabel = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
 });
-
-function normalizePhone(value) {
-  const trimmed = value.trim();
-  const hasPlus = trimmed.startsWith('+');
-  const digits = trimmed.replace(/\D/g, '');
-  if (digits.length < 10 || digits.length > 15) return null;
-  return (hasPlus ? '+' : '') + digits;
-}
 
 // Fire-and-forget alert to the marketplace's own dedicated Discord webhook —
 // separate from the release-interest bot/webhook entirely.
@@ -88,45 +82,16 @@ async function notifyMarketplaceDiscord(listing, row) {
 // Deliberately generic — never includes the buyer's email/phone. The admin
 // stays the go-between for actually facilitating the sale, same as Discord.
 async function sendSellerAlertEmail(seller, listing, quantity) {
-  if (!seller || !seller.email || !RESEND_API_KEY) return;
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: EMAIL_FROM,
-        to: [seller.email],
-        subject: 'Someone registered interest in your listing',
-        text: `Good news — someone registered interest in your listing "${listing.description}" (quantity: ${quantity}).\n\nWe'll be in touch to help facilitate the sale.\n\n— PreorderCards`,
-      }),
-    });
-    if (!res.ok) {
-      const body = await res.text();
-      console.error('Seller alert email failed:', res.status, body);
-    }
-  } catch (err) {
-    console.error('Seller alert email failed:', err.message);
-  }
+  if (!seller || !seller.email || !isEmailConfigured()) return;
+  await sendEmail({
+    to: seller.email,
+    subject: 'Someone registered interest in your listing',
+    text: `Good news — someone registered interest in your listing "${listing.description}" (quantity: ${quantity}).\n\nWe'll be in touch to help facilitate the sale.\n\n— PreorderCards`,
+  });
 }
 
-// Rate limiter for public buyer-interest submissions (same pattern used elsewhere).
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
-const RATE_LIMIT_MAX = 20;
-const hitsByIp = new Map();
-function rateLimit(req, res, next) {
-  const ip = req.ip;
-  const now = Date.now();
-  const hits = (hitsByIp.get(ip) || []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
-  if (hits.length >= RATE_LIMIT_MAX) {
-    return res.status(429).json({ error: 'Too many requests from this address. Try again later.' });
-  }
-  hits.push(now);
-  hitsByIp.set(ip, hits);
-  next();
-}
+// Own bucket, independent from server.js's and sellerAuth.js's limiters.
+const rateLimit = createRateLimiter();
 
 const router = express.Router();
 
@@ -243,40 +208,25 @@ router.post(
     if (!seller || !seller.email) {
       return res.status(400).json({ error: 'This seller has no alert email on file — ask them to set one on their dashboard first.' });
     }
-    if (!RESEND_API_KEY) {
+    if (!isEmailConfigured()) {
       return res.status(500).json({ error: 'Email sending is not configured.' });
     }
 
-    try {
-      const emailRes = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
+    const result = await sendEmail({
+      to: seller.email,
+      subject: `Shipping label for your listing: ${listing.description}`,
+      text: `Attached is the shipping label for your listing "${listing.description}". Please print it, attach it to the package, and ship as soon as possible.\n\n— PreorderCards`,
+      attachments: [
+        {
+          filename: req.file.originalname || 'shipping-label',
+          content: req.file.buffer.toString('base64'),
         },
-        body: JSON.stringify({
-          from: EMAIL_FROM,
-          to: [seller.email],
-          subject: `Shipping label for your listing: ${listing.description}`,
-          text: `Attached is the shipping label for your listing "${listing.description}". Please print it, attach it to the package, and ship as soon as possible.\n\n— PreorderCards`,
-          attachments: [
-            {
-              filename: req.file.originalname || 'shipping-label',
-              content: req.file.buffer.toString('base64'),
-            },
-          ],
-        }),
-      });
-      if (!emailRes.ok) {
-        const body = await emailRes.text();
-        console.error('Shipping label email failed:', emailRes.status, body);
-        return res.status(502).json({ error: 'Failed to send the shipping label email.' });
-      }
-      res.json({ success: true });
-    } catch (err) {
-      console.error('Shipping label email failed:', err.message);
-      res.status(502).json({ error: 'Failed to send the shipping label email.' });
+      ],
+    });
+    if (!result.ok) {
+      return res.status(502).json({ error: 'Failed to send the shipping label email.' });
     }
+    res.json({ success: true });
   }
 );
 

@@ -405,6 +405,28 @@ Manually trigger a run early for testing without disturbing the daily
 schedule: `POST /api/admin/stats-summary/run` (header `x-admin-secret`) —
 returns the same counts that were just posted to Discord.
 
+## Shared modules (`utils.js`, `email.js`)
+
+Consolidated out of server.js/sellerAuth.js/marketplace.js, which had each
+independently copy-pasted the same logic:
+
+- **`utils.js`**: `EMAIL_RE`, `normalizePhone()`, `SPORT_EMOJI` (also used
+  by `bot.js`), `requireAdminSecret` middleware (the shared-secret check
+  used by every `x-admin-secret`-gated route), and `createRateLimiter()` —
+  a factory, not a singleton, so each call site still gets its own
+  independent `Map`/bucket (server.js, sellerAuth.js, and marketplace.js
+  each rate-limit their own routes separately, exactly as before — this
+  only removes the duplicated *logic*, not the per-file *state*). Note
+  `requireAdminSecret` is unrelated to marketplace.js's `requireAdmin`,
+  which checks an authenticated seller session's `is_admin` flag instead —
+  the two guard completely different things and were never merged.
+- **`email.js`**: `sendEmail({to, subject, text, html, attachments})`
+  wraps the Resend API call + error handling that used to be copy-pasted
+  six times. Callers still decide their own "not configured"/failure
+  messaging (some are admin-facing and can show detail, some are
+  seller-facing and stay generic) — only the request/response plumbing
+  moved, not each route's own wording.
+
 ## Deploying (Render)
 
 `render.yaml` defines the service as a Render Blueprint: a web service on
