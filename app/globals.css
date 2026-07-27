@@ -487,8 +487,24 @@ body {
   margin-bottom: 1.25rem;
 }
 
+.verified-seller-btn {
+  display: inline-block;
+  text-decoration: none;
+}
+
 .verified-seller-card {
-  max-width: 420px;
+  max-width: 560px;
+  margin: 0 auto 2rem;
+}
+
+.integrity-note {
+  line-height: 1.5;
+  margin-bottom: 0.25rem;
+}
+
+.verified-seller-card textarea.contact-input {
+  resize: vertical;
+  font-family: inherit;
 }
 
 .link-btn {

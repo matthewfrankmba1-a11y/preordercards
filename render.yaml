@@ -33,6 +33,8 @@ services:
         sync: false
       - key: DISCOUNT_SIGNUP_WEBHOOK_URL
         sync: false
+      - key: VERIFIED_SELLER_WEBHOOK_URL
+        sync: false
     disk:
       name: data
       mountPath: /var/data

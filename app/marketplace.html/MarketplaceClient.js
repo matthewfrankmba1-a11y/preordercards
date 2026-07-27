@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import ListingCard from './ListingCard';
-import VerifiedSellerApply from './VerifiedSellerApply';
 
 export default function MarketplaceClient() {
   const [listings, setListings] = useState(null);
@@ -46,7 +45,7 @@ export default function MarketplaceClient() {
 
       <main className="wrap">
         <div className="verified-seller-cta">
-          <VerifiedSellerApply />
+          <a className="notify-btn verified-seller-btn" href="/verified-seller.html">Apply to be a verified seller</a>
         </div>
         {status && <div className="status">{status}</div>}
         <div className="marketplace-grid">
