@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import ListingCard from './ListingCard';
+import VerifiedSellerApply from './VerifiedSellerApply';
 
 export default function MarketplaceClient() {
   const [listings, setListings] = useState(null);
@@ -44,6 +45,9 @@ export default function MarketplaceClient() {
       </header>
 
       <main className="wrap">
+        <div className="verified-seller-cta">
+          <VerifiedSellerApply />
+        </div>
         {status && <div className="status">{status}</div>}
         <div className="marketplace-grid">
           {listings && listings.map((listing) => <ListingCard listing={listing} key={listing.id} />)}
