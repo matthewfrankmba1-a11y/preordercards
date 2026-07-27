@@ -82,6 +82,9 @@ export default function TermsPage() {
             the UFC, Disney, Marvel, or any other brand or league referenced here. All product
             names and trademarks belong to their respective owners.
           </p>
+          <p className="footer-links">
+            <a href="/terms.html">Terms &amp; Conditions</a> · <a href="/trust.html">Trust</a> · <a href="/blog.html">Blog</a>
+          </p>
         </div>
       </footer>
     </>
