@@ -3,7 +3,11 @@ import Script from 'next/script';
 import { headers } from 'next/headers';
 
 export const metadata = {
+  metadataBase: new URL('https://preordercards.com'),
   title: 'Topps Preorder Release Calendar',
+  twitter: {
+    card: 'summary_large_image',
+  },
 };
 
 export default async function RootLayout({ children }) {
