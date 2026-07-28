@@ -4,6 +4,7 @@ const { createServer } = require('http');
 const next = require('next');
 const bot = require('./lib/bot');
 const { startStatsSummarySchedule } = require('./lib/statsSummary');
+const { startBlogAgentSchedule } = require('./lib/blogAgent');
 const { loadReleases, sendConfirmationEmail } = require('./lib/releases');
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -17,5 +18,6 @@ app.prepare().then(() => {
     console.log(`Topps release tracker running at http://localhost:${PORT}`);
     bot.init({ loadReleases, sendConfirmationEmail });
     startStatsSummarySchedule();
+    startBlogAgentSchedule();
   });
 });

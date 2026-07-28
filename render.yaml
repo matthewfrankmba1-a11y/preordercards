@@ -35,6 +35,12 @@ services:
         sync: false
       - key: VERIFIED_SELLER_WEBHOOK_URL
         sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: BLOG_AGENT_WEBHOOK_URL
+        sync: false
+      - key: SITE_URL
+        value: https://preordercards.com
     disk:
       name: data
       mountPath: /var/data
