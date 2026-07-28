@@ -103,6 +103,7 @@
       "sport": "Basketball",
       "format": "Hobby Box",
       "releaseDate": "2026-07-28",
+      "soldOut": true,
       "description": "Low-print-run Chrome Black basketball set with numbered parallels.",
       "eql": true
     },
