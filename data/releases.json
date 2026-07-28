@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-07-26",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat) as of 2026-07-26. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-07-28",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat) as of 2026-07-28. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -130,6 +130,38 @@
       "format": "Hobby Box",
       "releaseDate": "2026-07-31",
       "description": "UFC-licensed release themed around the Freedom 250 card design."
+    },
+    {
+      "id": "2025-topps-resurgence-football",
+      "title": "2025 Topps Resurgence Football Hobby Box",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-31",
+      "description": "High-voltage football release built around the 2025 rookie class, pairing dual autograph hits with one-of-one Superfractor chases."
+    },
+    {
+      "id": "2026-topps-chrome-sapphire-marvel-comics",
+      "title": "2026 Topps Chrome Sapphire Marvel Comics",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-05",
+      "description": "Sapphire-edition Chrome parallels applied to the Marvel Comics universe."
+    },
+    {
+      "id": "2025-26-topps-chrome-updates-basketball",
+      "title": "2025-26 Topps Chrome Updates Basketball Hobby Box",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-06",
+      "description": "First-ever extension to flagship Topps Chrome Basketball, headlined by rookie debut patch autographs from the 2025-26 NBA class."
+    },
+    {
+      "id": "2026-topps-flagship-football-hobby",
+      "title": "2026 Topps Flagship Football Hobby Box",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-21",
+      "description": "Topps' first flagship NFL release since 2015, featuring the 2026 rookie class alongside retro-styled 1957-design variations."
     },
     {
       "id": "2026-topps-chrome-baseball-mega",
