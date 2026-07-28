@@ -35,6 +35,8 @@ services:
         sync: false
       - key: VERIFIED_SELLER_WEBHOOK_URL
         sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
     disk:
       name: data
       mountPath: /var/data
