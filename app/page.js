@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import HomeClient from './HomeClient';
+import { getReleasesWithInterestCounts } from '../lib/releases';
 
 export const metadata = {
   title: 'Topps Preorder Release Calendar | PreorderCards',
@@ -99,8 +100,26 @@ const HOWTO_JSONLD = {
 export default async function HomePage() {
   const nonce = (await headers()).get('x-nonce');
 
+  // Fetched server-side (rather than HomeClient fetching /api/releases on
+  // mount) so the release list is present in the initial HTML — an empty
+  // list that pops in after hydration was the page's biggest layout-shift
+  // contributor, since everything below it (the FAQ section) jumped down
+  // once the fetch resolved.
+  let initialData;
+  try {
+    initialData = getReleasesWithInterestCounts();
+  } catch {
+    initialData = null;
+  }
+
   return (
     <>
+      {/* The header's CSS background-image is the page's LCP element, but a
+          background-image is only discovered after the browser parses
+          globals.css — this preload lets the fetch start immediately from
+          the initial HTML instead, matching what Lighthouse's LCP request
+          discovery check wants for the header banner. */}
+      <link rel="preload" as="image" href="/images/banner.webp" fetchPriority="high" />
       {/* suppressHydrationWarning: browsers scrub the nonce attribute from the
           DOM right after parsing it (a CSP security measure), so the server-
           rendered nonce vs. the client's cleared one always mismatch here —
@@ -108,7 +127,11 @@ export default async function HomePage() {
       <script type="application/ld+json" nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }} />
       <script type="application/ld+json" nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_JSONLD) }} />
       <script type="application/ld+json" nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(HOWTO_JSONLD) }} />
-      <HomeClient />
+      <HomeClient
+        initialReleases={initialData ? initialData.releases : null}
+        initialSourceNote={initialData ? initialData.sourceNote : ''}
+        initialLastUpdated={initialData ? initialData.lastUpdated : ''}
+      />
     </>
   );
 }

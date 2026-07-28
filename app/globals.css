@@ -37,7 +37,7 @@ body {
   min-height: 340px;
   display: flex;
   align-items: flex-end;
-  background: linear-gradient(135deg, var(--navy), var(--navy-light)), url('/images/banner.jpg');
+  background: linear-gradient(135deg, var(--navy), var(--navy-light)), url('/images/banner.webp');
   background-size: cover;
   background-position: center top;
   background-blend-mode: overlay;

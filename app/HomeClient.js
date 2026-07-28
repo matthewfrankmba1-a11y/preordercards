@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import DiscountBanner from './DiscountBanner';
 import ReleaseCard from './ReleaseCard';
 
@@ -35,32 +35,14 @@ function formatGroupLabel(isoDate) {
   return d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 }
 
-export default function HomeClient() {
-  const [allReleases, setAllReleases] = useState(null);
-  const [error, setError] = useState(false);
-  const [sourceNote, setSourceNote] = useState('');
+export default function HomeClient({ initialReleases, initialSourceNote, initialLastUpdated }) {
+  const [allReleases] = useState(() => (initialReleases ? limitSoldOut(initialReleases) : null));
+  const [error] = useState(!initialReleases);
+  const [sourceNote] = useState(() =>
+    initialSourceNote ? `${initialSourceNote} Last updated ${initialLastUpdated}.` : ''
+  );
   const [sportFilter, setSportFilter] = useState('all');
   const [inStockOnly, setInStockOnly] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/releases')
-      .then((res) => {
-        if (!res.ok) throw new Error('Request failed');
-        return res.json();
-      })
-      .then((data) => {
-        if (cancelled) return;
-        setAllReleases(limitSoldOut(data.releases));
-        setSourceNote(data.sourceNote ? `${data.sourceNote} Last updated ${data.lastUpdated}.` : '');
-      })
-      .catch(() => {
-        if (!cancelled) setError(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const sports = useMemo(() => {
     if (!allReleases) return [];
