@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { checkAdminSecret } from '../../../../lib/utils';
+import { checkAdminSecret, isLikelyTestContact } from '../../../../lib/utils';
 import { loadReleases } from '../../../../lib/releases';
 import { listInterestsSince } from '../../../../lib/db';
 
@@ -28,7 +28,11 @@ export async function GET(request) {
     ? sqliteUtcNow(new Date(sinceParam))
     : sqliteUtcNow(new Date(Date.now() - days * 24 * 60 * 60 * 1000));
 
-  const rows = listInterestsSince.all(sinceSql);
+  const excludeTest = ['1', 'true'].includes((searchParams.get('excludeTest') || '').toLowerCase());
+
+  const allRows = listInterestsSince.all(sinceSql);
+  const rows = excludeTest ? allRows.filter((r) => !isLikelyTestContact(r.contactValue)) : allRows;
+  const excludedRows = excludeTest ? allRows.length - rows.length : 0;
 
   const releasesById = new Map(loadReleases().releases.map((r) => [r.id, r]));
 
@@ -54,6 +58,10 @@ export async function GET(request) {
       contactValue: row.contactValue,
       quantity: row.quantity,
       createdAt: row.createdAt,
+      // Only meaningful when excludeTest isn't set (otherwise these rows
+      // were already dropped) — kept so an unfiltered pull still shows
+      // which entries a filtered pull would have excluded.
+      likelyTest: isLikelyTestContact(row.contactValue),
     });
   }
 
@@ -65,6 +73,8 @@ export async function GET(request) {
     since: sinceSql,
     sinceUtc: `${sinceSql.replace(' ', 'T')}Z`,
     now: new Date().toISOString(),
+    excludeTest,
+    excludedCount: excludedRows,
     totalRegistrants: rows.length,
     totalQuantity,
     releaseCount: releases.length,
