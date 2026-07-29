@@ -52,7 +52,7 @@ export async function POST(request) {
           username: 'New Preorder!',
           embeds: [
             {
-              title: '🎉 New 5% discount signup',
+              title: '🎉 New seller-fee promo signup',
               color: 13770556,
               fields: [{ name: 'Email', value: normalizedEmail }],
               timestamp: new Date().toISOString(),

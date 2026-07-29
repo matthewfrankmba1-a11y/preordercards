@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireMarketplaceAdmin } from '../../../../../lib/marketplaceAdminAuth';
 import { listDiscountSignupsForAdmin } from '../../../../../lib/db';
 
-// Homepage discount-banner ("Get 5% off your first order") email signups —
+// Homepage banner ("Free seller fees for a limited time") email signups —
 // same TOTP-gated marketplace admin surface as the other tabs.
 export async function GET(request) {
   const { error } = requireMarketplaceAdmin(request);

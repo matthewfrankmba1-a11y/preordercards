@@ -804,7 +804,7 @@ function DiscountSignupsView() {
     <>
       <h2 style={{ margin: '1.5rem 0 1rem' }}>Discount Signups ({signups ? signups.length : '…'})</h2>
       <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '-0.5rem' }}>
-        Emails collected from the homepage &quot;5% off your first order&quot; banner. Each one gets an automatic welcome
+        Emails collected from the homepage &quot;free seller fees for a limited time&quot; banner. Each one gets an automatic welcome
         email. Green = sent, yellow = bounced, red = not sent yet or failed.
       </p>
       {error && <div className="status">{error}</div>}
