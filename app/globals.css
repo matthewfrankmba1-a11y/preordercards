@@ -943,6 +943,16 @@ body {
   white-space: nowrap;
 }
 
+/* Keeps a single value (e.g. an email address) on one line no matter how
+   long it is — truncates with an ellipsis instead of wrapping or forcing
+   the column wider; the full value is still available via the title
+   attribute tooltip. */
+.admin-table td.admin-nowrap-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .admin-table tbody tr:last-child td {
   border-bottom: none;
 }

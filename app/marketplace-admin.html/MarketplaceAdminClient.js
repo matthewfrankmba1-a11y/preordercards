@@ -547,15 +547,15 @@ function PreorderRegistrationsView() {
         <div className="admin-table-wrap">
           <table className="admin-table">
             <colgroup>
-              <col style={{ width: '13%' }} />
-              <col style={{ width: '17%' }} />
+              <col style={{ width: '18%' }} />
+              <col style={{ width: '16%' }} />
               <col style={{ width: '5%' }} />
               <col style={{ width: '8%' }} />
               <col style={{ width: '9%' }} />
-              <col style={{ width: '6%' }} />
               <col style={{ width: '8%' }} />
-              <col style={{ width: '15%' }} />
-              <col style={{ width: '19%' }} />
+              <col style={{ width: '14%' }} />
+              <col style={{ width: '16%' }} />
+              <col style={{ width: '6%' }} />
             </colgroup>
             <thead>
               <tr>
@@ -564,35 +564,20 @@ function PreorderRegistrationsView() {
                 <SortHeader label="Qty" field="quantity" sort={sort} onSort={handleSort} nowrap />
                 <SortHeader label="Times Reg." field="registrationCount" sort={sort} onSort={handleSort} nowrap />
                 <SortHeader label="Registered" field="createdAt" sort={sort} onSort={handleSort} nowrap />
-                <th className="admin-nowrap">Ack Email</th>
                 <th className="admin-nowrap">Status</th>
                 <th>Notify</th>
                 <th>Actions</th>
+                <th className="admin-nowrap" style={{ textAlign: 'right' }}>Ack Email</th>
               </tr>
             </thead>
             <tbody>
               {sorted.map((r) => (
                 <tr key={r.id} style={r.cancelled ? { opacity: 0.45 } : undefined}>
-                  <td>{r.contactValue}</td>
+                  <td className="admin-nowrap-ellipsis" title={r.contactValue}>{r.contactValue}</td>
                   <td>{r.releaseTitle}</td>
                   <td className="admin-nowrap">{r.quantity}</td>
                   <td className="admin-nowrap">{r.registrationCount}</td>
                   <td className="admin-nowrap">{formatTimestamp(r.createdAt)}</td>
-                  <td className="admin-nowrap">
-                    <span
-                      className="admin-status-dot"
-                      title={
-                        r.contactType !== 'email'
-                          ? 'No email on file'
-                          : r.emailSentAt
-                          ? `Sent ${formatTimestamp(r.emailSentAt)}`
-                          : 'Not sent — auto-send may still be in flight, or it failed'
-                      }
-                      style={{
-                        background: r.contactType !== 'email' ? 'var(--muted)' : r.emailSentAt ? '#1a7f37' : 'var(--red)',
-                      }}
-                    />
-                  </td>
                   <td className="admin-nowrap">
                     <span className={`admin-badge ${r.cancelled ? 'admin-badge-no' : 'admin-badge-yes'}`}>
                       {r.cancelled ? 'Unfulfilled' : 'Active'}
@@ -633,6 +618,21 @@ function PreorderRegistrationsView() {
                         Delete
                       </button>
                     </div>
+                  </td>
+                  <td className="admin-nowrap" style={{ textAlign: 'right' }}>
+                    <span
+                      className="admin-status-dot"
+                      title={
+                        r.contactType !== 'email'
+                          ? 'No email on file'
+                          : r.emailSentAt
+                          ? `Sent ${formatTimestamp(r.emailSentAt)}`
+                          : 'Not sent — auto-send may still be in flight, or it failed'
+                      }
+                      style={{
+                        background: r.contactType !== 'email' ? 'var(--muted)' : r.emailSentAt ? '#1a7f37' : 'var(--red)',
+                      }}
+                    />
                   </td>
                 </tr>
               ))}
