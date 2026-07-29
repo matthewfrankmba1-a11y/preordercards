@@ -1,14 +1,5 @@
 import { NextResponse } from 'next/server';
-import {
-  getInviteKey,
-  getSellerByInviteKey,
-  countListingsBySeller,
-  deleteListingInterestsBySeller,
-  deleteListingsBySeller,
-  deleteSessionsBySeller,
-  deleteSellerById,
-  deleteInviteKeyByCode,
-} from '../../../../../lib/db';
+import { revokeInviteKey } from '../../../../../lib/sellerAuthCore';
 import { checkAdminSecret } from '../../../../../lib/utils';
 
 // Permanently revokes a key: deletes the seller account it created (if any),
@@ -22,19 +13,8 @@ export async function POST(request) {
 
   const body = await request.json().catch(() => ({}));
   const keyCode = String(body?.keyCode || '').trim().toUpperCase();
-  const keyRow = getInviteKey.get(keyCode);
-  if (!keyRow) return NextResponse.json({ error: 'Key not found.' }, { status: 404 });
+  const result = revokeInviteKey(keyCode);
+  if (!result.found) return NextResponse.json({ error: 'Key not found.' }, { status: 404 });
 
-  const seller = keyRow.used_by_seller_id ? getSellerByInviteKey.get(keyCode) : null;
-  let removedListings = 0;
-  if (seller) {
-    removedListings = countListingsBySeller.get(seller.id).c;
-    deleteListingInterestsBySeller.run(seller.id);
-    deleteListingsBySeller.run(seller.id);
-    deleteSessionsBySeller.run(seller.id);
-    deleteSellerById.run(seller.id);
-  }
-  deleteInviteKeyByCode.run(keyCode);
-
-  return NextResponse.json({ success: true, hadSeller: Boolean(seller), alias: seller ? seller.display_name : null, removedListings });
+  return NextResponse.json({ success: true, hadSeller: result.hadSeller, alias: result.alias, removedListings: result.removedListings });
 }
