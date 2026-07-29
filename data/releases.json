@@ -114,6 +114,7 @@
       "sport": "Baseball",
       "format": "Hobby Box",
       "releaseDate": "2026-07-29",
+      "soldOut": true,
       "description": "High-end baseball release built around on-card autographs and relics."
     },
     {
