@@ -295,6 +295,7 @@ const PREORDER_SORT_ACCESSORS = {
 function PreorderRegistrationsView() {
   const [registrations, setRegistrations] = useState(null);
   const [error, setError] = useState('');
+  const [updatingId, setUpdatingId] = useState(null);
   const { sorted, sort, handleSort } = useSortedData(registrations, PREORDER_SORT_ACCESSORS, 'createdAt');
 
   useEffect(() => {
@@ -315,11 +316,41 @@ function PreorderRegistrationsView() {
     };
   }, []);
 
+  async function handleToggleCancelled(row) {
+    const nextCancelled = !row.cancelled;
+    if (nextCancelled && !window.confirm('Shade this registration out as unfulfilled? It stays on record — you can restore it later.')) {
+      return;
+    }
+    setUpdatingId(row.id);
+    const { ok, data } = await postJson('/api/admin/marketplace/preorder-registrations/cancel', { id: row.id, cancelled: nextCancelled });
+    setUpdatingId(null);
+    if (!ok) {
+      window.alert(data.error || 'Could not update this registration.');
+      return;
+    }
+    setRegistrations((prev) => prev.map((r) => (r.id === row.id ? { ...r, cancelled: nextCancelled } : r)));
+  }
+
+  async function handleDelete(row) {
+    if (!window.confirm(`Permanently delete this registration (${row.contactValue} — ${row.releaseTitle})? This is for test records only and can't be undone.`)) {
+      return;
+    }
+    setUpdatingId(row.id);
+    const { ok, data } = await postJson('/api/admin/marketplace/preorder-registrations/delete', { id: row.id });
+    setUpdatingId(null);
+    if (!ok) {
+      window.alert(data.error || 'Could not delete this registration.');
+      return;
+    }
+    setRegistrations((prev) => prev.filter((r) => r.id !== row.id));
+  }
+
   return (
     <>
       <h2 style={{ margin: '1.5rem 0 1rem' }}>Preorder Registrations ({registrations ? registrations.length : '…'})</h2>
       <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '-0.5rem' }}>
         Release-calendar interest signups. &quot;Times Registered&quot; counts every registration that contact has made across all releases.
+        Shade marks a registration unfulfilled (reversible); Delete permanently removes a row and should only be used for test records.
       </p>
       {error && <div className="status">{error}</div>}
       {registrations && registrations.length === 0 && <div className="status">No registrations yet.</div>}
@@ -333,16 +364,41 @@ function PreorderRegistrationsView() {
                 <SortHeader label="Quantity" field="quantity" sort={sort} onSort={handleSort} />
                 <SortHeader label="Times Registered" field="registrationCount" sort={sort} onSort={handleSort} />
                 <SortHeader label="Registered At" field="createdAt" sort={sort} onSort={handleSort} />
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {sorted.map((r) => (
-                <tr key={r.id}>
+                <tr key={r.id} style={r.cancelled ? { opacity: 0.45 } : undefined}>
                   <td>{r.contactValue}</td>
                   <td>{r.releaseTitle}</td>
                   <td>{r.quantity}</td>
                   <td>{r.registrationCount}</td>
                   <td>{formatTimestamp(r.createdAt)}</td>
+                  <td>
+                    <span className={`admin-badge ${r.cancelled ? 'admin-badge-no' : 'admin-badge-yes'}`}>
+                      {r.cancelled ? 'Unfulfilled' : 'Active'}
+                    </span>
+                  </td>
+                  <td style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button
+                      type="button"
+                      className="admin-remove-btn"
+                      disabled={updatingId === r.id}
+                      onClick={() => handleToggleCancelled(r)}
+                    >
+                      {updatingId === r.id ? 'Saving…' : r.cancelled ? 'Restore' : 'Shade'}
+                    </button>
+                    <button
+                      type="button"
+                      className="admin-remove-btn"
+                      disabled={updatingId === r.id}
+                      onClick={() => handleDelete(r)}
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
