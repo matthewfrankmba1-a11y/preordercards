@@ -1,6 +1,7 @@
 export const metadata = {
   title: 'Trust & Security — PreorderCards',
   description: 'How PreorderCards handles customer data, and independent verification that the site is safe.',
+  alternates: { canonical: '/trust.html' },
 };
 
 export default function TrustPage() {

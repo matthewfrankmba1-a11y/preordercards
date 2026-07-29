@@ -1,7 +1,10 @@
 import { listSuccessPhotos } from '../../lib/successPhotos';
 
 export const metadata = {
-  title: 'Success Stories — Topps Preorder Release Calendar',
+  title: 'Success Stories — Real Delivered Topps Preorders | PreorderCards',
+  description:
+    'Real order confirmations from collectors who registered interest on PreorderCards and got their Topps boxes delivered.',
+  alternates: { canonical: '/success.html' },
 };
 
 export default function SuccessPage() {

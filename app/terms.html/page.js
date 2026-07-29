@@ -1,5 +1,8 @@
 export const metadata = {
-  title: 'Terms & Conditions — Topps Preorder Release Calendar',
+  title: 'Terms & Conditions — PreorderCards',
+  description:
+    'Buyer and seller policies for PreorderCards: preorder interest registrations, authenticity requirements, buyer vetting, dispute resolution, and Marketplace fees.',
+  alternates: { canonical: '/terms.html' },
 };
 
 export default function TermsPage() {

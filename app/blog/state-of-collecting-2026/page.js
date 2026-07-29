@@ -6,6 +6,14 @@ const POST = BLOG_POSTS.find((p) => p.slug === 'state-of-collecting-2026');
 export const metadata = {
   title: `${POST.title} — PreorderCards Blog`,
   description: POST.description,
+  alternates: { canonical: `/blog/${POST.slug}` },
+  openGraph: {
+    title: POST.title,
+    description: POST.description,
+    type: 'article',
+    publishedTime: POST.datePublished,
+    url: `/blog/${POST.slug}`,
+  },
 };
 
 const ARTICLE_JSONLD = {

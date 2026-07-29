@@ -3,6 +3,7 @@ import { BLOG_POSTS } from '../../lib/blogPosts';
 export const metadata = {
   title: 'Blog — PreorderCards',
   description: 'Weekly release roundups and hobby notes from PreorderCards: what\'s dropping, what\'s EQL, and what to watch in sports card collecting.',
+  alternates: { canonical: '/blog.html' },
 };
 
 function formatDate(iso) {

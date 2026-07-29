@@ -82,6 +82,7 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
           <h1>Topps Preorder Release Calendar</h1>
           <p className="tagline">Upcoming Topps Releases, by date. Register your interest, no upfront payment required, pricing guaranteed to be lower than market.</p>
           <div className="header-nav-links">
+            <a className="header-nav-link" href="/releases">All Release Dates →</a>
             <a className="header-nav-link" href="/success.html">See Success Stories →</a>
             <a className="header-nav-link" href="/marketplace.html">Browse Marketplace →</a>
             <a className="header-nav-link" href="https://docs.google.com/forms/d/e/1FAIpQLScFl_nJ4tvYHxAmU6X-cQ5RoheIe4GJxTJnbQI5zUxqj4Ea3Q/viewform?usp=sharing&ouid=105723711896896295891" target="_blank" rel="noopener">Submit Slot Details →</a>

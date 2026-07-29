@@ -13,6 +13,8 @@
 ## Pages
 
 - [Release Calendar](https://preordercards.com/): upcoming Topps releases by date, with free interest registration.
+- [All Release Dates](https://preordercards.com/releases): full index of every tracked release, upcoming and past. Each release also has its own page at `https://preordercards.com/releases/<release-id>` with its release date, sport, format, and registration form.
+- [Blog](https://preordercards.com/blog.html): weekly release roundups and hobby notes.
 - [Marketplace](https://preordercards.com/marketplace.html): fixed-price listings from vetted sellers.
 - [Success Stories](https://preordercards.com/success.html): real order-confirmation screenshots from past registrations.
 - [Terms & Conditions](https://preordercards.com/terms.html): buyer/seller policies, authenticity requirements, dispute resolution, and current fee structure.

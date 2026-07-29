@@ -1,10 +1,12 @@
 import { headers } from 'next/headers';
 import HomeClient from './HomeClient';
 import { getReleasesWithInterestCounts } from '../lib/releases';
+import { SITE_URL } from '../lib/seo';
 
 export const metadata = {
   title: 'Topps Preorder Release Calendar | PreorderCards',
   description: 'PreorderCards tracks upcoming Topps trading card release dates and lets you register interest for free — no upfront payment. Independent, not affiliated with Topps.',
+  alternates: { canonical: '/' },
   openGraph: {
     title: 'Topps Preorder Release Calendar | PreorderCards',
     description: 'Track upcoming Topps release dates and register interest for free — no upfront payment required.',
@@ -20,6 +22,33 @@ const ORG_JSONLD = {
   url: 'https://preordercards.com/',
   description: 'Independent Topps trading card release-date tracker and free interest-registration service, not affiliated with Topps or any league or brand referenced on the site.',
 };
+
+const WEBSITE_JSONLD = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'PreorderCards',
+  alternateName: 'Topps Preorder Release Calendar',
+  url: `${SITE_URL}/`,
+};
+
+// Describes the calendar as an ordered list of releases pointing at their own
+// pages, so the release URLs are declared as structured data and not only as
+// anchor tags inside a client-rendered card grid.
+function buildItemListJsonLd(releases) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Upcoming Topps Trading Card Releases',
+    itemListOrder: 'https://schema.org/ItemListOrderAscending',
+    numberOfItems: releases.length,
+    itemListElement: releases.map((release, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: release.title,
+      url: `${SITE_URL}/releases/${release.id}`,
+    })),
+  };
+}
 
 const FAQ_JSONLD = {
   '@context': 'https://schema.org',
@@ -125,6 +154,10 @@ export default async function HomePage() {
           rendered nonce vs. the client's cleared one always mismatch here —
           expected and harmless, not a real hydration bug. */}
       <script type="application/ld+json" nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }} />
+      <script type="application/ld+json" nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(WEBSITE_JSONLD) }} />
+      {initialData && (
+        <script type="application/ld+json" nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(buildItemListJsonLd(initialData.releases)) }} />
+      )}
       <script type="application/ld+json" nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_JSONLD) }} />
       <script type="application/ld+json" nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: JSON.stringify(HOWTO_JSONLD) }} />
       <HomeClient

@@ -62,7 +62,10 @@ function countText(count) {
   return `${count} collector${count === 1 ? '' : 's'} interested so far.`;
 }
 
-export default function ReleaseCard({ release, soldOut }) {
+// linkTitle: on the homepage the card title links to that release's own page
+// (the crawl path that makes /releases/<id> discoverable); on the release page
+// itself the card is already the subject, so the self-link is suppressed.
+export default function ReleaseCard({ release, soldOut, linkTitle = true }) {
   const [quantity, setQuantity] = useState(1);
   const [contactType, setContactType] = useState('email');
   const [inputValue, setInputValue] = useState('');
@@ -127,7 +130,9 @@ export default function ReleaseCard({ release, soldOut }) {
         <span className="badge format-badge">{release.format}</span>
         {release.eql && <span className="badge eql-badge">EQL</span>}
       </div>
-      <h3 className="card-title">{release.title}</h3>
+      <h3 className="card-title">
+        {linkTitle ? <a className="card-title-link" href={`/releases/${release.id}`}>{release.title}</a> : release.title}
+      </h3>
       <p className="card-date">{formatDate(release.releaseDate)}</p>
       <p className="card-desc">{release.description || ''}</p>
       <p className="card-preorder-note">{release.isPreorderOpenDate ? 'This date is when preorders open, not the ship date.' : ''}</p>

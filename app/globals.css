@@ -363,6 +363,19 @@ body {
   line-height: 1.3;
 }
 
+/* The title links to the release's own page, but the card already reads as a
+   unit — so it inherits the heading's color and only reveals itself as a link
+   on hover/focus, rather than turning every card title blue. */
+.card-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.card-title-link:hover,
+.card-title-link:focus-visible {
+  text-decoration: underline;
+}
+
 .card-date {
   margin: 0;
   font-weight: 600;
