@@ -538,7 +538,8 @@ function PreorderRegistrationsView() {
       <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '-0.5rem' }}>
         Release-calendar interest signups. &quot;Times Registered&quot; counts every registration that contact has made across all releases.
         Shade marks a registration unfulfilled (reversible); Delete permanently removes a row and should only be used for test records.
-        Notify sends the buyer a secured/not-secured email.
+        Notify sends the buyer a secured/not-secured email. Ack Email is green once the automatic
+        &quot;we got your registration&quot; email has sent, red if it hasn&apos;t (or failed), grey if there&apos;s no email on file.
       </p>
       {error && <div className="status">{error}</div>}
       {registrations && registrations.length === 0 && <div className="status">No registrations yet.</div>}
@@ -546,14 +547,15 @@ function PreorderRegistrationsView() {
         <div className="admin-table-wrap">
           <table className="admin-table">
             <colgroup>
-              <col style={{ width: '14%' }} />
-              <col style={{ width: '19%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '17%' }} />
+              <col style={{ width: '5%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '9%' }} />
               <col style={{ width: '6%' }} />
-              <col style={{ width: '9%' }} />
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '9%' }} />
+              <col style={{ width: '8%' }} />
               <col style={{ width: '15%' }} />
-              <col style={{ width: '18%' }} />
+              <col style={{ width: '19%' }} />
             </colgroup>
             <thead>
               <tr>
@@ -562,6 +564,7 @@ function PreorderRegistrationsView() {
                 <SortHeader label="Qty" field="quantity" sort={sort} onSort={handleSort} nowrap />
                 <SortHeader label="Times Reg." field="registrationCount" sort={sort} onSort={handleSort} nowrap />
                 <SortHeader label="Registered" field="createdAt" sort={sort} onSort={handleSort} nowrap />
+                <th className="admin-nowrap">Ack Email</th>
                 <th className="admin-nowrap">Status</th>
                 <th>Notify</th>
                 <th>Actions</th>
@@ -575,6 +578,21 @@ function PreorderRegistrationsView() {
                   <td className="admin-nowrap">{r.quantity}</td>
                   <td className="admin-nowrap">{r.registrationCount}</td>
                   <td className="admin-nowrap">{formatTimestamp(r.createdAt)}</td>
+                  <td className="admin-nowrap">
+                    <span
+                      className="admin-status-dot"
+                      title={
+                        r.contactType !== 'email'
+                          ? 'No email on file'
+                          : r.emailSentAt
+                          ? `Sent ${formatTimestamp(r.emailSentAt)}`
+                          : 'Not sent — auto-send may still be in flight, or it failed'
+                      }
+                      style={{
+                        background: r.contactType !== 'email' ? 'var(--muted)' : r.emailSentAt ? '#1a7f37' : 'var(--red)',
+                      }}
+                    />
+                  </td>
                   <td className="admin-nowrap">
                     <span className={`admin-badge ${r.cancelled ? 'admin-badge-no' : 'admin-badge-yes'}`}>
                       {r.cancelled ? 'Unfulfilled' : 'Active'}

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { upsertInterest, countByRelease, getInterestByReleaseAndContact } from '../../../lib/db';
-import { loadReleases, todayISO, notifyDiscord } from '../../../lib/releases';
+import { upsertInterest, countByRelease, getInterestByReleaseAndContact, markEmailSent } from '../../../lib/db';
+import { loadReleases, todayISO, notifyDiscord, sendConfirmationEmail } from '../../../lib/releases';
 import { EMAIL_RE, normalizePhone, createRateLimiter } from '../../../lib/utils';
 import bot from '../../../lib/bot';
 
@@ -71,6 +71,26 @@ export async function POST(request) {
     bot.postInterestAlert(release, row);
   } else {
     notifyDiscord(release, { contactType, contactValue: normalizedValue, quantity: qty });
+  }
+
+  // Auto-fires the same acknowledgment email the Discord "Send Confirmation
+  // Email" button sends manually — that button still works too (it checks
+  // emailSentAt first and no-ops with "Already sent" once this beats it to
+  // it, which it normally will), so a failed auto-send here still has a
+  // manual retry path. Fire-and-forget, same reasoning as notifyDiscord
+  // above: never let an email provider hiccup slow down or fail the signup
+  // itself. row.emailSentAt is only non-null on a re-registration (upsert)
+  // that already got its email — skip re-sending in that case.
+  if (contactType === 'email' && !row.emailSentAt) {
+    sendConfirmationEmail(release, { contactType, contactValue: normalizedValue, quantity: qty })
+      .then((result) => {
+        if (result.ok) {
+          markEmailSent.run({ id: row.id, sentAt: new Date().toISOString() });
+        } else {
+          console.error('Auto-send confirmation email failed:', result.error);
+        }
+      })
+      .catch((err) => console.error('Auto-send confirmation email threw:', err.message));
   }
 
   const counts = Object.fromEntries(countByRelease.all().map((r) => [r.releaseId, r.count]));

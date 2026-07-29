@@ -34,6 +34,7 @@ export async function GET(request) {
       cancelled: Boolean(row.cancelledAt),
       outcome: row.outcome || null,
       outcomeNotifiedAt: row.outcomeNotifiedAt || null,
+      emailSentAt: row.emailSentAt || null,
     };
   });
 
