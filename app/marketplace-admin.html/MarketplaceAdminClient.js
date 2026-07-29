@@ -307,10 +307,175 @@ const PREORDER_SORT_ACCESSORS = {
   createdAt: (r) => r.createdAt,
 };
 
+// Suggested starting point for the fee field — matches the marketplace's
+// own FEE_RATE (lib/marketplaceCore.js), but it's just a pre-fill; the
+// admin can freely override it before sending.
+const SUGGESTED_FEE_RATE = 0.025;
+
+function toNumber(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function NotifyModal({ registration, onClose, onSent }) {
+  const [step, setStep] = useState('choose'); // 'choose' | 'secured-form' | 'not-secured-confirm'
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  const [quantity, setQuantity] = useState(String(registration.quantity));
+  const [pricePerBox, setPricePerBox] = useState('');
+  const [marketPrice, setMarketPrice] = useState('');
+  const [savings, setSavings] = useState('');
+  const [fee, setFee] = useState('');
+  const [savingsTouched, setSavingsTouched] = useState(false);
+  const [feeTouched, setFeeTouched] = useState(false);
+
+  // Savings and fee auto-recalculate from quantity/price/market as long as
+  // the admin hasn't directly edited them — once touched, their own value
+  // wins instead of being silently overwritten.
+  useEffect(() => {
+    if (savingsTouched) return;
+    const computed = (toNumber(marketPrice) - toNumber(pricePerBox)) * toNumber(quantity);
+    setSavings(computed ? computed.toFixed(2) : '');
+  }, [quantity, pricePerBox, marketPrice, savingsTouched]);
+
+  useEffect(() => {
+    if (feeTouched) return;
+    const computed = toNumber(pricePerBox) * toNumber(quantity) * SUGGESTED_FEE_RATE;
+    setFee(computed ? computed.toFixed(2) : '');
+  }, [quantity, pricePerBox, feeTouched]);
+
+  const subtotal = toNumber(pricePerBox) * toNumber(quantity);
+  const amountDue = subtotal + toNumber(fee);
+
+  async function handleSendSecured(e) {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    const { ok, data } = await postJson('/api/admin/marketplace/preorder-registrations/notify-secured', {
+      id: registration.id,
+      quantity: toNumber(quantity),
+      pricePerBox: toNumber(pricePerBox),
+      marketPrice: toNumber(marketPrice),
+      savings: toNumber(savings),
+      fee: toNumber(fee),
+    });
+    setBusy(false);
+    if (!ok) {
+      setError(data.error || 'Could not send this email.');
+      return;
+    }
+    onSent('secured');
+  }
+
+  async function handleSendNotSecured() {
+    setBusy(true);
+    setError('');
+    const { ok, data } = await postJson('/api/admin/marketplace/preorder-registrations/notify-not-secured', { id: registration.id });
+    setBusy(false);
+    if (!ok) {
+      setError(data.error || 'Could not send this email.');
+      return;
+    }
+    onSent('not_secured');
+  }
+
+  return (
+    <div className="admin-modal-overlay" onClick={onClose}>
+      <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+        <h3>Notify {registration.contactValue}</h3>
+        <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: 0 }}>{registration.releaseTitle}</p>
+
+        {step === 'choose' && (
+          <>
+            <p>Was this preorder secured?</p>
+            <div className="admin-modal-choices">
+              <button type="button" className="notify-btn" onClick={() => setStep('secured-form')}>🎉 Secured</button>
+              <button type="button" className="admin-modal-btn-secondary" onClick={() => setStep('not-secured-confirm')}>Not Secured</button>
+            </div>
+            <div className="admin-modal-actions">
+              <button type="button" className="admin-modal-btn-secondary" onClick={onClose}>Cancel</button>
+            </div>
+          </>
+        )}
+
+        {step === 'not-secured-confirm' && (
+          <>
+            <p>This sends an email letting them know the preorder wasn&apos;t secured and no payment was collected. Continue?</p>
+            {error && <p className="form-message error">{error}</p>}
+            <div className="admin-modal-actions">
+              <button type="button" className="admin-modal-btn-secondary" onClick={() => setStep('choose')}>Back</button>
+              <button type="button" className="notify-btn" disabled={busy} onClick={handleSendNotSecured}>
+                {busy ? 'Sending…' : 'Send Email'}
+              </button>
+            </div>
+          </>
+        )}
+
+        {step === 'secured-form' && (
+          <form onSubmit={handleSendSecured}>
+            <div className="admin-modal-field">
+              <label htmlFor="notify-qty">Boxes secured</label>
+              <input id="notify-qty" type="number" min="1" step="1" required value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+            </div>
+            <div className="admin-modal-field">
+              <label htmlFor="notify-price">Price per box ($)</label>
+              <input id="notify-price" type="number" min="0" step="0.01" required value={pricePerBox} onChange={(e) => setPricePerBox(e.target.value)} />
+            </div>
+            <div className="admin-modal-field">
+              <label htmlFor="notify-market">Current market price ($ per box)</label>
+              <input id="notify-market" type="number" min="0" step="0.01" required value={marketPrice} onChange={(e) => setMarketPrice(e.target.value)} />
+            </div>
+            <div className="admin-modal-field">
+              <label htmlFor="notify-savings">Savings ($) — auto-calculated, editable</label>
+              <input
+                id="notify-savings"
+                type="number"
+                step="0.01"
+                value={savings}
+                onChange={(e) => {
+                  setSavingsTouched(true);
+                  setSavings(e.target.value);
+                }}
+              />
+            </div>
+            <div className="admin-modal-field">
+              <label htmlFor="notify-fee">Service fee ($) — editable</label>
+              <input
+                id="notify-fee"
+                type="number"
+                min="0"
+                step="0.01"
+                value={fee}
+                onChange={(e) => {
+                  setFeeTouched(true);
+                  setFee(e.target.value);
+                }}
+              />
+            </div>
+            <div className="admin-modal-summary">
+              <div><span>Subtotal</span><span>{formatDollar(subtotal)}</span></div>
+              <div><strong>Amount due</strong><strong>{formatDollar(amountDue)}</strong></div>
+            </div>
+            {error && <p className="form-message error">{error}</p>}
+            <div className="admin-modal-actions">
+              <button type="button" className="admin-modal-btn-secondary" onClick={() => setStep('choose')}>Back</button>
+              <button type="submit" className="notify-btn" disabled={busy}>
+                {busy ? 'Sending…' : 'Send Email'}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function PreorderRegistrationsView() {
   const [registrations, setRegistrations] = useState(null);
   const [error, setError] = useState('');
   const [updatingId, setUpdatingId] = useState(null);
+  const [notifyRow, setNotifyRow] = useState(null);
   const { sorted, sort, handleSort } = useSortedData(registrations, PREORDER_SORT_ACCESSORS, 'createdAt');
 
   useEffect(() => {
@@ -360,12 +525,20 @@ function PreorderRegistrationsView() {
     setRegistrations((prev) => prev.filter((r) => r.id !== row.id));
   }
 
+  function handleNotifySent(outcome) {
+    setRegistrations((prev) =>
+      prev.map((r) => (r.id === notifyRow.id ? { ...r, outcome, outcomeNotifiedAt: new Date().toISOString() } : r))
+    );
+    setNotifyRow(null);
+  }
+
   return (
     <>
       <h2 style={{ margin: '1.5rem 0 1rem' }}>Preorder Registrations ({registrations ? registrations.length : '…'})</h2>
       <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '-0.5rem' }}>
         Release-calendar interest signups. &quot;Times Registered&quot; counts every registration that contact has made across all releases.
         Shade marks a registration unfulfilled (reversible); Delete permanently removes a row and should only be used for test records.
+        Notify sends the buyer a secured/not-secured email.
       </p>
       {error && <div className="status">{error}</div>}
       {registrations && registrations.length === 0 && <div className="status">No registrations yet.</div>}
@@ -373,12 +546,13 @@ function PreorderRegistrationsView() {
         <div className="admin-table-wrap">
           <table className="admin-table">
             <colgroup>
-              <col style={{ width: '17%' }} />
-              <col style={{ width: '23%' }} />
-              <col style={{ width: '8%' }} />
-              <col style={{ width: '11%' }} />
-              <col style={{ width: '13%' }} />
+              <col style={{ width: '14%' }} />
+              <col style={{ width: '19%' }} />
+              <col style={{ width: '6%' }} />
+              <col style={{ width: '9%' }} />
               <col style={{ width: '10%' }} />
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '15%' }} />
               <col style={{ width: '18%' }} />
             </colgroup>
             <thead>
@@ -389,6 +563,7 @@ function PreorderRegistrationsView() {
                 <SortHeader label="Times Reg." field="registrationCount" sort={sort} onSort={handleSort} nowrap />
                 <SortHeader label="Registered" field="createdAt" sort={sort} onSort={handleSort} nowrap />
                 <th className="admin-nowrap">Status</th>
+                <th>Notify</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -404,6 +579,22 @@ function PreorderRegistrationsView() {
                     <span className={`admin-badge ${r.cancelled ? 'admin-badge-no' : 'admin-badge-yes'}`}>
                       {r.cancelled ? 'Unfulfilled' : 'Active'}
                     </span>
+                  </td>
+                  <td>
+                    {r.contactType !== 'email' ? (
+                      <span style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>No email</span>
+                    ) : (
+                      <div className="admin-actions-cell">
+                        {r.outcome && (
+                          <span className={`admin-badge ${r.outcome === 'secured' ? 'admin-badge-yes' : 'admin-badge-no'}`}>
+                            {r.outcome === 'secured' ? 'Secured' : 'Not Secured'}
+                          </span>
+                        )}
+                        <button type="button" className="admin-remove-btn" onClick={() => setNotifyRow(r)}>
+                          {r.outcome ? 'Re-notify' : 'Notify'}
+                        </button>
+                      </div>
+                    )}
                   </td>
                   <td>
                     <div className="admin-actions-cell">
@@ -431,6 +622,7 @@ function PreorderRegistrationsView() {
           </table>
         </div>
       )}
+      {notifyRow && <NotifyModal registration={notifyRow} onClose={() => setNotifyRow(null)} onSent={handleNotifySent} />}
     </>
   );
 }

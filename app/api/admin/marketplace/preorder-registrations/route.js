@@ -32,6 +32,8 @@ export async function GET(request) {
       releaseTitle: release ? release.title : row.releaseId,
       registrationCount: countByContact.get(row.contactValue),
       cancelled: Boolean(row.cancelledAt),
+      outcome: row.outcome || null,
+      outcomeNotifiedAt: row.outcomeNotifiedAt || null,
     };
   });
 

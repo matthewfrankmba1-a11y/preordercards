@@ -1023,3 +1023,94 @@ body {
   .admin-badge-yes { background: #123a20; color: #6fd48f; }
   .admin-badge-no { background: #20242c; color: var(--muted); }
 }
+
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 31, 58, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 100;
+}
+
+.admin-modal {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  max-width: 460px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(16, 24, 40, 0.3);
+}
+
+.admin-modal h3 {
+  margin: 0 0 0.5rem;
+}
+
+.admin-modal-choices {
+  display: flex;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.admin-modal-choices button {
+  flex: 1;
+}
+
+.admin-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.admin-modal-field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.admin-modal-field input {
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.admin-modal-summary {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.85rem;
+  margin: 0.75rem 0 1rem;
+}
+
+.admin-modal-summary div {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.15rem 0;
+}
+
+.admin-modal-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+}
+
+.admin-modal-btn-secondary {
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin-modal-field input { background: #101319; color: var(--text); }
+}
