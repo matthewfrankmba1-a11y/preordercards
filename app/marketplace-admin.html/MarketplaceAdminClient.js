@@ -760,10 +760,97 @@ function ListingInterestsView() {
   );
 }
 
+const DISCOUNT_SIGNUP_SORT_ACCESSORS = {
+  email: (r) => r.email.toLowerCase(),
+  createdAt: (r) => r.createdAt,
+};
+
+function discountSignupDotColor(row) {
+  if (row.welcomeEmailStatus === 'bounced') return '#d9a400'; // yellow
+  if (row.welcomeEmailStatus === 'sent') return '#1a7f37'; // green
+  return 'var(--red)'; // not sent yet, or the send failed
+}
+
+function discountSignupDotTitle(row) {
+  if (row.welcomeEmailStatus === 'bounced') return 'Bounced';
+  if (row.welcomeEmailStatus === 'sent') return `Sent ${formatTimestamp(row.welcomeEmailSentAt)}`;
+  return 'Not sent — auto-send may still be in flight, or it failed';
+}
+
+function DiscountSignupsView() {
+  const [signups, setSignups] = useState(null);
+  const [error, setError] = useState('');
+  const { sorted, sort, handleSort } = useSortedData(signups, DISCOUNT_SIGNUP_SORT_ACCESSORS, 'createdAt');
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/admin/marketplace/discount-signups')
+      .then((res) => {
+        if (!res.ok) throw new Error('Request failed');
+        return res.json();
+      })
+      .then((data) => {
+        if (!cancelled) setSignups(data.signups);
+      })
+      .catch(() => {
+        if (!cancelled) setError('Could not load discount signups.');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return (
+    <>
+      <h2 style={{ margin: '1.5rem 0 1rem' }}>Discount Signups ({signups ? signups.length : '…'})</h2>
+      <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '-0.5rem' }}>
+        Emails collected from the homepage &quot;5% off your first order&quot; banner. Each one gets an automatic welcome
+        email. Green = sent, yellow = bounced, red = not sent yet or failed.
+      </p>
+      {error && <div className="status">{error}</div>}
+      {signups && signups.length === 0 && <div className="status">No signups yet.</div>}
+      {signups && signups.length > 0 && (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <colgroup>
+              <col style={{ width: '55%' }} />
+              <col style={{ width: '35%' }} />
+              <col style={{ width: '10%' }} />
+            </colgroup>
+            <thead>
+              <tr>
+                <SortHeader label="Email" field="email" sort={sort} onSort={handleSort} />
+                <SortHeader label="Signed Up" field="createdAt" sort={sort} onSort={handleSort} nowrap />
+                <th className="admin-nowrap" style={{ textAlign: 'right' }}>Welcome Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map((r) => (
+                <tr key={r.id}>
+                  <td className="admin-nowrap-ellipsis" title={r.email}>{r.email}</td>
+                  <td className="admin-nowrap">{formatTimestamp(r.createdAt)}</td>
+                  <td className="admin-nowrap" style={{ textAlign: 'right' }}>
+                    <span
+                      className="admin-status-dot"
+                      title={discountSignupDotTitle(r)}
+                      style={{ background: discountSignupDotColor(r) }}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
+  );
+}
+
 const TABS = [
   { id: 'sellers', label: 'Sellers' },
   { id: 'preorders', label: 'Preorder Registrations' },
   { id: 'listingInterests', label: 'Marketplace Buyer Interest' },
+  { id: 'discountSignups', label: 'Discount Signups' },
 ];
 
 function Dashboard({ onLoggedOut }) {
@@ -795,6 +882,7 @@ function Dashboard({ onLoggedOut }) {
       {tab === 'sellers' && <SellersView />}
       {tab === 'preorders' && <PreorderRegistrationsView />}
       {tab === 'listingInterests' && <ListingInterestsView />}
+      {tab === 'discountSignups' && <DiscountSignupsView />}
     </>
   );
 }

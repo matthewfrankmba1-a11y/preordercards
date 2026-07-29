@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { insertDiscountSignup } from '../../../lib/db';
+import { insertDiscountSignup, getDiscountSignupByEmail, markWelcomeEmailSent } from '../../../lib/db';
 import { EMAIL_RE, createRateLimiter } from '../../../lib/utils';
+import { sendWelcomeEmail } from '../../../lib/discountSignups';
 
 const DISCOUNT_SIGNUP_WEBHOOK_URL = process.env.DISCOUNT_SIGNUP_WEBHOOK_URL;
 
@@ -22,6 +23,25 @@ export async function POST(request) {
 
   const result = insertDiscountSignup.run(normalizedEmail);
   const isNew = result.changes > 0;
+
+  // Fire-and-forget, same reasoning as the Discord alert below and the
+  // release-interest acknowledgment email in app/api/interest/route.js — a
+  // slow/failing email provider shouldn't block or fail the signup itself.
+  // Only persist welcome_email_status once the send actually succeeds, so a
+  // failed attempt leaves the row available for a future resend rather than
+  // being silently marked done.
+  if (isNew) {
+    const signupRow = getDiscountSignupByEmail.get(normalizedEmail);
+    sendWelcomeEmail(normalizedEmail)
+      .then((result) => {
+        if (result.ok) {
+          markWelcomeEmailSent.run({ id: signupRow.id, resendEmailId: result.id || null });
+        } else {
+          console.error('Welcome email failed:', result.error);
+        }
+      })
+      .catch((err) => console.error('Welcome email threw:', err.message));
+  }
 
   if (isNew && DISCOUNT_SIGNUP_WEBHOOK_URL) {
     try {
