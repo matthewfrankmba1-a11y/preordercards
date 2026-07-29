@@ -920,16 +920,26 @@ body {
 
 .admin-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   background: var(--card-bg);
 }
 
 .admin-table th,
 .admin-table td {
-  padding: 0.65rem 0.9rem;
+  padding: 0.5rem 0.55rem;
   border-bottom: 1px solid var(--border);
   text-align: left;
+  overflow-wrap: break-word;
+}
+
+/* Only these stay on one line — everything else (emails, titles,
+   descriptions, timestamps) wraps instead of forcing the table wider than
+   the viewport. table-layout:fixed makes column widths follow the header
+   text/content naturally rather than the widest single line in any cell. */
+.admin-table td.admin-nowrap,
+.admin-table th.admin-nowrap {
   white-space: nowrap;
 }
 
@@ -981,15 +991,21 @@ body {
 .admin-badge-no { background: #f1f2f4; color: var(--muted); }
 
 .admin-remove-btn {
-  padding: 0.35rem 0.65rem;
-  border-radius: 8px;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
   border: 1px solid var(--red);
   background: transparent;
   color: var(--red);
   font-weight: 700;
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   cursor: pointer;
   white-space: nowrap;
+}
+
+.admin-actions-cell {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
 }
 
 .admin-remove-btn:hover {

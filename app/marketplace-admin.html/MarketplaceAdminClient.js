@@ -14,10 +14,16 @@ async function postJson(url, body, extraHeaders) {
 
 // SQLite's CURRENT_TIMESTAMP is 'YYYY-MM-DD HH:MM:SS' in UTC with no 'T'/'Z'
 // — Date can't parse that directly without the substitution below (see the
-// identical note in lib/statsSummary.js).
+// identical note in lib/statsSummary.js). Kept short (no year, no seconds)
+// so the timestamp column doesn't force the table wider than the screen.
 function formatTimestamp(sqlTimestamp) {
   if (!sqlTimestamp) return '—';
-  return new Date(sqlTimestamp.replace(' ', 'T') + 'Z').toLocaleString();
+  return new Date(sqlTimestamp.replace(' ', 'T') + 'Z').toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
 }
 
 function formatDollar(amount) {
@@ -153,10 +159,10 @@ function LoginPanel({ onLoggedIn, onResetRequested }) {
   );
 }
 
-function SortHeader({ label, field, sort, onSort }) {
+function SortHeader({ label, field, sort, onSort, nowrap }) {
   const active = sort.field === field;
   return (
-    <th>
+    <th className={nowrap ? 'admin-nowrap' : undefined}>
       <button type="button" className="sort-btn" onClick={() => onSort(field)}>
         {label}
         {active && <span>{sort.dir === 'asc' ? '↑' : '↓'}</span>}
@@ -240,14 +246,23 @@ function SellersView() {
       {sellers && sellers.length > 0 && (
         <div className="admin-table-wrap">
           <table className="admin-table">
+            <colgroup>
+              <col style={{ width: '26%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '18%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '12%' }} />
+            </colgroup>
             <thead>
               <tr>
                 <SortHeader label="Email" field="email" sort={sort} onSort={handleSort} />
-                <SortHeader label="Completed Sales" field="completedSales" sort={sort} onSort={handleSort} />
-                <SortHeader label="Pending Sales" field="pendingSales" sort={sort} onSort={handleSort} />
+                <SortHeader label="Completed" field="completedSales" sort={sort} onSort={handleSort} nowrap />
+                <SortHeader label="Pending" field="pendingSales" sort={sort} onSort={handleSort} nowrap />
                 <th>Selling Key</th>
-                <th>Logged In</th>
-                <SortHeader label="Login Count" field="loginCount" sort={sort} onSort={handleSort} />
+                <th className="admin-nowrap">Logged In</th>
+                <SortHeader label="Logins" field="loginCount" sort={sort} onSort={handleSort} nowrap />
                 <th>Actions</th>
               </tr>
             </thead>
@@ -255,15 +270,15 @@ function SellersView() {
               {sorted.map((s) => (
                 <tr key={s.inviteKey}>
                   <td>{s.email || <span style={{ color: 'var(--muted)' }}>—</span>}</td>
-                  <td>{s.completedSales}</td>
-                  <td>{s.pendingSales}</td>
+                  <td className="admin-nowrap">{s.completedSales}</td>
+                  <td className="admin-nowrap">{s.pendingSales}</td>
                   <td className="admin-key-code">{s.inviteKey}</td>
-                  <td>
+                  <td className="admin-nowrap">
                     <span className={`admin-badge ${s.loggedIn ? 'admin-badge-yes' : 'admin-badge-no'}`}>
                       {s.loggedIn ? 'Yes' : 'No'}
                     </span>
                   </td>
-                  <td>{s.loginCount}</td>
+                  <td className="admin-nowrap">{s.loginCount}</td>
                   <td>
                     <button
                       type="button"
@@ -357,14 +372,23 @@ function PreorderRegistrationsView() {
       {registrations && registrations.length > 0 && (
         <div className="admin-table-wrap">
           <table className="admin-table">
+            <colgroup>
+              <col style={{ width: '17%' }} />
+              <col style={{ width: '23%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '11%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '18%' }} />
+            </colgroup>
             <thead>
               <tr>
                 <SortHeader label="Contact" field="contact" sort={sort} onSort={handleSort} />
                 <SortHeader label="Release" field="release" sort={sort} onSort={handleSort} />
-                <SortHeader label="Quantity" field="quantity" sort={sort} onSort={handleSort} />
-                <SortHeader label="Times Registered" field="registrationCount" sort={sort} onSort={handleSort} />
-                <SortHeader label="Registered At" field="createdAt" sort={sort} onSort={handleSort} />
-                <th>Status</th>
+                <SortHeader label="Qty" field="quantity" sort={sort} onSort={handleSort} nowrap />
+                <SortHeader label="Times Reg." field="registrationCount" sort={sort} onSort={handleSort} nowrap />
+                <SortHeader label="Registered" field="createdAt" sort={sort} onSort={handleSort} nowrap />
+                <th className="admin-nowrap">Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -373,31 +397,33 @@ function PreorderRegistrationsView() {
                 <tr key={r.id} style={r.cancelled ? { opacity: 0.45 } : undefined}>
                   <td>{r.contactValue}</td>
                   <td>{r.releaseTitle}</td>
-                  <td>{r.quantity}</td>
-                  <td>{r.registrationCount}</td>
-                  <td>{formatTimestamp(r.createdAt)}</td>
-                  <td>
+                  <td className="admin-nowrap">{r.quantity}</td>
+                  <td className="admin-nowrap">{r.registrationCount}</td>
+                  <td className="admin-nowrap">{formatTimestamp(r.createdAt)}</td>
+                  <td className="admin-nowrap">
                     <span className={`admin-badge ${r.cancelled ? 'admin-badge-no' : 'admin-badge-yes'}`}>
                       {r.cancelled ? 'Unfulfilled' : 'Active'}
                     </span>
                   </td>
-                  <td style={{ display: 'flex', gap: '0.4rem' }}>
-                    <button
-                      type="button"
-                      className="admin-remove-btn"
-                      disabled={updatingId === r.id}
-                      onClick={() => handleToggleCancelled(r)}
-                    >
-                      {updatingId === r.id ? 'Saving…' : r.cancelled ? 'Restore' : 'Shade'}
-                    </button>
-                    <button
-                      type="button"
-                      className="admin-remove-btn"
-                      disabled={updatingId === r.id}
-                      onClick={() => handleDelete(r)}
-                    >
-                      Delete
-                    </button>
+                  <td>
+                    <div className="admin-actions-cell">
+                      <button
+                        type="button"
+                        className="admin-remove-btn"
+                        disabled={updatingId === r.id}
+                        onClick={() => handleToggleCancelled(r)}
+                      >
+                        {updatingId === r.id ? 'Saving…' : r.cancelled ? 'Restore' : 'Shade'}
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-remove-btn"
+                        disabled={updatingId === r.id}
+                        onClick={() => handleDelete(r)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -468,15 +494,25 @@ function ListingInterestsView() {
       {interests && interests.length > 0 && (
         <div className="admin-table-wrap">
           <table className="admin-table">
+            <colgroup>
+              <col style={{ width: '15%' }} />
+              <col style={{ width: '20%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '6%' }} />
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '14%' }} />
+            </colgroup>
             <thead>
               <tr>
                 <SortHeader label="Buyer" field="contact" sort={sort} onSort={handleSort} />
                 <SortHeader label="Listing" field="listing" sort={sort} onSort={handleSort} />
                 <SortHeader label="Seller" field="seller" sort={sort} onSort={handleSort} />
-                <SortHeader label="Qty" field="quantity" sort={sort} onSort={handleSort} />
-                <SortHeader label="$ Value" field="dollarValue" sort={sort} onSort={handleSort} />
-                <SortHeader label="Inquired At" field="createdAt" sort={sort} onSort={handleSort} />
-                <th>Status</th>
+                <SortHeader label="Qty" field="quantity" sort={sort} onSort={handleSort} nowrap />
+                <SortHeader label="$ Value" field="dollarValue" sort={sort} onSort={handleSort} nowrap />
+                <SortHeader label="Inquired" field="createdAt" sort={sort} onSort={handleSort} nowrap />
+                <th className="admin-nowrap">Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -486,10 +522,10 @@ function ListingInterestsView() {
                   <td>{r.contactValue}</td>
                   <td>{r.listingDescription}</td>
                   <td>{r.sellerName}</td>
-                  <td>{r.quantity}</td>
-                  <td>{formatDollar(r.dollarValue)}</td>
-                  <td>{formatTimestamp(r.createdAt)}</td>
-                  <td>
+                  <td className="admin-nowrap">{r.quantity}</td>
+                  <td className="admin-nowrap">{formatDollar(r.dollarValue)}</td>
+                  <td className="admin-nowrap">{formatTimestamp(r.createdAt)}</td>
+                  <td className="admin-nowrap">
                     <span className={`admin-badge ${r.cancelled ? 'admin-badge-no' : 'admin-badge-yes'}`}>
                       {r.cancelled ? 'Not fulfilled' : 'Active'}
                     </span>
@@ -501,7 +537,7 @@ function ListingInterestsView() {
                       disabled={updatingId === r.id}
                       onClick={() => handleToggleCancelled(r)}
                     >
-                      {updatingId === r.id ? 'Saving…' : r.cancelled ? 'Restore' : 'Mark Not Fulfilled'}
+                      {updatingId === r.id ? 'Saving…' : r.cancelled ? 'Restore' : 'Not Fulfilled'}
                     </button>
                   </td>
                 </tr>
