@@ -94,6 +94,7 @@
       "sport": "Entertainment",
       "format": "Hobby Box",
       "releaseDate": "2026-07-28",
+      "soldOut": true,
       "description": "Coin-embedded Mint format applied to the Marvel Comics universe.",
       "eql": true
     },
