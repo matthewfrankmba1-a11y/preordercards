@@ -1,6 +1,6 @@
 {
   "lastUpdated": "2026-07-29",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat) as of 2026-07-29. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily) as of 2026-07-29. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -261,6 +261,22 @@
       "description": "Traded players, rookies, and season highlights rounding out the flagship set."
     },
     {
+      "id": "2026-topps-chrome-update-series-baseball-hobby",
+      "title": "2026 Topps Chrome Update Series Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-13",
+      "description": "Chrome-finish continuation of Update Series covering late-season call-ups, trades, and postseason storylines."
+    },
+    {
+      "id": "2026-topps-chrome-update-series-baseball-jumbo",
+      "title": "2026 Topps Chrome Update Series Baseball Jumbo Box",
+      "sport": "Baseball",
+      "format": "Jumbo Box",
+      "releaseDate": "2026-11-13",
+      "description": "Jumbo configuration of Topps Chrome Update Series Baseball with additional cards per box."
+    },
+    {
       "id": "2026-topps-holiday-baseball",
       "title": "2026 Topps Holiday Baseball",
       "sport": "Baseball",
@@ -329,7 +345,7 @@
       "title": "2026 Bowman Baseball Hobby Box",
       "sport": "Baseball",
       "format": "Hobby Box",
-      "releaseDate": "2026-12-31",
+      "releaseDate": "2026-05-13",
       "description": "Flagship Bowman prospect release for the 2026 season."
     },
     {
