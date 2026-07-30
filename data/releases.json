@@ -407,6 +407,15 @@
       "description": "Retail-focused WWE release covering the current wrestling roster."
     },
     {
+      "id": "2026-topps-wwe-universe-preorder",
+      "title": "2026 Topps WWE Universe",
+      "sport": "Entertainment",
+      "format": "Blaster Box",
+      "releaseDate": "2026-08-10",
+      "description": "Preorders open for the retail-focused WWE Universe release.",
+      "isPreorderOpenDate": true
+    },
+    {
       "id": "2026-27-topps-premier-league-soccer",
       "title": "2026-27 Topps Premier League Soccer",
       "sport": "Soccer",
@@ -421,6 +430,15 @@
       "format": "Hobby Box",
       "releaseDate": "2027-02-06",
       "description": "Chrome-format release covering Major League Soccer."
+    },
+    {
+      "id": "2026-topps-mls-chrome-soccer-preorder",
+      "title": "2026 Topps Chrome MLS Soccer",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-11",
+      "description": "Preorders open for the Chrome-format Major League Soccer release.",
+      "isPreorderOpenDate": true
     },
     {
       "id": "2026-bowmans-best-baseball",
