@@ -54,7 +54,7 @@ export default function DiscountBanner() {
   return (
     <div className="discount-banner">
       <div className="wrap discount-banner-inner">
-        <p className="discount-banner-text"><strong>Free seller fees for a limited time</strong> — sign up with your email below.</p>
+        <p className="discount-banner-text"><strong>Free seller fees for a limited time</strong> — sign up to receive newsletters and promotions.</p>
         {!formHidden && (
           <form className="discount-banner-form" onSubmit={handleSubmit}>
             <input
