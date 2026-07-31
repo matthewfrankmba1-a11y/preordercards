@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-07-30",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily) as of 2026-07-30. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-07-31",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily) as of 2026-07-31. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -439,6 +439,14 @@
       "releaseDate": "2026-08-11",
       "description": "Preorders open for the Chrome-format Major League Soccer release.",
       "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-mint-marvel-hobby",
+      "title": "2026 Topps Mint Marvel Hobby Box",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-27",
+      "description": "Second-year Mint Marvel release with thick foil-stock cards split across Bronze, Silver, Gold, and numbered Platinum tiers."
     },
     {
       "id": "2026-bowmans-best-baseball",
