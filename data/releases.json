@@ -420,7 +420,7 @@
       "title": "2026-27 Topps Premier League Soccer",
       "sport": "Soccer",
       "format": "Hobby Box",
-      "releaseDate": "2026-08-06",
+      "releaseDate": "2026-09-16",
       "description": "Flagship Premier League soccer release trimmed to a leaner 300-card checklist for the 2026-27 season."
     },
     {
@@ -464,6 +464,14 @@
       "releaseDate": "2026-08-10",
       "description": "Preorders open for the newest all-new-gags installment of Topps' satirical Wacky Packages sticker line.",
       "isPreorderOpenDate": true
+    },
+    {
+      "id": "2025-26-topps-motif-basketball",
+      "title": "2025-26 Topps Motif Basketball",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-09",
+      "description": "First-ever NBA-licensed high-end release from Topps, built around a low-print-run autograph checklist averaging five hits per box."
     },
     {
       "id": "2026-bowmans-best-baseball",
