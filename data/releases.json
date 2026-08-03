@@ -190,6 +190,14 @@
       "description": "Value-box configuration of Topps Chrome Updates Basketball with a lower per-box price point."
     },
     {
+      "id": "2025-26-topps-chrome-updates-basketball-delight",
+      "title": "2025-26 Topps Chrome Updates Basketball Delight Box",
+      "sport": "Basketball",
+      "format": "Delight Box",
+      "releaseDate": "2026-08-06",
+      "description": "Delight-box configuration of Topps Chrome Updates Basketball pairing a Chrome autograph with an exclusive Geometric-parallel autograph in every box."
+    },
+    {
       "id": "2026-topps-flagship-football-hobby",
       "title": "2026 Topps Flagship Football Hobby Box",
       "sport": "Football",
