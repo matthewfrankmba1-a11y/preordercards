@@ -41,6 +41,8 @@ services:
         sync: false
       - key: SITE_URL
         value: https://preordercards.com
+      - key: RESEND_WEBHOOK_SECRET
+        sync: false
     disk:
       name: data
       mountPath: /var/data

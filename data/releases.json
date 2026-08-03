@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-07-26",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat) as of 2026-07-26. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-03",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily) as of 2026-08-03. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -94,6 +94,7 @@
       "sport": "Entertainment",
       "format": "Hobby Box",
       "releaseDate": "2026-07-28",
+      "soldOut": true,
       "description": "Coin-embedded Mint format applied to the Marvel Comics universe.",
       "eql": true
     },
@@ -103,6 +104,7 @@
       "sport": "Basketball",
       "format": "Hobby Box",
       "releaseDate": "2026-07-28",
+      "soldOut": true,
       "description": "Low-print-run Chrome Black basketball set with numbered parallels.",
       "eql": true
     },
@@ -112,6 +114,7 @@
       "sport": "Baseball",
       "format": "Hobby Box",
       "releaseDate": "2026-07-29",
+      "soldOut": true,
       "description": "High-end baseball release built around on-card autographs and relics."
     },
     {
@@ -131,6 +134,78 @@
       "description": "UFC-licensed release themed around the Freedom 250 card design."
     },
     {
+      "id": "2026-topps-finest-baseball",
+      "title": "2026 Topps Finest Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-08",
+      "description": "Chrome-tech baseball release adding a hobby-exclusive Super Rare tier alongside on-card autographs."
+    },
+    {
+      "id": "2025-topps-resurgence-football",
+      "title": "2025 Topps Resurgence Football Hobby Box",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-31",
+      "description": "High-voltage football release built around the 2025 rookie class, pairing dual autograph hits with one-of-one Superfractor chases."
+    },
+    {
+      "id": "2026-topps-chrome-sapphire-marvel-comics",
+      "title": "2026 Topps Chrome Sapphire Marvel Comics",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-06",
+      "description": "Sapphire-edition Chrome parallels applied to the Marvel Comics universe."
+    },
+    {
+      "id": "2025-26-topps-chrome-updates-basketball",
+      "title": "2025-26 Topps Chrome Updates Basketball Hobby Box",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-06",
+      "description": "First-ever extension to flagship Topps Chrome Basketball, headlined by rookie debut patch autographs from the 2025-26 NBA class."
+    },
+    {
+      "id": "2025-26-topps-chrome-updates-basketball-jumbo",
+      "title": "2025-26 Topps Chrome Updates Basketball Jumbo Box",
+      "sport": "Basketball",
+      "format": "Jumbo Box",
+      "releaseDate": "2026-08-06",
+      "description": "Jumbo configuration of Topps Chrome Updates Basketball with additional autograph hits per box."
+    },
+    {
+      "id": "2025-26-topps-chrome-updates-basketball-mega",
+      "title": "2025-26 Topps Chrome Updates Basketball Mega Box",
+      "sport": "Basketball",
+      "format": "Mega Box",
+      "releaseDate": "2026-08-06",
+      "description": "Mega-box configuration of Topps Chrome Updates Basketball aimed at retail shoppers."
+    },
+    {
+      "id": "2025-26-topps-chrome-updates-basketball-value",
+      "title": "2025-26 Topps Chrome Updates Basketball Value Box",
+      "sport": "Basketball",
+      "format": "Value Box",
+      "releaseDate": "2026-08-06",
+      "description": "Value-box configuration of Topps Chrome Updates Basketball with a lower per-box price point."
+    },
+    {
+      "id": "2025-26-topps-chrome-updates-basketball-delight",
+      "title": "2025-26 Topps Chrome Updates Basketball Delight Box",
+      "sport": "Basketball",
+      "format": "Delight Box",
+      "releaseDate": "2026-08-06",
+      "description": "Delight-box configuration of Topps Chrome Updates Basketball pairing a Chrome autograph with an exclusive Geometric-parallel autograph in every box."
+    },
+    {
+      "id": "2026-topps-flagship-football-hobby",
+      "title": "2026 Topps Flagship Football Hobby Box",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-21",
+      "description": "Topps' first flagship NFL release since 2015, featuring the 2026 rookie class alongside retro-styled 1957-design variations."
+    },
+    {
       "id": "2026-topps-chrome-baseball-mega",
       "title": "2026 Topps Chrome Baseball Mega Box",
       "sport": "Baseball",
@@ -143,8 +218,25 @@
       "title": "2026 Topps Chrome Baseball Value Box",
       "sport": "Baseball",
       "format": "Value Box",
-      "releaseDate": "2026-08-05",
-      "description": "Value-box configuration of Topps Chrome Baseball, releasing after the hobby wave."
+      "releaseDate": "2026-07-22",
+      "description": "Value-box configuration of Topps Chrome Baseball, releasing alongside the hobby wave."
+    },
+    {
+      "id": "2026-bowman-chrome-baseball-preorder",
+      "title": "2026 Bowman Chrome Baseball",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-10",
+      "description": "Preorders open for the Chrome-refractor edition of the flagship Bowman prospect release.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-bowman-chrome-baseball",
+      "title": "2026 Bowman Chrome Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-10",
+      "description": "Chrome-refractor edition of the flagship Bowman prospect release."
     },
     {
       "id": "2026-topps-pristine",
@@ -187,6 +279,14 @@
       "description": "Mega-box configuration of Topps UFC Stadium Club."
     },
     {
+      "id": "2026-topps-ufc-stadium-club-value",
+      "title": "2026 Topps UFC Stadium Club Value Box",
+      "sport": "MMA",
+      "format": "Value Box",
+      "releaseDate": "2026-08-14",
+      "description": "Value-box configuration of Topps UFC Stadium Club with exclusive lime green parallels."
+    },
+    {
       "id": "2026-topps-five-star-baseball",
       "title": "2026 Topps Five Star Baseball Hobby Box",
       "sport": "Baseball",
@@ -209,6 +309,22 @@
       "format": "Retail Box",
       "releaseDate": "2026-10-16",
       "description": "Traded players, rookies, and season highlights rounding out the flagship set."
+    },
+    {
+      "id": "2026-topps-chrome-update-series-baseball-hobby",
+      "title": "2026 Topps Chrome Update Series Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-13",
+      "description": "Chrome-finish continuation of Update Series covering late-season call-ups, trades, and postseason storylines."
+    },
+    {
+      "id": "2026-topps-chrome-update-series-baseball-jumbo",
+      "title": "2026 Topps Chrome Update Series Baseball Jumbo Box",
+      "sport": "Baseball",
+      "format": "Jumbo Box",
+      "releaseDate": "2026-11-13",
+      "description": "Jumbo configuration of Topps Chrome Update Series Baseball with additional cards per box."
     },
     {
       "id": "2026-topps-holiday-baseball",
@@ -279,7 +395,7 @@
       "title": "2026 Bowman Baseball Hobby Box",
       "sport": "Baseball",
       "format": "Hobby Box",
-      "releaseDate": "2026-12-31",
+      "releaseDate": "2026-05-13",
       "description": "Flagship Bowman prospect release for the 2026 season."
     },
     {
@@ -323,12 +439,89 @@
       "description": "Retail-focused WWE release covering the current wrestling roster."
     },
     {
+      "id": "2026-topps-wwe-universe-preorder",
+      "title": "2026 Topps WWE Universe",
+      "sport": "Entertainment",
+      "format": "Blaster Box",
+      "releaseDate": "2026-08-10",
+      "description": "Preorders open for the retail-focused WWE Universe release.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-27-topps-premier-league-soccer",
+      "title": "2026-27 Topps Premier League Soccer",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-16",
+      "description": "Flagship Premier League soccer release trimmed to a leaner 300-card checklist for the 2026-27 season."
+    },
+    {
       "id": "2026-topps-mls-chrome-soccer",
       "title": "2026 Topps MLS Chrome Soccer Hobby Box",
       "sport": "Soccer",
       "format": "Hobby Box",
       "releaseDate": "2027-02-06",
       "description": "Chrome-format release covering Major League Soccer."
+    },
+    {
+      "id": "2026-topps-mls-chrome-soccer-preorder",
+      "title": "2026 Topps Chrome MLS Soccer",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-11",
+      "description": "Preorders open for the Chrome-format Major League Soccer release.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-mint-marvel-hobby",
+      "title": "2026 Topps Mint Marvel Hobby Box",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-20",
+      "description": "Second-year Mint Marvel release with thick foil-stock cards split across Bronze, Silver, Gold, and numbered Platinum tiers."
+    },
+    {
+      "id": "2026-topps-chrome-black-basketball-wide-release",
+      "title": "2026 Topps Chrome Black Basketball Hobby Box",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-20",
+      "description": "General hobby availability of Topps Chrome Black Basketball, following the earlier EQL raffle presale."
+    },
+    {
+      "id": "2026-topps-wacky-packages-preorder",
+      "title": "2026 Topps Wacky Packages All New Series",
+      "sport": "Entertainment",
+      "format": "Blaster Box",
+      "releaseDate": "2026-08-10",
+      "description": "Preorders open for the newest all-new-gags installment of Topps' satirical Wacky Packages sticker line.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2025-26-topps-motif-basketball",
+      "title": "2025-26 Topps Motif Basketball",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-09",
+      "description": "First-ever NBA-licensed high-end release from Topps, built around a low-print-run autograph checklist averaging five hits per box."
+    },
+    {
+      "id": "2026-27-topps-premier-league-soccer-preorder",
+      "title": "2026-27 Topps Premier League Soccer",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-11",
+      "description": "Preorders open for the flagship Premier League soccer release ahead of its September street date.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-vault-marvel-preorder",
+      "title": "2026 Topps Vault Marvel",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-11",
+      "description": "Preorders open for a new Marvel-licensed Topps release under the Vault brand, with full checklist details still to be announced.",
+      "isPreorderOpenDate": true
     },
     {
       "id": "2026-bowmans-best-baseball",

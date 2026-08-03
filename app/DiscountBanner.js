@@ -41,7 +41,7 @@ export default function DiscountBanner() {
         return;
       }
       setFormHidden(true);
-      setMessage(data.alreadySignedUp ? "You're already signed up!" : "You're in! Look out for your 5% discount on your first order.");
+      setMessage(data.alreadySignedUp ? "You're already signed up!" : "You're in! Check your inbox for details on free seller fees.");
       localStorage.setItem(STORAGE_KEY, 'signed-up');
     } catch (err) {
       setMessage('Network error. Please try again.');
@@ -54,7 +54,7 @@ export default function DiscountBanner() {
   return (
     <div className="discount-banner">
       <div className="wrap discount-banner-inner">
-        <p className="discount-banner-text"><strong>Get 5% off your first order</strong> — sign up with your email below.</p>
+        <p className="discount-banner-text"><strong>Free seller fees for a limited time</strong> — sign up to receive newsletters and promotions.</p>
         {!formHidden && (
           <form className="discount-banner-form" onSubmit={handleSubmit}>
             <input
@@ -65,7 +65,7 @@ export default function DiscountBanner() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <button type="submit" className="discount-banner-btn" disabled={submitting}>Sign Up &amp; Save 5%</button>
+            <button type="submit" className="discount-banner-btn" disabled={submitting}>Sign Up</button>
           </form>
         )}
         {message && <p className="discount-banner-message">{message}</p>}
