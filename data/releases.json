@@ -515,6 +515,15 @@
       "isPreorderOpenDate": true
     },
     {
+      "id": "2026-topps-vault-marvel-preorder",
+      "title": "2026 Topps Vault Marvel",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-11",
+      "description": "Preorders open for a new Marvel-licensed Topps release under the Vault brand, with full checklist details still to be announced.",
+      "isPreorderOpenDate": true
+    },
+    {
       "id": "2026-bowmans-best-baseball",
       "title": "2026 Bowman's Best Baseball Hobby Box",
       "sport": "Baseball",
