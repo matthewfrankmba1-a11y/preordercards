@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-02",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily) as of 2026-08-02. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-03",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily) as of 2026-08-03. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -164,6 +164,30 @@
       "format": "Hobby Box",
       "releaseDate": "2026-08-06",
       "description": "First-ever extension to flagship Topps Chrome Basketball, headlined by rookie debut patch autographs from the 2025-26 NBA class."
+    },
+    {
+      "id": "2025-26-topps-chrome-updates-basketball-jumbo",
+      "title": "2025-26 Topps Chrome Updates Basketball Jumbo Box",
+      "sport": "Basketball",
+      "format": "Jumbo Box",
+      "releaseDate": "2026-08-06",
+      "description": "Jumbo configuration of Topps Chrome Updates Basketball with additional autograph hits per box."
+    },
+    {
+      "id": "2025-26-topps-chrome-updates-basketball-mega",
+      "title": "2025-26 Topps Chrome Updates Basketball Mega Box",
+      "sport": "Basketball",
+      "format": "Mega Box",
+      "releaseDate": "2026-08-06",
+      "description": "Mega-box configuration of Topps Chrome Updates Basketball aimed at retail shoppers."
+    },
+    {
+      "id": "2025-26-topps-chrome-updates-basketball-value",
+      "title": "2025-26 Topps Chrome Updates Basketball Value Box",
+      "sport": "Basketball",
+      "format": "Value Box",
+      "releaseDate": "2026-08-06",
+      "description": "Value-box configuration of Topps Chrome Updates Basketball with a lower per-box price point."
     },
     {
       "id": "2026-topps-flagship-football-hobby",
