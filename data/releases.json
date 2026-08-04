@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-03",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily) as of 2026-08-03. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-04",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily) as of 2026-08-04. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -261,6 +261,14 @@
       "format": "12-Box Case",
       "releaseDate": "2026-08-12",
       "description": "Case configuration of Topps Star Wars Chrome Galaxy."
+    },
+    {
+      "id": "2026-topps-museum-collection-baseball",
+      "title": "2026 Topps Museum Collection Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-17",
+      "description": "Premium single-pack baseball release pairing multiple autographed relic and on-card autograph hits per box."
     },
     {
       "id": "2026-topps-ufc-stadium-club",
