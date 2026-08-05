@@ -154,7 +154,7 @@
       "title": "2026 Topps Chrome Sapphire Marvel Comics",
       "sport": "Entertainment",
       "format": "Hobby Box",
-      "releaseDate": "2026-08-06",
+      "releaseDate": "2026-08-05",
       "description": "Sapphire-edition Chrome parallels applied to the Marvel Comics universe."
     },
     {
@@ -267,7 +267,7 @@
       "title": "2026 Topps Museum Collection Baseball Hobby Box",
       "sport": "Baseball",
       "format": "Hobby Box",
-      "releaseDate": "2026-08-17",
+      "releaseDate": "2026-08-18",
       "description": "Premium single-pack baseball release pairing multiple autographed relic and on-card autograph hits per box."
     },
     {
@@ -530,6 +530,14 @@
       "releaseDate": "2026-08-11",
       "description": "Preorders open for a new Marvel-licensed Topps release under the Vault brand, with full checklist details still to be announced.",
       "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-chrome-baseball-logofractor",
+      "title": "2026 Topps Chrome Baseball Logofractor Edition",
+      "sport": "Baseball",
+      "format": "20-Box Case",
+      "releaseDate": "2026-08-19",
+      "description": "Case-exclusive Chrome baseball parallel featuring the Topps logo embedded into every refractor card."
     },
     {
       "id": "2026-bowmans-best-baseball",
