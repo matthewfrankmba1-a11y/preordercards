@@ -134,6 +134,22 @@
       "description": "UFC-licensed release themed around the Freedom 250 card design."
     },
     {
+      "id": "2026-topps-tier-one-baseball",
+      "title": "2026 Topps Tier One Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-06-24",
+      "description": "Premium baseball release marking the 15th anniversary of the Tier One brand, pairing on-card autographs with game-used bat relic cards."
+    },
+    {
+      "id": "2026-topps-chrome-marvel-comics",
+      "title": "2026 Topps Chrome Marvel Comics Hobby Box",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-01",
+      "description": "Chrome-format Marvel Comics release spanning decades of heroes and villains, with die-cut Wolverine-claw base card variations."
+    },
+    {
       "id": "2026-topps-finest-baseball",
       "title": "2026 Topps Finest Baseball Hobby Box",
       "sport": "Baseball",
