@@ -1,16 +1,35 @@
 import { BLOG_POSTS } from '../../lib/blogPosts';
+import db from '../../lib/db';
 
 export const metadata = {
   title: 'Blog — PreorderCards',
   description: 'Weekly release roundups and hobby notes from PreorderCards: what\'s dropping, what\'s EQL, and what to watch in sports card collecting.',
 };
 
+// Half the index now comes from the database (posts written by the blog
+// agent), so this page renders per request rather than at build time.
+export const dynamic = 'force-dynamic';
+
 function formatDate(iso) {
   const d = new Date(iso + 'T00:00:00');
   return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
+// The committed posts and the agent-written ones share one chronological
+// list — readers shouldn't be able to tell which is which.
+function allPosts() {
+  const stored = db.listBlogPosts.all().map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    description: p.description,
+    datePublished: p.datePublished,
+  }));
+  return [...BLOG_POSTS, ...stored].sort((a, b) => b.datePublished.localeCompare(a.datePublished));
+}
+
 export default function BlogIndexPage() {
+  const posts = allPosts();
+
   return (
     <>
       <header className="site-header compact">
@@ -25,7 +44,7 @@ export default function BlogIndexPage() {
       <main className="wrap">
         <article className="legal">
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {BLOG_POSTS.map((post) => (
+            {posts.map((post) => (
               <li key={post.slug} style={{ padding: '1.25rem 0', borderBottom: '1px solid var(--border)' }}>
                 <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: '0 0 0.25rem' }}>{formatDate(post.datePublished)}</p>
                 <h2 style={{ margin: '0 0 0.5rem' }}>

@@ -405,6 +405,95 @@ Manually trigger a run early for testing without disturbing the daily
 schedule: `POST /api/admin/stats-summary/run` (header `x-admin-secret`) —
 returns the same counts that were just posted to Discord.
 
+## Blog agent (weekly post + tweet, Mondays 8am ET)
+
+`blogAgent.js` writes the weekly release-roundup post, publishes it to the
+live site, and posts the link plus a ready-to-send tweet to Discord. You
+send the tweet yourself — the agent never posts to X.
+
+`startBlogAgentSchedule()` is called once at server startup in `server.js`
+and uses the same 5-minute wall-clock tick as the stats summary, firing at
+8am America/New_York on Mondays. Because the tick checks throughout the
+whole 8am hour, a `last_run_at` guard in `blog_agent_state` blocks a second
+run within 6 days — that way a restart or redeploy mid-hour can't publish
+two posts for the same week. If the process is down for the entire 8am hour,
+that week is skipped; there's no catch-up.
+
+Manually trigger a run without disturbing the schedule:
+`POST /api/admin/blog-agent/run` (header `x-admin-secret`). It runs the full
+model call, so expect it to take a while to return; the response is the same
+summary that was just posted to Discord.
+
+### How posts are published
+
+Unlike the two hand-written posts, which are committed `page.js` files under
+`app/blog/<slug>/`, agent-written posts are rows in the `blog_posts` table
+and are rendered at request time by `app/blog/[slug]/page.js`. This is what
+lets the agent publish in seconds with no git push and no Render redeploy,
+and it means no GitHub credentials ever need to live in production.
+
+The two committed posts are unaffected — Next resolves a static route
+segment before falling through to the dynamic `[slug]` one, so their URLs
+keep working exactly as before. `/blog.html` merges both sources into one
+chronological list, so a reader can't tell which is which. Both that page
+and `[slug]` are `force-dynamic`: they read the database, which lives on
+Render's persistent disk and isn't mounted during the build.
+
+Post bodies are stored as JSON (`[{heading, paragraphs[]}]`), not HTML, and
+the renderer maps them to real elements — so nothing the model writes can
+inject markup. The JSON-LD block escapes `<` for the same reason (see the
+comment in `app/blog/[slug]/page.js`).
+
+### What the model gets, and what's checked afterwards
+
+The post is written by `claude-opus-5` via the Anthropic API, using
+structured outputs (`output_config.format`) so the response is guaranteed to
+parse. The only release information in the prompt is the upcoming entries
+from `data/releases.json` (next 14 days, sold-out ones excluded), each
+labelled EQL raffle entry or standard checkout — so the model can describe
+and order real drops but can't invent a product, date, or price.
+
+Structured outputs guarantee the *shape* of the response but not string
+lengths or array sizes, so `validatePost()` re-checks what the prompt asked
+for before anything is stored: empty sections are dropped, whitespace is
+collapsed, and a post with no usable body is rejected rather than published.
+A `refusal` or `max_tokens` stop reason also aborts the run without
+publishing.
+
+### The tweet
+
+The model returns typed pieces — a hook, 2–4 bullet lines, and hashtags —
+rather than one free-text blob. `composeTweet()` assembles them into a fixed
+shape, which is what keeps the tweet consistent week to week:
+
+```
+<hook>
+
+• Mon 7/28 - Mint Marvel (EQL)
+• Tue 7/29 - Tribute Baseball
+
+https://preordercards.com/blog/<slug>
+#ToppsCards #TheHobby
+```
+
+Length is enforced against X's 280-character limit, counting the link as 23
+characters as X does regardless of its real length. If it overruns, trailing
+bullets are dropped first, then hashtags — so you never get handed something
+X would reject.
+
+The Discord embed carries the post link, the tweet in a fenced block (one
+click to copy, line breaks intact), and an "Open X with this tweet
+pre-filled" link that opens the X composer with the text already in it.
+
+### Environment
+
+- `ANTHROPIC_API_KEY` — required; without it the agent no-ops and the rest
+  of the site is unaffected. Roughly a cent or two per post.
+- `BLOG_AGENT_WEBHOOK_URL` — Discord webhook for the "post published"
+  alert. Falls back to `DISCORD_WEBHOOK_URL`.
+- `SITE_URL` — public base URL used to build the link in the tweet.
+  Defaults to `https://preordercards.com`.
+
 ## Shared modules (`utils.js`, `email.js`)
 
 Consolidated out of server.js/sellerAuth.js/marketplace.js, which had each
