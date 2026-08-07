@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-06",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily) as of 2026-08-06. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-07",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily) as of 2026-08-07. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -562,6 +562,15 @@
       "format": "Hobby Box",
       "releaseDate": "2026-08-13",
       "description": "Museum Collection's autograph, relic, and autograph-relic hit format applied to UEFA Champions League, Europa League, and Conference League stars."
+    },
+    {
+      "id": "2026-topps-museum-collection-baseball-preorder",
+      "title": "2026 Topps Museum Collection Baseball",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-17",
+      "description": "Preorders open for the premium Museum Collection baseball release ahead of its August street date.",
+      "isPreorderOpenDate": true
     },
     {
       "id": "2026-bowmans-best-baseball",
