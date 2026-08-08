@@ -548,6 +548,14 @@
       "isPreorderOpenDate": true
     },
     {
+      "id": "2026-topps-vault-marvel",
+      "title": "2026 Topps Vault Marvel Hobby Box",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-12",
+      "description": "Ultra-premium hits-only Marvel release with just two cards per box, built entirely around on-card autographs and sketch cards from major franchise stars."
+    },
+    {
       "id": "2026-topps-chrome-baseball-logofractor",
       "title": "2026 Topps Chrome Baseball Logofractor Edition",
       "sport": "Baseball",
