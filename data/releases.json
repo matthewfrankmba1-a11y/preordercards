@@ -95,7 +95,8 @@
       "format": "Hobby Box",
       "releaseDate": "2026-07-28",
       "soldOut": true,
-      "description": "Coin-embedded Mint format applied to the Marvel Comics universe.",
+      "description": "EQL preorder window for the coin-embedded Mint format applied to the Marvel Comics universe. Ships 2026-08-19.",
+      "isPreorderOpenDate": true,
       "eql": true
     },
     {
@@ -105,7 +106,8 @@
       "format": "Hobby Box",
       "releaseDate": "2026-07-28",
       "soldOut": true,
-      "description": "Low-print-run Chrome Black basketball set with numbered parallels.",
+      "description": "EQL preorder window for the low-print-run Chrome Black basketball set with numbered parallels. Ships 2026-08-27.",
+      "isPreorderOpenDate": true,
       "eql": true
     },
     {
