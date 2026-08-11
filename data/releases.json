@@ -599,6 +599,15 @@
       "description": "Prospect-focused Bowman's Best release with refractor autographs."
     },
     {
+      "id": "2026-topps-cosmic-chrome-baseball-preorder",
+      "title": "2026 Topps Cosmic Chrome Baseball",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-24",
+      "description": "Preorders open for the space-themed Chrome baseball release, featuring a Nucleus Refractor in every box alongside numbered cosmic-parallel hits.",
+      "isPreorderOpenDate": true
+    },
+    {
       "id": "2025-26-topps-definitive-basketball",
       "title": "2025-26 Topps Definitive Basketball Hobby Box",
       "sport": "Basketball",
