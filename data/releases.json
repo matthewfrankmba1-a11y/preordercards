@@ -136,6 +136,14 @@
       "description": "UFC-licensed release themed around the Freedom 250 card design."
     },
     {
+      "id": "2026-topps-baseball-complete-factory-set",
+      "title": "2026 Topps Baseball Complete Factory Set",
+      "sport": "Baseball",
+      "format": "Hobby Factory Set",
+      "releaseDate": "2026-08-07",
+      "description": "All 700 base cards from Topps Series 1 and Series 2 collected together in one factory-sealed hobby set, marking the flagship line's 75th anniversary."
+    },
+    {
       "id": "2026-topps-tier-one-baseball",
       "title": "2026 Topps Tier One Baseball Hobby Box",
       "sport": "Baseball",
@@ -255,6 +263,14 @@
       "format": "Hobby Box",
       "releaseDate": "2026-09-09",
       "description": "Chrome-refractor edition of the flagship Bowman prospect release."
+    },
+    {
+      "id": "2026-bowman-chrome-baseball-mega",
+      "title": "2026 Bowman Chrome Baseball Mega Box",
+      "sport": "Baseball",
+      "format": "Mega Box",
+      "releaseDate": "2026-09-23",
+      "description": "Mega-box configuration of Bowman Chrome Baseball, following the hobby wave with six packs per box."
     },
     {
       "id": "2026-topps-pristine",
