@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-03",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily) as of 2026-08-03. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-11",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-11. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -95,7 +95,8 @@
       "format": "Hobby Box",
       "releaseDate": "2026-07-28",
       "soldOut": true,
-      "description": "Coin-embedded Mint format applied to the Marvel Comics universe.",
+      "description": "EQL preorder window for the coin-embedded Mint format applied to the Marvel Comics universe. Ships 2026-08-19.",
+      "isPreorderOpenDate": true,
       "eql": true
     },
     {
@@ -105,7 +106,8 @@
       "format": "Hobby Box",
       "releaseDate": "2026-07-28",
       "soldOut": true,
-      "description": "Low-print-run Chrome Black basketball set with numbered parallels.",
+      "description": "EQL preorder window for the low-print-run Chrome Black basketball set with numbered parallels. Ships 2026-08-27.",
+      "isPreorderOpenDate": true,
       "eql": true
     },
     {
@@ -134,6 +136,30 @@
       "description": "UFC-licensed release themed around the Freedom 250 card design."
     },
     {
+      "id": "2026-topps-baseball-complete-factory-set",
+      "title": "2026 Topps Baseball Complete Factory Set",
+      "sport": "Baseball",
+      "format": "Hobby Factory Set",
+      "releaseDate": "2026-08-07",
+      "description": "All 700 base cards from Topps Series 1 and Series 2 collected together in one factory-sealed hobby set, marking the flagship line's 75th anniversary."
+    },
+    {
+      "id": "2026-topps-tier-one-baseball",
+      "title": "2026 Topps Tier One Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-06-24",
+      "description": "Premium baseball release marking the 15th anniversary of the Tier One brand, pairing on-card autographs with game-used bat relic cards."
+    },
+    {
+      "id": "2026-topps-chrome-marvel-comics",
+      "title": "2026 Topps Chrome Marvel Comics Hobby Box",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-01",
+      "description": "Chrome-format Marvel Comics release spanning decades of heroes and villains, with die-cut Wolverine-claw base card variations."
+    },
+    {
       "id": "2026-topps-finest-baseball",
       "title": "2026 Topps Finest Baseball Hobby Box",
       "sport": "Baseball",
@@ -154,7 +180,7 @@
       "title": "2026 Topps Chrome Sapphire Marvel Comics",
       "sport": "Entertainment",
       "format": "Hobby Box",
-      "releaseDate": "2026-08-06",
+      "releaseDate": "2026-08-05",
       "description": "Sapphire-edition Chrome parallels applied to the Marvel Comics universe."
     },
     {
@@ -235,8 +261,16 @@
       "title": "2026 Bowman Chrome Baseball Hobby Box",
       "sport": "Baseball",
       "format": "Hobby Box",
-      "releaseDate": "2026-09-10",
+      "releaseDate": "2026-09-09",
       "description": "Chrome-refractor edition of the flagship Bowman prospect release."
+    },
+    {
+      "id": "2026-bowman-chrome-baseball-mega",
+      "title": "2026 Bowman Chrome Baseball Mega Box",
+      "sport": "Baseball",
+      "format": "Mega Box",
+      "releaseDate": "2026-09-23",
+      "description": "Mega-box configuration of Bowman Chrome Baseball, following the hobby wave with six packs per box."
     },
     {
       "id": "2026-topps-pristine",
@@ -261,6 +295,14 @@
       "format": "12-Box Case",
       "releaseDate": "2026-08-12",
       "description": "Case configuration of Topps Star Wars Chrome Galaxy."
+    },
+    {
+      "id": "2026-topps-museum-collection-baseball",
+      "title": "2026 Topps Museum Collection Baseball Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-18",
+      "description": "Premium single-pack baseball release pairing multiple autographed relic and on-card autograph hits per box."
     },
     {
       "id": "2026-topps-ufc-stadium-club",
@@ -435,7 +477,7 @@
       "title": "2026 Topps WWE Universe",
       "sport": "Entertainment",
       "format": "Blaster Box",
-      "releaseDate": "2027-01-30",
+      "releaseDate": "2026-09-11",
       "description": "Retail-focused WWE release covering the current wrestling roster."
     },
     {
@@ -477,7 +519,7 @@
       "title": "2026 Topps Mint Marvel Hobby Box",
       "sport": "Entertainment",
       "format": "Hobby Box",
-      "releaseDate": "2026-08-20",
+      "releaseDate": "2026-08-19",
       "description": "Second-year Mint Marvel release with thick foil-stock cards split across Bronze, Silver, Gold, and numbered Platinum tiers."
     },
     {
@@ -485,7 +527,7 @@
       "title": "2026 Topps Chrome Black Basketball Hobby Box",
       "sport": "Basketball",
       "format": "Hobby Box",
-      "releaseDate": "2026-08-20",
+      "releaseDate": "2026-08-27",
       "description": "General hobby availability of Topps Chrome Black Basketball, following the earlier EQL raffle presale."
     },
     {
@@ -502,7 +544,7 @@
       "title": "2025-26 Topps Motif Basketball",
       "sport": "Basketball",
       "format": "Hobby Box",
-      "releaseDate": "2026-07-09",
+      "releaseDate": "2026-08-20",
       "description": "First-ever NBA-licensed high-end release from Topps, built around a low-print-run autograph checklist averaging five hits per box."
     },
     {
@@ -524,12 +566,70 @@
       "isPreorderOpenDate": true
     },
     {
+      "id": "2026-topps-vault-marvel",
+      "title": "2026 Topps Vault Marvel Hobby Box",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-12",
+      "description": "Ultra-premium hits-only Marvel release with just two cards per box, built entirely around on-card autographs and sketch cards from major franchise stars."
+    },
+    {
+      "id": "2026-topps-chrome-baseball-logofractor",
+      "title": "2026 Topps Chrome Baseball Logofractor Edition",
+      "sport": "Baseball",
+      "format": "20-Box Case",
+      "releaseDate": "2026-08-19",
+      "description": "Case-exclusive Chrome baseball parallel featuring the Topps logo embedded into every refractor card."
+    },
+    {
+      "id": "2025-26-topps-museum-collection-uefa-soccer",
+      "title": "2025-26 Topps Museum Collection UEFA Club Competitions Soccer",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-13",
+      "description": "Museum Collection's autograph, relic, and autograph-relic hit format applied to UEFA Champions League, Europa League, and Conference League stars."
+    },
+    {
+      "id": "2026-topps-museum-collection-baseball-preorder",
+      "title": "2026 Topps Museum Collection Baseball",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-17",
+      "description": "Preorders open for the premium Museum Collection baseball release ahead of its August street date.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-pro-debut-baseball",
+      "title": "2026 Topps Pro Debut Baseball Jumbo Box",
+      "sport": "Baseball",
+      "format": "Jumbo Box",
+      "releaseDate": "2026-09-26",
+      "description": "Minor-league-focused prospect release spotlighting early professional action shots and autographs."
+    },
+    {
       "id": "2026-bowmans-best-baseball",
       "title": "2026 Bowman's Best Baseball Hobby Box",
       "sport": "Baseball",
       "format": "Hobby Box",
       "releaseDate": "2027-03-11",
       "description": "Prospect-focused Bowman's Best release with refractor autographs."
+    },
+    {
+      "id": "2026-topps-cosmic-chrome-baseball-preorder",
+      "title": "2026 Topps Cosmic Chrome Baseball",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-24",
+      "description": "Preorders open for the space-themed Chrome baseball release, featuring a Nucleus Refractor in every box alongside numbered cosmic-parallel hits.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2025-26-topps-definitive-basketball",
+      "title": "2025-26 Topps Definitive Basketball Hobby Box",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-18",
+      "description": "Ultra-low-print-run basketball release built around on-card autographs, booklet autographs, and game-used memorabilia."
     }
   ]
 }

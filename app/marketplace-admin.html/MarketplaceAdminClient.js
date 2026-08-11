@@ -192,6 +192,156 @@ function useSortedData(data, accessors, initialField) {
   return { sorted, sort, handleSort };
 }
 
+const EXPIRY_OPTIONS = [
+  { value: 168, label: '7 days' },
+  { value: 24, label: '24 hours' },
+  { value: 0, label: 'Never expires' },
+];
+
+// The preview comes from the server rather than being rebuilt here, so the
+// admin reads the exact text the applicant will get — one builder, no
+// lookalike copy to drift out of sync (see the route's own note).
+function InviteSellerModal({ onClose }) {
+  const [email, setEmail] = useState('');
+  const [expiryHours, setExpiryHours] = useState(168);
+  const [note, setNote] = useState('');
+  const [preview, setPreview] = useState(null);
+  const [sent, setSent] = useState(null);
+  const [error, setError] = useState('');
+  const [strandedKey, setStrandedKey] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (sent) return undefined;
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      const { ok, data } = await postJson('/api/admin/marketplace/invite-seller', {
+        preview: true,
+        expiryHours,
+        note,
+      });
+      if (!cancelled && ok) setPreview(data);
+    }, 350);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [expiryHours, note, sent]);
+
+  async function handleSend(e) {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    setStrandedKey(null);
+    const { ok, data } = await postJson('/api/admin/marketplace/invite-seller', {
+      email,
+      expiryHours,
+      note,
+    });
+    setBusy(false);
+    if (!ok) {
+      setError(data.error || 'Could not send this invite.');
+      // A 502 means the key exists but the email never left — surface it so
+      // it can be passed along by hand instead of minting a second one.
+      if (data.keyCode) setStrandedKey(data.keyCode);
+      return;
+    }
+    setSent(data);
+  }
+
+  if (sent) {
+    return (
+      <div className="admin-modal-overlay" onClick={onClose}>
+        <div className="admin-modal admin-modal-wide" onClick={(e) => e.stopPropagation()}>
+          <h3>Invite sent</h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: 0 }}>{sent.email}</p>
+          <div className="admin-invite-result">
+            <div className="admin-invite-key">{sent.keyCode}</div>
+            <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0.4rem 0 0' }}>
+              {sent.expiresAt
+                ? `Expires ${formatTimestamp(sent.expiresAt.replace('T', ' ').slice(0, 19))}`
+                : 'Never expires'}
+              . They appear in the Sellers table once they sign up.
+            </p>
+          </div>
+          <div className="admin-modal-actions">
+            <button type="button" className="notify-btn" onClick={onClose}>Done</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="admin-modal-overlay" onClick={onClose}>
+      <div className="admin-modal admin-modal-wide" onClick={(e) => e.stopPropagation()}>
+        <h3>Invite an approved seller</h3>
+        <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: 0 }}>
+          Mints a single-use key and emails it with login instructions.
+        </p>
+        <form onSubmit={handleSend}>
+          <div className="admin-modal-field">
+            <label htmlFor="invite-email">Their email</label>
+            <input
+              id="invite-email"
+              type="email"
+              required
+              autoComplete="off"
+              placeholder="seller@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="admin-modal-field">
+            <label htmlFor="invite-expiry">Key valid for</label>
+            <select id="invite-expiry" value={expiryHours} onChange={(e) => setExpiryHours(Number(e.target.value))}>
+              {EXPIRY_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="admin-modal-field">
+            <label htmlFor="invite-note">Personal note (optional) — added before the sign-off</label>
+            <textarea
+              id="invite-note"
+              rows={3}
+              placeholder="Thanks for the StockX screenshots — everything checked out."
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
+          </div>
+
+          {preview && (
+            <>
+              <div className="admin-modal-field" style={{ marginBottom: '0.35rem' }}>
+                <label>Preview — subject: {preview.subject}</label>
+              </div>
+              <div className="admin-email-preview">{preview.body}</div>
+            </>
+          )}
+
+          {error && <p className="form-message error">{error}</p>}
+          {strandedKey && (
+            <div className="admin-invite-result">
+              <div className="admin-invite-key">{strandedKey}</div>
+              <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0.4rem 0 0' }}>
+                This key is live. Send it manually — don&apos;t re-send, that mints a second key.
+              </p>
+            </div>
+          )}
+
+          <div className="admin-modal-actions">
+            <button type="button" className="admin-modal-btn-secondary" onClick={onClose}>Cancel</button>
+            <button type="submit" className="notify-btn" disabled={busy}>
+              {busy ? 'Sending…' : 'Send Invite'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 const SELLER_SORT_ACCESSORS = {
   email: (s) => (s.email || '').toLowerCase(),
   completedSales: (s) => s.completedSales,
@@ -203,6 +353,7 @@ function SellersView() {
   const [sellers, setSellers] = useState(null);
   const [error, setError] = useState('');
   const [removingKey, setRemovingKey] = useState(null);
+  const [inviting, setInviting] = useState(false);
   const { sorted, sort, handleSort } = useSortedData(sellers, SELLER_SORT_ACCESSORS, 'email');
 
   useEffect(() => {
@@ -240,7 +391,16 @@ function SellersView() {
 
   return (
     <>
-      <h2 style={{ margin: '1.5rem 0 1rem' }}>Sellers ({sellers ? sellers.length : '…'})</h2>
+      <div className="admin-section-head">
+        <h2>Sellers ({sellers ? sellers.length : '…'})</h2>
+        <button type="button" className="notify-btn" onClick={() => setInviting(true)}>
+          Invite a Seller
+        </button>
+      </div>
+      <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '-0.5rem' }}>
+        Invite emails an approved applicant their single-use key plus login instructions. They show up in this
+        table once they sign up with it.
+      </p>
       {error && <div className="status">{error}</div>}
       {sellers && sellers.length === 0 && <div className="status">No sellers have signed up yet.</div>}
       {sellers && sellers.length > 0 && (
@@ -295,6 +455,7 @@ function SellersView() {
           </table>
         </div>
       )}
+      {inviting && <InviteSellerModal onClose={() => setInviting(false)} />}
     </>
   );
 }
