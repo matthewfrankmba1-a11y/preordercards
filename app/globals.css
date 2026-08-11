@@ -1064,6 +1064,12 @@ body {
   box-shadow: 0 20px 50px rgba(16, 24, 40, 0.3);
 }
 
+/* Roomier variant for the invite modal, whose email preview needs enough
+   width to show the message's aligned columns without wrapping them. */
+.admin-modal-wide {
+  max-width: 660px;
+}
+
 .admin-modal h3 {
   margin: 0 0 0.5rem;
 }
@@ -1098,6 +1104,68 @@ body {
   font-size: 0.9rem;
 }
 
+.admin-modal-field textarea,
+.admin-modal-field select {
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: inherit;
+  background: transparent;
+}
+
+.admin-modal-field textarea {
+  min-height: 4.5rem;
+  resize: vertical;
+}
+
+/* Plain-text email body, shown exactly as it will send — hence the
+   monospace + preserved whitespace, and a cap so a long note can't push
+   the Send button off the bottom of the modal. */
+.admin-email-preview {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  margin: 0 0 1rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  /* `pre`, not `pre-wrap`: this is a plain-text email whose indented
+     key/URL block only lines up if lines are left intact. Overflow
+     scrolls sideways rather than re-wrapping into something the
+     recipient will never see. */
+  white-space: pre;
+  max-height: 15rem;
+  overflow: auto;
+}
+
+.admin-invite-result {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 0.8rem 0.9rem;
+  margin: 0 0 1rem;
+}
+
+.admin-invite-key {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.admin-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 1.5rem 0 1rem;
+}
+
+.admin-section-head h2 { margin: 0; }
+
 .admin-modal-summary {
   background: var(--bg);
   border-radius: 8px;
@@ -1130,5 +1198,7 @@ body {
 }
 
 @media (prefers-color-scheme: dark) {
-  .admin-modal-field input { background: #101319; color: var(--text); }
+  .admin-modal-field input,
+  .admin-modal-field textarea,
+  .admin-modal-field select { background: #101319; color: var(--text); }
 }
