@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-11",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-11. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-12",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-12. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -126,6 +126,14 @@
       "format": "Hobby Box",
       "releaseDate": "2026-07-30",
       "description": "Inception-brand soccer release covering UEFA club competitions."
+    },
+    {
+      "id": "2026-topps-knockout-ufc",
+      "title": "2026 Topps Knockout UFC Hobby Box",
+      "sport": "MMA",
+      "format": "Hobby Box",
+      "releaseDate": "2026-06-26",
+      "description": "UFC-licensed release built around three autographs per box, including a guaranteed autographed relic and returning Inception Signatures."
     },
     {
       "id": "2026-topps-ufc-freedom-250",
