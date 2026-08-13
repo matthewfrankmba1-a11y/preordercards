@@ -128,6 +128,30 @@
       "description": "Inception-brand soccer release covering UEFA club competitions."
     },
     {
+      "id": "2026-topps-chrome-ufc",
+      "title": "2026 Topps Chrome UFC Hobby Box",
+      "sport": "MMA",
+      "format": "Hobby Box",
+      "releaseDate": "2026-05-08",
+      "description": "Chrome-format UFC release marking the brand's return to mixed martial arts, with two autographs guaranteed in every hobby box."
+    },
+    {
+      "id": "2026-topps-midnight-ufc",
+      "title": "2026 Topps Midnight UFC Hobby Box",
+      "sport": "MMA",
+      "format": "Hobby Box",
+      "releaseDate": "2026-05-22",
+      "description": "Black-chromium UFC release with nighttime-themed inserts and three autographs guaranteed in every hobby box."
+    },
+    {
+      "id": "2026-topps-chrome-sapphire-ufc",
+      "title": "2026 Topps Chrome Sapphire UFC",
+      "sport": "MMA",
+      "format": "Hobby Box",
+      "releaseDate": "2026-06-05",
+      "description": "Online-exclusive Sapphire-edition Chrome parallels applied to the UFC roster."
+    },
+    {
       "id": "2026-topps-knockout-ufc",
       "title": "2026 Topps Knockout UFC Hobby Box",
       "sport": "MMA",
