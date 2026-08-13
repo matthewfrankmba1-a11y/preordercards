@@ -484,17 +484,17 @@
       "id": "2026-topps-wwe-universe",
       "title": "2026 Topps WWE Universe",
       "sport": "Entertainment",
-      "format": "Blaster Box",
+      "format": "Hobby Box",
       "releaseDate": "2026-09-11",
-      "description": "Retail-focused WWE release covering the current wrestling roster."
+      "description": "WWE release covering the current roster, Legends, and the NXT rookie class — two autographs and a relic per hobby box."
     },
     {
       "id": "2026-topps-wwe-universe-preorder",
       "title": "2026 Topps WWE Universe",
       "sport": "Entertainment",
-      "format": "Blaster Box",
+      "format": "Hobby Box",
       "releaseDate": "2026-08-10",
-      "description": "Preorders open for the retail-focused WWE Universe release.",
+      "description": "Preorders open for the WWE Universe hobby release.",
       "isPreorderOpenDate": true
     },
     {
@@ -594,7 +594,7 @@
       "title": "2025-26 Topps Museum Collection UEFA Club Competitions Soccer",
       "sport": "Soccer",
       "format": "Hobby Box",
-      "releaseDate": "2026-08-13",
+      "releaseDate": "2026-09-18",
       "description": "Museum Collection's autograph, relic, and autograph-relic hit format applied to UEFA Champions League, Europa League, and Conference League stars."
     },
     {
