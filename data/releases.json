@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-12",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-12. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-13",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-13. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -638,6 +638,24 @@
       "format": "Hobby Box",
       "releaseDate": "2026-08-18",
       "description": "Ultra-low-print-run basketball release built around on-card autographs, booklet autographs, and game-used memorabilia."
+    },
+    {
+      "id": "2025-26-topps-pristine-basketball-preorder",
+      "title": "2025-26 Topps Pristine Basketball",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-25",
+      "description": "Preorders open for the refractor-parallel Pristine brand applied to the NBA for the first time.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-chrome-baseball-samurai-japan-preorder",
+      "title": "2026 Topps Chrome Baseball Team Samurai Japan Collection",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-27",
+      "description": "Preorders open for a Chrome-format collection spotlighting stars of Japan's national baseball team.",
+      "isPreorderOpenDate": true
     }
   ]
 }
