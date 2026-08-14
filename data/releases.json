@@ -688,6 +688,23 @@
       "format": "Hobby Box",
       "releaseDate": "2026-07-09",
       "description": "Premium Chrome Black release for the NFL with a two-pack box format, a guaranteed on-card autograph, and a refractor in every pack."
+    },
+    {
+      "id": "2026-27-topps-royalty-premier-league-soccer-preorder",
+      "title": "2026-27 Topps Royalty Premier League Soccer",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-18",
+      "description": "Preorders open for a new premium Royalty-branded Premier League soccer release.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-chrome-baseball-sapphire",
+      "title": "2026 Topps Chrome Baseball Sapphire Edition",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-27",
+      "description": "Sapphire-edition Chrome parallels applied to the flagship baseball checklist with a glossy icy-blue finish."
     }
   ]
 }
