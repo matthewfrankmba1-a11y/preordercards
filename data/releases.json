@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-13",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-13. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-14",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-14. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -680,6 +680,14 @@
       "releaseDate": "2026-08-27",
       "description": "Preorders open for a Chrome-format collection spotlighting stars of Japan's national baseball team.",
       "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-chrome-black-football",
+      "title": "2026 Topps Chrome Black Football",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-09",
+      "description": "Premium Chrome Black release for the NFL with a two-pack box format, a guaranteed on-card autograph, and a refractor in every pack."
     }
   ]
 }
