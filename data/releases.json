@@ -534,8 +534,8 @@
       "title": "2026 Topps MLS Chrome Soccer Hobby Box",
       "sport": "Soccer",
       "format": "Hobby Box",
-      "releaseDate": "2027-02-06",
-      "description": "Chrome-format release covering Major League Soccer."
+      "releaseDate": "2026-09-10",
+      "description": "Chrome-format release covering Major League Soccer, including the first MLS card of Antoine Griezmann."
     },
     {
       "id": "2026-topps-mls-chrome-soccer-preorder",
@@ -705,6 +705,14 @@
       "format": "Hobby Box",
       "releaseDate": "2026-08-26",
       "description": "Sapphire-edition Chrome parallels applied to the flagship baseball checklist with a glossy icy-blue finish."
+    },
+    {
+      "id": "2026-27-topps-holiday-basketball-countdown-calendar",
+      "title": "2026-27 Topps Holiday Basketball Countdown Calendar",
+      "sport": "Basketball",
+      "format": "Countdown Calendar Box",
+      "releaseDate": "2026-10-30",
+      "description": "Advent-style basketball release with a sealed pack or card revealed behind each daily door."
     }
   ]
 }
