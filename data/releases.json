@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-15",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-15. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-17",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-17. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -713,6 +713,14 @@
       "format": "Hobby Box",
       "releaseDate": "2026-12-31",
       "description": "New flagship Chrome basketball release for the 2026-27 NBA season, following the standalone Chrome Updates extension released earlier in 2026."
+    },
+    {
+      "id": "2026-topps-chrome-update-series-baseball-delight",
+      "title": "2026 Topps Chrome Update Series Baseball Delight Box",
+      "sport": "Baseball",
+      "format": "Delight Box",
+      "releaseDate": "2026-12-10",
+      "description": "Case-breaker-oriented Delight configuration of Topps Chrome Update Series Baseball with additional refractor and numbered parallel hits per box."
     },
     {
       "id": "2026-27-topps-holiday-basketball-countdown-calendar",
