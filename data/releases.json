@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-17",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-17. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-18",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-18. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -506,7 +506,7 @@
     },
     {
       "id": "2026-topps-wwe-universe",
-      "title": "2026 Topps WWE Universe",
+      "title": "2026 Topps Universe WWE",
       "sport": "Entertainment",
       "format": "Hobby Box",
       "releaseDate": "2026-09-11",
@@ -514,7 +514,7 @@
     },
     {
       "id": "2026-topps-wwe-universe-preorder",
-      "title": "2026 Topps WWE Universe",
+      "title": "2026 Topps Universe WWE",
       "sport": "Entertainment",
       "format": "Hobby Box",
       "releaseDate": "2026-08-10",
@@ -602,7 +602,7 @@
       "title": "2026 Topps Vault Marvel Hobby Box",
       "sport": "Entertainment",
       "format": "Hobby Box",
-      "releaseDate": "2026-08-12",
+      "releaseDate": "2026-09-23",
       "description": "Ultra-premium hits-only Marvel release with just two cards per box, built entirely around on-card autographs and sketch cards from major franchise stars."
     },
     {
