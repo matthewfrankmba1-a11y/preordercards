@@ -37,6 +37,10 @@ services:
         sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
+      - key: BLOG_AGENT_WEBHOOK_URL
+        sync: false
+      - key: SITE_URL
+        value: https://preordercards.com
       - key: RESEND_WEBHOOK_SECRET
         sync: false
     disk:
