@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import DiscountBanner from './DiscountBanner';
 import ReleaseCard from './ReleaseCard';
 
@@ -35,7 +35,37 @@ function formatGroupLabel(isoDate) {
   return d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 }
 
-export default function HomeClient({ initialReleases, initialSourceNote, initialLastUpdated }) {
+// Counts this load, then shows the total it comes back with. The ref guard
+// makes it fire once per page load rather than once per effect run — React
+// StrictMode double-invokes effects in development, which would otherwise
+// count every local page load twice.
+function usePageViewCount(initialViews) {
+  const [views, setViews] = useState(initialViews);
+  const recorded = useRef(false);
+
+  useEffect(() => {
+    if (recorded.current) return;
+    recorded.current = true;
+    let cancelled = false;
+    fetch('/api/page-view', { method: 'POST' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data && typeof data.views === 'number') setViews(data.views);
+      })
+      .catch(() => {
+        // A failed count is not worth surfacing — the server-rendered
+        // number stays on screen, just without this visit included.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return views;
+}
+
+export default function HomeClient({ initialReleases, initialSourceNote, initialLastUpdated, initialViews }) {
+  const pageViews = usePageViewCount(initialViews);
   const [allReleases] = useState(() => (initialReleases ? limitSoldOut(initialReleases) : null));
   const [error] = useState(!initialReleases);
   const [sourceNote] = useState(() =>
@@ -178,6 +208,9 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
           <p className="footer-links">
             <a href="/terms.html">Terms &amp; Conditions</a> · <a href="/trust.html">Trust</a> · <a href="/blog.html">Blog</a> · <a href="https://www.instagram.com/frank92_______/" target="_blank" rel="noopener noreferrer">Contact</a>
           </p>
+          {typeof pageViews === 'number' && (
+            <p className="page-view-count">{pageViews.toLocaleString('en-US')} page views</p>
+          )}
         </div>
       </footer>
     </>

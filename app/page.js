@@ -1,6 +1,7 @@
 import { headers } from 'next/headers';
 import HomeClient from './HomeClient';
 import { getReleasesWithInterestCounts } from '../lib/releases';
+import { getHomepageViews } from '../lib/pageViews';
 
 export const metadata = {
   title: 'Topps Preorder Release Calendar | PreorderCards',
@@ -112,6 +113,16 @@ export default async function HomePage() {
     initialData = null;
   }
 
+  // Server-rendered for the same reason as the release list above: the
+  // footer count is in the initial HTML, so it never pops in and shifts
+  // the disclaimers. The client's own visit is added to it on mount.
+  let initialViews;
+  try {
+    initialViews = getHomepageViews();
+  } catch {
+    initialViews = null;
+  }
+
   return (
     <>
       {/* The header's CSS background-image is the page's LCP element, but a
@@ -131,6 +142,7 @@ export default async function HomePage() {
         initialReleases={initialData ? initialData.releases : null}
         initialSourceNote={initialData ? initialData.sourceNote : ''}
         initialLastUpdated={initialData ? initialData.lastUpdated : ''}
+        initialViews={initialViews}
       />
     </>
   );
