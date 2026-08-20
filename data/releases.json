@@ -754,6 +754,30 @@
       "format": "Blaster Box",
       "releaseDate": "2026-10-23",
       "description": "Retail-focused blaster configuration of the flagship 2026-27 Topps Basketball set for the new NBA season."
+    },
+    {
+      "id": "2026-topps-flagship-football-jumbo",
+      "title": "2026 Topps Flagship Football Jumbo Box",
+      "sport": "Football",
+      "format": "Jumbo Box",
+      "releaseDate": "2026-08-21",
+      "description": "Jumbo configuration of Topps' flagship NFL comeback release, with extra packs delivering an autograph and a memorabilia card per box."
+    },
+    {
+      "id": "2026-topps-flagship-football-mega",
+      "title": "2026 Topps Flagship Football Mega Box",
+      "sport": "Football",
+      "format": "Mega Box",
+      "releaseDate": "2026-08-21",
+      "description": "Retail mega-box configuration of Topps' flagship NFL comeback release."
+    },
+    {
+      "id": "2026-topps-flagship-football-value",
+      "title": "2026 Topps Flagship Football Value Box",
+      "sport": "Football",
+      "format": "Value Box",
+      "releaseDate": "2026-08-21",
+      "description": "Budget-friendly value-box configuration of Topps' flagship NFL comeback release."
     }
   ]
 }
