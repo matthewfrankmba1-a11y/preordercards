@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-19",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-19. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-20",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-20. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -729,6 +729,31 @@
       "format": "Countdown Calendar Box",
       "releaseDate": "2026-10-30",
       "description": "Advent-style basketball release with a sealed pack or card revealed behind each daily door."
+    },
+    {
+      "id": "2026-topps-chrome-jennie-preorder",
+      "title": "2026 Topps Chrome x Jennie",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-20",
+      "description": "Preorders open for a first-of-its-kind Topps Chrome collaboration built around solo K-pop artist Jennie Kim rather than a sports league or team.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2025-26-topps-pristine-basketball",
+      "title": "2025-26 Topps Pristine Basketball Hobby Box",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-03",
+      "description": "Full hobby release of the refractor-parallel Pristine brand's first-ever NBA application, following its late-August preorder window."
+    },
+    {
+      "id": "2026-27-topps-basketball-blaster",
+      "title": "2026-27 Topps Basketball Blaster Box",
+      "sport": "Basketball",
+      "format": "Blaster Box",
+      "releaseDate": "2026-10-23",
+      "description": "Retail-focused blaster configuration of the flagship 2026-27 Topps Basketball set for the new NBA season."
     }
   ]
 }
