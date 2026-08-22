@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-21",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-21. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-22",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-22. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -526,7 +526,7 @@
       "title": "2026-27 Topps Premier League Soccer",
       "sport": "Soccer",
       "format": "Hobby Box",
-      "releaseDate": "2026-09-16",
+      "releaseDate": "2026-09-17",
       "description": "Flagship Premier League soccer release trimmed to a leaner 300-card checklist for the 2026-27 season."
     },
     {
@@ -787,6 +787,23 @@
       "format": "Value Box",
       "releaseDate": "2026-08-21",
       "description": "Budget-friendly value-box configuration of Topps' flagship NFL comeback release."
+    },
+    {
+      "id": "2026-topps-chrome-jennie",
+      "title": "2026 Topps Chrome x Jennie Hobby Box",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-20",
+      "description": "First-of-its-kind Topps Chrome release built around solo K-pop artist Jennie Kim, spotlighting career photoshoots and concert looks."
+    },
+    {
+      "id": "2026-topps-chrome-star-wars-preorder",
+      "title": "2026 Topps Chrome Star Wars",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-25",
+      "description": "Preorders open for the flagship Chrome Star Wars release, a separate line from the earlier Chrome Galaxy edition.",
+      "isPreorderOpenDate": true
     }
   ]
 }
