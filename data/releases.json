@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-22",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-22. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-24",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-24. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -820,6 +820,14 @@
       "releaseDate": "2026-08-25",
       "description": "Preorders open for the flagship Chrome Star Wars release, a separate line from the earlier Chrome Galaxy edition.",
       "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-27-topps-cosmic-chrome-basketball",
+      "title": "2026-27 Topps Cosmic Chrome Basketball Hobby Box",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2027-05-01",
+      "description": "Space-themed Chrome basketball release for the 2026-27 NBA season, following the Cosmic Chrome brand's basketball debut earlier in 2026."
     }
   ]
 }
