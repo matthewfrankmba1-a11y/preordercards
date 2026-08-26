@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-24",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-24. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-26",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-26. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -828,6 +828,23 @@
       "format": "Hobby Box",
       "releaseDate": "2027-05-01",
       "description": "Space-themed Chrome basketball release for the 2026-27 NBA season, following the Cosmic Chrome brand's basketball debut earlier in 2026."
+    },
+    {
+      "id": "2026-topps-chrome-disney",
+      "title": "2026 Topps Chrome Disney",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-06-17",
+      "description": "Chrome-format release spanning the Disney, Pixar, and Disney Channel universes with refractor and numbered parallel chases, ahead of the later Sapphire-edition parallel drop."
+    },
+    {
+      "id": "2026-bowman-football-preorder",
+      "title": "2026 Bowman Football",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-08",
+      "description": "Preorders open for Topps' Bowman-branded college and NFL rookie prospect football release.",
+      "isPreorderOpenDate": true
     }
   ]
 }
