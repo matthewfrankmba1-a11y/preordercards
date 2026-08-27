@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-26",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-26. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-27",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-27. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -481,6 +481,15 @@
       "description": "Vintage-styled release mixing baseball with non-sport subjects, a longtime Allen & Ginter tradition."
     },
     {
+      "id": "2026-topps-allen-ginter-baseball-preorder",
+      "title": "2026 Topps Allen & Ginter Baseball",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-08",
+      "description": "Preorders open for the vintage-styled Allen & Ginter release ahead of its December street date.",
+      "isPreorderOpenDate": true
+    },
+    {
       "id": "2026-topps-cosmic-chrome-football",
       "title": "2026 Topps Cosmic Chrome Football Hobby Box",
       "sport": "Football",
@@ -689,6 +698,14 @@
       "releaseDate": "2026-08-26",
       "description": "Preorders open for a Chrome-format collection spotlighting stars of Japan's national baseball team.",
       "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-chrome-baseball-samurai-japan",
+      "title": "2026 Topps Chrome Baseball Team Samurai Japan Collection Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-16",
+      "description": "Standalone Chrome release built around Japan's national baseball program, featuring stars from Samurai Japan history and the World Baseball Classic roster."
     },
     {
       "id": "2026-topps-chrome-black-football",
