@@ -43,8 +43,6 @@ services:
         value: https://preordercards.com
       - key: RESEND_WEBHOOK_SECRET
         sync: false
-      - key: SITE_URL
-        value: https://preordercards.com
       - key: NEWSLETTER_ENABLED
         value: "false"
       - key: NEWSLETTER_SECRET
