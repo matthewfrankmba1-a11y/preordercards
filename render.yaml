@@ -50,7 +50,7 @@ services:
       - key: NEWSLETTER_SECRET
         sync: false
       - key: NEWSLETTER_AUDIENCE
-        value: signups
+        value: all
       - key: NEWSLETTER_SEND_HOUR
         value: "10"
       - key: NEWSLETTER_MAX_PER_RUN

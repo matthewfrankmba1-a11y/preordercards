@@ -161,6 +161,15 @@ export default function ReleaseCard({ release, soldOut }) {
           <button type="submit" className="notify-btn" disabled={soldOut || submitting}>{soldOut ? 'Sold Out' : 'Register Interest'}</button>
         </div>
         <p className={`form-message${message.kind ? ' ' + message.kind : ''}`} role="status">{message.text}</p>
+        {/* Registering by email also joins the weekly roundup list (see
+            lib/newsletter.js), so the form has to say so before the address
+            is collected — not afterwards in the confirmation email. */}
+        {contactType === 'email' && !soldOut && (
+          <p className="signup-consent">
+            Registering by email also gets you our free <a href="/newsletter.html">weekly release roundup</a>.
+            Unsubscribe anytime.
+          </p>
+        )}
       </form>
     </>
   );

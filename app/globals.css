@@ -495,6 +495,16 @@ body {
 .form-message.success { color: #1a7f37; }
 .form-message.error { color: var(--red-dark); }
 
+/* Sits under the interest form: the weekly-roundup disclosure has to be
+   visible before the address is submitted, but shouldn't compete with the
+   form itself. */
+.signup-consent {
+  margin: 0.35rem 0 0;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
 .verified-seller-cta {
   margin-bottom: 1.25rem;
 }

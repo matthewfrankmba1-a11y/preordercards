@@ -78,7 +78,8 @@ export default async function NewsletterPage({ searchParams }) {
 
           <p>
             It's free, it's one email a week, and every issue has a one-click unsubscribe at the bottom. We don't sell
-            or share the list.
+            or share the list. If you've registered interest in a release with your email, you're already on it — your
+            first roundup goes out the week after you signed up.
           </p>
 
           <NewsletterSignupForm />

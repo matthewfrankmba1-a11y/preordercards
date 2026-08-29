@@ -382,12 +382,23 @@ Clicks are also the thing being optimized for: traffic. The report reads only
 from `newsletter_sends`, so editing or renaming a post later can't
 retroactively change what was measured.
 
-**Who gets it.** `NEWSLETTER_AUDIENCE=signups` (the default) mails the
-`discount_signups` list — the homepage banner and `/newsletter.html`, both of
-which say out loud that the address is used for newsletters. Setting it to
-`all` also includes people who only ever registered interest in one specific
-release, which is a broader read of what they agreed to, so it's opt-in
-rather than the default.
+**Who gets it.** Everyone who has given the site an email address:
+`discount_signups` (the homepage banner and `/newsletter.html`) plus anyone
+who registered interest in a release or a marketplace listing. The interest
+form says so under the email field before the address is submitted, and the
+registration confirmation email repeats it — a list this broad is only fair
+if people are told at the point of collection, not after. Set
+`NEWSLETTER_AUDIENCE=signups` to narrow it back to just the two dedicated
+signup forms.
+
+**Nobody gets a roundup the same week they signed up.** An address is only
+eligible for issues whose week started after it was collected, so someone who
+registers interest on a Saturday gets their confirmation email that day and
+their first roundup the *following* Sunday — not one twelve hours later. The
+cutoff is the issue's own week-of date, so it applies to every send including
+backfilled ones. The report shows both numbers: `listSize` is who a send
+right now would reach, `listSizeIncludingPending` counts addresses still
+inside their first-week wait.
 
 Suppression is checked on every send: unsubscribes, hard bounces, spam
 complaints, and the existing `isLikelyTestContact()` filter. Bounces and
