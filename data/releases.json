@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-27",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-27. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-29",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-29. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -869,6 +869,15 @@
       "format": "Hobby Box",
       "releaseDate": "2026-09-08",
       "description": "Preorders open for Topps' Bowman-branded college and NFL rookie prospect football release.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-mars-attacks-christmas-preorder",
+      "title": "2026 Topps Mars Attacks Christmas",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-08",
+      "description": "Preorders open for a new holiday-themed installment of Topps' classic sci-fi Mars Attacks non-sport card line.",
       "isPreorderOpenDate": true
     }
   ]
