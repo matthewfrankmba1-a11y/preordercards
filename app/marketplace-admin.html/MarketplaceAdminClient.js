@@ -1007,11 +1007,154 @@ function DiscountSignupsView() {
   );
 }
 
+// Per-address outcome vocabulary, kept in one place so the summary line and
+// the detail list can't describe the same result differently.
+const SUBSCRIBER_ADD_LABELS = {
+  added: { label: 'Added', color: '#1a7f37' },
+  already: { label: 'Already on the list', color: 'var(--muted)' },
+  duplicate: { label: 'Listed twice in your paste', color: 'var(--muted)' },
+  unsubscribed: { label: 'Unsubscribed — not added', color: '#d9a400' },
+  test: { label: 'Looks like a test address — not added', color: '#d9a400' },
+  invalid: { label: 'Not a valid address', color: 'var(--red)' },
+};
+
+function formatWeekOf(iso) {
+  if (!iso) return '';
+  return new Date(iso + 'T12:00:00Z').toLocaleDateString(undefined, {
+    timeZone: 'UTC',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+function NewsletterView() {
+  const [summary, setSummary] = useState(null);
+  const [emails, setEmails] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/admin/marketplace/newsletter-subscribers')
+      .then((res) => {
+        if (!res.ok) throw new Error('Request failed');
+        return res.json();
+      })
+      .then((data) => {
+        if (!cancelled) setSummary(data);
+      })
+      .catch(() => {
+        if (!cancelled) setError('Could not load the newsletter list.');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function handleAdd(e) {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    setResult(null);
+    const { ok, data } = await postJson('/api/admin/marketplace/newsletter-subscribers', { emails });
+    setBusy(false);
+    if (!ok) {
+      setError(data.error || 'Could not add those addresses.');
+      return;
+    }
+    setResult(data);
+    setSummary(data);
+    // Only clear the box on a clean run — if anything was rejected, the
+    // owner needs the original paste to see what to fix.
+    if ((data.counts.invalid || 0) + (data.counts.unsubscribed || 0) === 0) setEmails('');
+  }
+
+  const notable = result ? result.results.filter((r) => r.status !== 'added') : [];
+
+  return (
+    <>
+      <h2 style={{ margin: '1.5rem 0 1rem' }}>Newsletter List</h2>
+
+      {summary && (
+        <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '-0.5rem' }}>
+          <strong style={{ color: 'var(--text)' }}>{summary.receivingNext}</strong> will get the next issue (week of{' '}
+          {formatWeekOf(summary.nextIssueWeek)}) ·{' '}
+          <strong style={{ color: 'var(--text)' }}>{summary.totalOnList - summary.receivingNext}</strong> waiting for a
+          later one · <strong style={{ color: 'var(--text)' }}>{summary.unsubscribed}</strong> unsubscribed
+          {summary.audience === 'all'
+            ? ' · includes everyone who registered interest by email'
+            : ' · signup forms only (NEWSLETTER_AUDIENCE=signups)'}
+        </p>
+      )}
+
+      <form onSubmit={handleAdd} style={{ margin: '1.25rem 0' }}>
+        <label className="form-label" htmlFor="newsletter-emails">
+          Add addresses — one per line, or separated by commas
+        </label>
+        <textarea
+          id="newsletter-emails"
+          className="contact-input"
+          rows={6}
+          value={emails}
+          onChange={(e) => setEmails(e.target.value)}
+          placeholder={'someone@example.com\nanother@example.com'}
+          style={{ width: '100%', marginTop: '0.4rem', fontFamily: 'inherit', resize: 'vertical' }}
+        />
+        <p style={{ fontSize: '0.75rem', color: 'var(--muted)', margin: '0.4rem 0 0.75rem' }}>
+          No email is sent when you add someone. They start with the issue for the week of{' '}
+          <strong>{summary ? formatWeekOf(summary.firstIssueWeek) : '…'}</strong> and can unsubscribe from any issue.
+          Only add people who gave you their address.
+        </p>
+        <button type="submit" className="notify-btn" disabled={busy || !emails.trim()}>
+          {busy ? 'Adding…' : 'Add to list'}
+        </button>
+      </form>
+
+      {error && <div className="status">{error}</div>}
+
+      {result && (
+        <div className="admin-table-wrap" style={{ padding: '0.9rem 1rem' }}>
+          <p style={{ margin: 0, fontWeight: 600 }}>
+            {result.counts.added || 0} added
+            {result.counts.already ? `, ${result.counts.already} already on the list` : ''}
+            {result.counts.unsubscribed ? `, ${result.counts.unsubscribed} skipped (unsubscribed)` : ''}
+            {result.counts.invalid ? `, ${result.counts.invalid} invalid` : ''}
+            {result.counts.test ? `, ${result.counts.test} skipped (test address)` : ''}
+            {result.counts.duplicate ? `, ${result.counts.duplicate} duplicate` : ''}
+          </p>
+
+          {notable.length > 0 && (
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0.75rem 0 0' }}>
+              {notable.map((row) => (
+                <li key={row.email} style={{ fontSize: '0.85rem', padding: '0.15rem 0' }}>
+                  <span className="admin-nowrap-ellipsis" title={row.email}>{row.email}</span>{' '}
+                  <span style={{ color: (SUBSCRIBER_ADD_LABELS[row.status] || {}).color || 'var(--muted)' }}>
+                    — {(SUBSCRIBER_ADD_LABELS[row.status] || {}).label || row.status}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {result.counts.unsubscribed > 0 && (
+            <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: '0.75rem 0 0' }}>
+              Unsubscribed addresses are never re-added here — someone who opted out stays opted out unless they ask you
+              to put them back.
+            </p>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
 const TABS = [
   { id: 'sellers', label: 'Sellers' },
   { id: 'preorders', label: 'Preorder Registrations' },
   { id: 'listingInterests', label: 'Marketplace Buyer Interest' },
   { id: 'discountSignups', label: 'Discount Signups' },
+  { id: 'newsletter', label: 'Newsletter List' },
 ];
 
 function Dashboard({ onLoggedOut }) {
@@ -1044,6 +1187,7 @@ function Dashboard({ onLoggedOut }) {
       {tab === 'preorders' && <PreorderRegistrationsView />}
       {tab === 'listingInterests' && <ListingInterestsView />}
       {tab === 'discountSignups' && <DiscountSignupsView />}
+      {tab === 'newsletter' && <NewsletterView />}
     </>
   );
 }
