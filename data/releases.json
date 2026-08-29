@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-11",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-11. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-08-29",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-29. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -126,6 +126,38 @@
       "format": "Hobby Box",
       "releaseDate": "2026-07-30",
       "description": "Inception-brand soccer release covering UEFA club competitions."
+    },
+    {
+      "id": "2026-topps-chrome-ufc",
+      "title": "2026 Topps Chrome UFC Hobby Box",
+      "sport": "MMA",
+      "format": "Hobby Box",
+      "releaseDate": "2026-05-08",
+      "description": "Chrome-format UFC release marking the brand's return to mixed martial arts, with two autographs guaranteed in every hobby box."
+    },
+    {
+      "id": "2026-topps-midnight-ufc",
+      "title": "2026 Topps Midnight UFC Hobby Box",
+      "sport": "MMA",
+      "format": "Hobby Box",
+      "releaseDate": "2026-05-22",
+      "description": "Black-chromium UFC release with nighttime-themed inserts and three autographs guaranteed in every hobby box."
+    },
+    {
+      "id": "2026-topps-chrome-sapphire-ufc",
+      "title": "2026 Topps Chrome Sapphire UFC",
+      "sport": "MMA",
+      "format": "Hobby Box",
+      "releaseDate": "2026-06-05",
+      "description": "Online-exclusive Sapphire-edition Chrome parallels applied to the UFC roster."
+    },
+    {
+      "id": "2026-topps-knockout-ufc",
+      "title": "2026 Topps Knockout UFC Hobby Box",
+      "sport": "MMA",
+      "format": "Hobby Box",
+      "releaseDate": "2026-06-26",
+      "description": "UFC-licensed release built around three autographs per box, including a guaranteed autographed relic and returning Inception Signatures."
     },
     {
       "id": "2026-topps-ufc-freedom-250",
@@ -449,6 +481,15 @@
       "description": "Vintage-styled release mixing baseball with non-sport subjects, a longtime Allen & Ginter tradition."
     },
     {
+      "id": "2026-topps-allen-ginter-baseball-preorder",
+      "title": "2026 Topps Allen & Ginter Baseball",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-08",
+      "description": "Preorders open for the vintage-styled Allen & Ginter release ahead of its December street date.",
+      "isPreorderOpenDate": true
+    },
+    {
       "id": "2026-topps-cosmic-chrome-football",
       "title": "2026 Topps Cosmic Chrome Football Hobby Box",
       "sport": "Football",
@@ -474,19 +515,19 @@
     },
     {
       "id": "2026-topps-wwe-universe",
-      "title": "2026 Topps WWE Universe",
+      "title": "2026 Topps Universe WWE",
       "sport": "Entertainment",
-      "format": "Blaster Box",
+      "format": "Hobby Box",
       "releaseDate": "2026-09-11",
-      "description": "Retail-focused WWE release covering the current wrestling roster."
+      "description": "WWE release covering the current roster, Legends, and the NXT rookie class — two autographs and a relic per hobby box."
     },
     {
       "id": "2026-topps-wwe-universe-preorder",
-      "title": "2026 Topps WWE Universe",
+      "title": "2026 Topps Universe WWE",
       "sport": "Entertainment",
-      "format": "Blaster Box",
+      "format": "Hobby Box",
       "releaseDate": "2026-08-10",
-      "description": "Preorders open for the retail-focused WWE Universe release.",
+      "description": "Preorders open for the WWE Universe hobby release.",
       "isPreorderOpenDate": true
     },
     {
@@ -494,7 +535,7 @@
       "title": "2026-27 Topps Premier League Soccer",
       "sport": "Soccer",
       "format": "Hobby Box",
-      "releaseDate": "2026-09-16",
+      "releaseDate": "2026-09-17",
       "description": "Flagship Premier League soccer release trimmed to a leaner 300-card checklist for the 2026-27 season."
     },
     {
@@ -502,8 +543,8 @@
       "title": "2026 Topps MLS Chrome Soccer Hobby Box",
       "sport": "Soccer",
       "format": "Hobby Box",
-      "releaseDate": "2027-02-06",
-      "description": "Chrome-format release covering Major League Soccer."
+      "releaseDate": "2026-09-10",
+      "description": "Chrome-format release covering Major League Soccer, including the first MLS card of Antoine Griezmann."
     },
     {
       "id": "2026-topps-mls-chrome-soccer-preorder",
@@ -570,7 +611,7 @@
       "title": "2026 Topps Vault Marvel Hobby Box",
       "sport": "Entertainment",
       "format": "Hobby Box",
-      "releaseDate": "2026-08-12",
+      "releaseDate": "2026-09-23",
       "description": "Ultra-premium hits-only Marvel release with just two cards per box, built entirely around on-card autographs and sketch cards from major franchise stars."
     },
     {
@@ -586,7 +627,7 @@
       "title": "2025-26 Topps Museum Collection UEFA Club Competitions Soccer",
       "sport": "Soccer",
       "format": "Hobby Box",
-      "releaseDate": "2026-08-13",
+      "releaseDate": "2026-09-18",
       "description": "Museum Collection's autograph, relic, and autograph-relic hit format applied to UEFA Champions League, Europa League, and Conference League stars."
     },
     {
@@ -628,8 +669,216 @@
       "title": "2025-26 Topps Definitive Basketball Hobby Box",
       "sport": "Basketball",
       "format": "Hobby Box",
-      "releaseDate": "2026-08-18",
+      "releaseDate": "2026-09-17",
       "description": "Ultra-low-print-run basketball release built around on-card autographs, booklet autographs, and game-used memorabilia."
+    },
+    {
+      "id": "2025-26-topps-definitive-basketball-preorder",
+      "title": "2025-26 Topps Definitive Basketball",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-18",
+      "description": "Preorders open for the ultra-low-print-run Definitive Basketball release ahead of its September street date.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2025-26-topps-pristine-basketball-preorder",
+      "title": "2025-26 Topps Pristine Basketball",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-25",
+      "description": "Preorders open for the refractor-parallel Pristine brand applied to the NBA for the first time.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-chrome-baseball-samurai-japan-preorder",
+      "title": "2026 Topps Chrome Baseball Team Samurai Japan Collection",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-26",
+      "description": "Preorders open for a Chrome-format collection spotlighting stars of Japan's national baseball team.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-chrome-baseball-samurai-japan",
+      "title": "2026 Topps Chrome Baseball Team Samurai Japan Collection Hobby Box",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-16",
+      "description": "Standalone Chrome release built around Japan's national baseball program, featuring stars from Samurai Japan history and the World Baseball Classic roster."
+    },
+    {
+      "id": "2026-topps-chrome-black-football",
+      "title": "2026 Topps Chrome Black Football",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-07-09",
+      "description": "Premium Chrome Black release for the NFL with a two-pack box format, a guaranteed on-card autograph, and a refractor in every pack."
+    },
+    {
+      "id": "2026-27-topps-royalty-premier-league-soccer-preorder",
+      "title": "2026-27 Topps Royalty Premier League Soccer",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-18",
+      "description": "Preorders open for a new premium Royalty-branded Premier League soccer release.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-chrome-baseball-sapphire",
+      "title": "2026 Topps Chrome Baseball Sapphire Edition",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-26",
+      "description": "Sapphire-edition Chrome parallels applied to the flagship baseball checklist with a glossy icy-blue finish."
+    },
+    {
+      "id": "2026-27-topps-chrome-basketball",
+      "title": "2026-27 Topps Chrome Basketball Hobby Box",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-12-31",
+      "description": "New flagship Chrome basketball release for the 2026-27 NBA season, following the standalone Chrome Updates extension released earlier in 2026."
+    },
+    {
+      "id": "2026-topps-chrome-update-series-baseball-delight",
+      "title": "2026 Topps Chrome Update Series Baseball Delight Box",
+      "sport": "Baseball",
+      "format": "Delight Box",
+      "releaseDate": "2026-12-10",
+      "description": "Case-breaker-oriented Delight configuration of Topps Chrome Update Series Baseball with additional refractor and numbered parallel hits per box."
+    },
+    {
+      "id": "2026-27-topps-holiday-basketball-countdown-calendar",
+      "title": "2026-27 Topps Holiday Basketball Countdown Calendar",
+      "sport": "Basketball",
+      "format": "Countdown Calendar Box",
+      "releaseDate": "2026-10-30",
+      "description": "Advent-style basketball release with a sealed pack or card revealed behind each daily door."
+    },
+    {
+      "id": "2026-topps-chrome-jennie-preorder",
+      "title": "2026 Topps Chrome x Jennie",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-20",
+      "description": "Preorders open for a first-of-its-kind Topps Chrome collaboration built around solo K-pop artist Jennie Kim rather than a sports league or team.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2025-26-topps-pristine-basketball",
+      "title": "2025-26 Topps Pristine Basketball Hobby Box",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-03",
+      "description": "Full hobby release of the refractor-parallel Pristine brand's first-ever NBA application, following its late-August preorder window."
+    },
+    {
+      "id": "2026-27-topps-basketball-blaster",
+      "title": "2026-27 Topps Basketball Blaster Box",
+      "sport": "Basketball",
+      "format": "Blaster Box",
+      "releaseDate": "2026-10-23",
+      "description": "Retail-focused blaster configuration of the flagship 2026-27 Topps Basketball set for the new NBA season."
+    },
+    {
+      "id": "2026-topps-flagship-football-jumbo",
+      "title": "2026 Topps Flagship Football Jumbo Box",
+      "sport": "Football",
+      "format": "Jumbo Box",
+      "releaseDate": "2026-08-21",
+      "description": "Jumbo configuration of Topps' flagship NFL comeback release, with extra packs delivering an autograph and a memorabilia card per box."
+    },
+    {
+      "id": "2026-topps-flagship-football-mega",
+      "title": "2026 Topps Flagship Football Mega Box",
+      "sport": "Football",
+      "format": "Mega Box",
+      "releaseDate": "2026-08-21",
+      "description": "Retail mega-box configuration of Topps' flagship NFL comeback release."
+    },
+    {
+      "id": "2026-topps-flagship-football-value",
+      "title": "2026 Topps Flagship Football Value Box",
+      "sport": "Football",
+      "format": "Value Box",
+      "releaseDate": "2026-08-21",
+      "description": "Budget-friendly value-box configuration of Topps' flagship NFL comeback release."
+    },
+    {
+      "id": "2026-topps-chrome-jennie",
+      "title": "2026 Topps Chrome x Jennie Hobby Box",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-20",
+      "description": "First-of-its-kind Topps Chrome release built around solo K-pop artist Jennie Kim, spotlighting career photoshoots and concert looks."
+    },
+    {
+      "id": "2026-27-topps-finest-basketball",
+      "title": "2026-27 Topps Finest Basketball Hobby Box",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2027-03-05",
+      "description": "90s-styled Chrome-tech basketball release built around a deep 300-card base set spanning stars, legends, and rookies."
+    },
+    {
+      "id": "2025-26-topps-chrome-update-sapphire-basketball",
+      "title": "2025-26 Topps Chrome Updates Basketball Sapphire Edition",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-03",
+      "description": "Sapphire-edition Chrome parallels applied to the Chrome Updates Basketball rookie debut checklist."
+    },
+    {
+      "id": "2026-topps-chrome-star-wars-preorder",
+      "title": "2026 Topps Chrome Star Wars",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-08-25",
+      "description": "Preorders open for the flagship Chrome Star Wars release, a separate line from the earlier Chrome Galaxy edition.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-27-topps-cosmic-chrome-basketball",
+      "title": "2026-27 Topps Cosmic Chrome Basketball Hobby Box",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2027-05-01",
+      "description": "Space-themed Chrome basketball release for the 2026-27 NBA season, following the Cosmic Chrome brand's basketball debut earlier in 2026."
+    },
+    {
+      "id": "2026-topps-chrome-disney",
+      "title": "2026 Topps Chrome Disney",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-06-17",
+      "description": "Chrome-format release spanning the Disney, Pixar, and Disney Channel universes with refractor and numbered parallel chases, ahead of the later Sapphire-edition parallel drop."
+    },
+    {
+      "id": "2026-topps-chrome-star-wars",
+      "title": "2026 Topps Chrome Star Wars Hobby Box",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-30",
+      "description": "Flagship Chrome Star Wars release spanning the saga's films and shows, separate from the earlier Chrome Galaxy edition."
+    },
+    {
+      "id": "2026-bowman-football-preorder",
+      "title": "2026 Bowman Football",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-08",
+      "description": "Preorders open for Topps' Bowman-branded college and NFL rookie prospect football release.",
+      "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-topps-mars-attacks-christmas-preorder",
+      "title": "2026 Topps Mars Attacks Christmas",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-08",
+      "description": "Preorders open for a new holiday-themed installment of Topps' classic sci-fi Mars Attacks non-sport card line.",
+      "isPreorderOpenDate": true
     }
   ]
 }
