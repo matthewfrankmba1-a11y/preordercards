@@ -21,7 +21,7 @@ export async function POST(request) {
   }
   const normalizedEmail = email.trim().toLowerCase();
 
-  const result = insertDiscountSignup.run(normalizedEmail);
+  const result = insertDiscountSignup.run({ email: normalizedEmail, source: 'banner' });
   const isNew = result.changes > 0;
 
   // Fire-and-forget, same reasoning as the Discord alert below and the

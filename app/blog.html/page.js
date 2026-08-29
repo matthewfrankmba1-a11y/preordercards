@@ -38,6 +38,8 @@ export default function BlogIndexPage() {
           <h1>PreorderCards Blog</h1>
           <p className="tagline">Weekly release roundups and hobby notes — what's dropping, what's EQL, and what to watch.</p>
           <a className="header-nav-link" href="/">← Back to Releases</a>
+          {' · '}
+          <a className="header-nav-link" href="/newsletter.html">Get it by email →</a>
         </div>
       </header>
 
@@ -57,6 +59,10 @@ export default function BlogIndexPage() {
           </ul>
 
           <p style={{ marginTop: '2rem' }}>
+            New roundup every week. <a href="/newsletter.html">Get it in your inbox</a> the morning of the drops.
+          </p>
+
+          <p style={{ marginTop: '2rem' }}>
             <a href="/">← Back to the PreorderCards homepage</a>
           </p>
         </article>
@@ -71,7 +77,7 @@ export default function BlogIndexPage() {
             names and trademarks belong to their respective owners.
           </p>
           <p className="footer-links">
-            <a href="/terms.html">Terms &amp; Conditions</a> · <a href="/trust.html">Trust</a> · <a href="/blog.html">Blog</a>
+            <a href="/terms.html">Terms &amp; Conditions</a> · <a href="/trust.html">Trust</a> · <a href="/blog.html">Blog</a> · <a href="/newsletter.html">Newsletter</a>
           </p>
         </div>
       </footer>

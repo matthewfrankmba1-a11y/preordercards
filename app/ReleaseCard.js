@@ -165,14 +165,17 @@ export default function ReleaseCard({ release, soldOut }) {
     </>
   );
 
+  // id doubles as a deep-link anchor: the weekly newsletter links each
+  // release straight to its own card (/#<release id>) rather than dropping
+  // readers at the top of the calendar.
   if (soldOut) {
     return (
-      <article className="card sold-out">
+      <article id={release.id} className="card sold-out">
         <div className="card-dim">{cardInner}</div>
         <div className="sold-out-ribbon">Sold Out</div>
       </article>
     );
   }
 
-  return <article className="card">{cardInner}</article>;
+  return <article id={release.id} className="card">{cardInner}</article>;
 }

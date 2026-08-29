@@ -99,6 +99,11 @@ export default async function BlogPostPage({ params }) {
             </section>
           ))}
 
+          <p style={{ marginTop: '2rem', fontSize: '0.9rem' }}>
+            This roundup goes out by email every week. <a href="/newsletter.html">Subscribe here</a> to get it before
+            the drops.
+          </p>
+
           <p style={{ marginTop: '2rem', fontSize: '0.8rem', color: 'var(--muted)' }}>
             Questions or a release we should be tracking? Email{' '}
             <a href="mailto:admin@preordercards.com">admin@preordercards.com</a>.
@@ -119,7 +124,7 @@ export default async function BlogPostPage({ params }) {
             names and trademarks belong to their respective owners.
           </p>
           <p className="footer-links">
-            <a href="/terms.html">Terms &amp; Conditions</a> · <a href="/trust.html">Trust</a> · <a href="/blog.html">Blog</a>
+            <a href="/terms.html">Terms &amp; Conditions</a> · <a href="/trust.html">Trust</a> · <a href="/blog.html">Blog</a> · <a href="/newsletter.html">Newsletter</a>
           </p>
         </div>
       </footer>

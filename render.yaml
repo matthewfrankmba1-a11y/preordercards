@@ -43,6 +43,18 @@ services:
         value: https://preordercards.com
       - key: RESEND_WEBHOOK_SECRET
         sync: false
+      - key: SITE_URL
+        value: https://preordercards.com
+      - key: NEWSLETTER_ENABLED
+        value: "false"
+      - key: NEWSLETTER_SECRET
+        sync: false
+      - key: NEWSLETTER_AUDIENCE
+        value: signups
+      - key: NEWSLETTER_SEND_HOUR
+        value: "10"
+      - key: NEWSLETTER_MAX_PER_RUN
+        value: "500"
     disk:
       name: data
       mountPath: /var/data

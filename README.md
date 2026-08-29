@@ -347,6 +347,102 @@ row or re-notify Discord) and posted to its own dedicated
 - Currently homepage-only; the markup/script/CSS could be dropped into
   `marketplace.html` or other pages the same way if wanted later.
 
+## Weekly newsletter (Sunday vs. Monday A/B test)
+
+Mails the blog agent's weekly roundup post to the collected signup list, so
+the post the agent already writes reaches people's inboxes instead of just
+sitting on the site. It exists to drive traffic back to the calendar, so
+every release in it links straight to that release's card (`/#<release id>`,
+the anchor added to `ReleaseCard`) with UTM parameters attached.
+
+**One post, one email, two send days.** There's no separate "issue" record:
+the week's issue *is* the post the agent published for that week, wrapped
+around the week's release list pulled from `data/releases.json`. That's why
+the agent runs Sunday 8am ET and the newsletter at 10am — the post has to
+exist before the first email links to it. If the agent hasn't managed a post
+by send time, a real send runs it first; if that fails too (no API key, model
+error), the email still goes out as the release list plus evergreen copy,
+pointing at `/blog.html`. A drafting problem costs the issue its prose, never
+the send.
+
+**The A/B test.** The list is split into two fixed cohorts and each gets the
+identical email on a different day — Sunday or Monday, both at
+`NEWSLETTER_SEND_HOUR` (10am ET). The split is a hash of the address
+(`variantForEmail()` in `newsletter.js`), not a coin flip at send time, so an
+address stays in the same arm week after week; re-randomizing every week
+would make the comparison meaningless. `NEWSLETTER_AB_SALT` re-draws the
+cohorts deliberately once a test has concluded.
+
+`GET /api/admin/newsletter/report` (header `x-admin-secret`) is the
+scoreboard: sends, opens, clicks and rates per cohort, per issue and pooled,
+plus the current leader. **The leader is decided on click rate, not opens** —
+Apple Mail Privacy Protection fetches the tracking pixel for its users
+whether or not the message was read, so open rate is directional at best.
+Clicks are also the thing being optimized for: traffic. The report reads only
+from `newsletter_sends`, so editing or renaming a post later can't
+retroactively change what was measured.
+
+**Who gets it.** `NEWSLETTER_AUDIENCE=signups` (the default) mails the
+`discount_signups` list — the homepage banner and `/newsletter.html`, both of
+which say out loud that the address is used for newsletters. Setting it to
+`all` also includes people who only ever registered interest in one specific
+release, which is a broader read of what they agreed to, so it's opt-in
+rather than the default.
+
+Suppression is checked on every send: unsubscribes, hard bounces, spam
+complaints, and the existing `isLikelyTestContact()` filter. Bounces and
+complaints arrive on the existing Resend webhook (`/api/webhooks/resend`) —
+a complaint also auto-unsubscribes the address.
+
+**Unsubscribe.** Every email carries a footer link and a
+`List-Unsubscribe`/`List-Unsubscribe-Post` header pair (RFC 8058), so mailbox
+providers render their own one-click control instead of people reaching for
+the spam button. Links identify the recipient by their `newsletter_sends` row
+id plus an HMAC (`NEWSLETTER_SECRET`, falling back to `ADMIN_SECRET`) — no
+address ever rides in a URL, and one subscriber's link can't be edited into
+someone else's unsubscribe. **Sending is refused outright when neither secret
+is set**, since an email without a working unsubscribe link shouldn't go out
+at all. The link lands on `/newsletter.html`, which doubles as the public
+subscribe page and the issue archive.
+
+**The schedule** (`startNewsletterSchedule()`, called at server startup) is a
+5-minute wall-clock tick against `America/New_York`, same shape and same
+reasoning as the stats summary below. It's **off unless
+`NEWSLETTER_ENABLED=true`**, so a fresh deploy never starts mailing on its
+own. Repeat ticks within the send hour are harmless: a recipient who already
+has a row for the issue is skipped, so a run cut short by the
+`NEWSLETTER_MAX_PER_RUN` ceiling or a crash resumes where it left off rather
+than double-mailing anyone. A row left `failed` (a Resend rate limit or
+timeout, as opposed to a bad mailbox) is the one case that gets retried.
+
+Manual control is `POST /api/admin/newsletter/run` (header `x-admin-secret`),
+with `week` (any date inside the target week) and `limit` as optional extras:
+
+```bash
+# Assemble this week's issue and see the rendered email. Sends nothing, and
+# never publishes a post.
+curl -X POST https://preordercards.com/api/admin/newsletter/run \
+  -H "x-admin-secret: $ADMIN_SECRET" -H 'Content-Type: application/json' \
+  -d '{"mode":"preview","variant":"sunday"}'
+
+# Mail one address a copy (no send rows, no tracking).
+curl -X POST .../api/admin/newsletter/run -H ... \
+  -d '{"mode":"test","to":"you@example.com"}'
+
+# The real send for one cohort — same code path the schedule runs.
+curl -X POST .../api/admin/newsletter/run -H ... \
+  -d '{"mode":"send","variant":"sunday"}'
+```
+
+Recommended rollout: preview → test send to yourself → one manual `send` to
+each cohort → then flip `NEWSLETTER_ENABLED=true` and leave it alone.
+
+Files: `lib/newsletter.js` (list, A/B split, issue assembly, schedule,
+report), `lib/newsletterEmail.js` (HTML/text bodies — sections are the same
+`{heading, paragraphs[]}` shape the post page renders, so email and web can't
+drift), `app/newsletter.html` (subscribe page, archive, unsubscribe landing),
+and the `newsletter_sends` / `newsletter_unsubscribes` tables.
+
 ## Stats summary (Discord, once daily at 9am ET)
 
 `statsSummary.js` posts a "📊 Site Activity Summary" embed once a day at
@@ -405,7 +501,7 @@ Manually trigger a run early for testing without disturbing the daily
 schedule: `POST /api/admin/stats-summary/run` (header `x-admin-secret`) —
 returns the same counts that were just posted to Discord.
 
-## Blog agent (weekly post + tweet, Mondays 8am ET)
+## Blog agent (weekly post + tweet, Sundays 8am ET)
 
 `blogAgent.js` writes the weekly release-roundup post, publishes it to the
 live site, and posts the link plus a ready-to-send tweet to Discord. You
@@ -413,7 +509,8 @@ send the tweet yourself — the agent never posts to X.
 
 `startBlogAgentSchedule()` is called once at server startup in `server.js`
 and uses the same 5-minute wall-clock tick as the stats summary, firing at
-8am America/New_York on Mondays. Because the tick checks throughout the
+8am America/New_York on Sundays — early enough that the weekly
+newsletter can mail the post the same morning (see above). Because the tick checks throughout the
 whole 8am hour, a `last_run_at` guard in `blog_agent_state` blocks a second
 run within 6 days — that way a restart or redeploy mid-hour can't publish
 two posts for the same week. If the process is down for the entire 8am hour,

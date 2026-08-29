@@ -5,6 +5,7 @@ const next = require('next');
 const bot = require('./lib/bot');
 const { startStatsSummarySchedule } = require('./lib/statsSummary');
 const { startBlogAgentSchedule } = require('./lib/blogAgent');
+const { startNewsletterSchedule } = require('./lib/newsletter');
 const { loadReleases, sendConfirmationEmail } = require('./lib/releases');
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -19,5 +20,6 @@ app.prepare().then(() => {
     bot.init({ loadReleases, sendConfirmationEmail });
     startStatsSummarySchedule();
     startBlogAgentSchedule();
+    startNewsletterSchedule();
   });
 });

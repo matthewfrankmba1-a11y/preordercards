@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { markWelcomeEmailBouncedByResendId } from '../../../../lib/db';
+import {
+  markWelcomeEmailBouncedByResendId,
+  markNewsletterSendStatusByResendId,
+  insertNewsletterUnsubscribe,
+  getNewsletterSendByResendId,
+} from '../../../../lib/db';
 
 const RESEND_WEBHOOK_SECRET = process.env.RESEND_WEBHOOK_SECRET;
 // The verify() call needs a Resend client instance, but doesn't use the API
@@ -12,9 +17,11 @@ const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 // resend.com/docs/dashboard/webhooks). Must be registered in Resend's
 // dashboard pointing at POST https://<site>/api/webhooks/resend, with
 // RESEND_WEBHOOK_SECRET set to the signing secret it gives you there.
-// Currently only acts on email.bounced, matched back to a discount_signups
-// row via the Resend-assigned email ID stored at send time — other event
-// types (delivered, opened, etc.) are accepted and ignored.
+// Acts on email.bounced and email.complained, matched back to a
+// discount_signups or newsletter_sends row via the Resend-assigned email ID
+// stored at send time — other event types (delivered, opened, etc.) are
+// accepted and ignored. Both outcomes suppress the address from future
+// newsletter sends.
 export async function POST(request) {
   if (!RESEND_WEBHOOK_SECRET) {
     // Not configured yet — ack without processing rather than 500ing on
@@ -43,8 +50,22 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Invalid signature.' }, { status: 400 });
   }
 
+  const emailId = event.data?.email_id;
+
   if (event.type === 'email.bounced') {
-    markWelcomeEmailBouncedByResendId.run(event.data.email_id);
+    markWelcomeEmailBouncedByResendId.run(emailId);
+    // A newsletter send to the same address is suppressed too, so a dead
+    // mailbox drops out of next week's list instead of being retried every
+    // week and dragging the sending domain's reputation down.
+    markNewsletterSendStatusByResendId.run({ status: 'bounced', resendEmailId: emailId });
+  }
+
+  // A spam complaint is an unsubscribe, whatever the message was — mailing
+  // someone who pressed "report spam" is the fastest way to lose the domain.
+  if (event.type === 'email.complained') {
+    markNewsletterSendStatusByResendId.run({ status: 'complained', resendEmailId: emailId });
+    const send = getNewsletterSendByResendId.get(emailId);
+    if (send) insertNewsletterUnsubscribe.run({ email: send.email, source: 'complaint' });
   }
 
   return NextResponse.json({ received: true });

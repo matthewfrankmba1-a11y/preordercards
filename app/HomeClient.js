@@ -176,7 +176,7 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
             names and trademarks belong to their respective owners.
           </p>
           <p className="footer-links">
-            <a href="/terms.html">Terms &amp; Conditions</a> · <a href="/trust.html">Trust</a> · <a href="/blog.html">Blog</a> · <a href="https://www.instagram.com/frank92_______/" target="_blank" rel="noopener noreferrer">Contact</a>
+            <a href="/terms.html">Terms &amp; Conditions</a> · <a href="/trust.html">Trust</a> · <a href="/blog.html">Blog</a> · <a href="/newsletter.html">Newsletter</a> · <a href="https://www.instagram.com/frank92_______/" target="_blank" rel="noopener noreferrer">Contact</a>
           </p>
         </div>
       </footer>
