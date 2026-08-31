@@ -391,10 +391,21 @@ gated on a row in `newsletter_date_checks` for that week, written when
 someone opens the Newsletter tab in the marketplace admin panel, reads the
 week's releases against the manufacturer's own calendar, and confirms.
 
-The confirmation is fingerprinted over exactly what the email asserts about
-each release (id, date, format, EQL flag, preorder-open flag). Correct a date
-afterwards and the fingerprint stops matching, which re-locks the send rather
-than letting the edit ride out on a stale approval. `preview` and `test` are
+Each release in that list has an **×** that strikes it out of this week's
+issue. That's the fast path for a date that disagrees with the manufacturer:
+one click drops it from the email, where correcting `data/releases.json`
+properly means an edit, a commit and a redeploy. The release keeps showing on
+the site — the email just doesn't mention it — and the exclusion is scoped to
+that one week, so next week's issue gets a fresh review rather than
+inheriting a decision whose reason may have expired. **↩** puts it back.
+
+The confirmation is fingerprinted over exactly what ships — the *included*
+releases, by id, date, format, EQL flag and preorder-open flag. Strike
+something out or correct a date after confirming and the fingerprint stops
+matching, which re-locks the send rather than letting the change ride out on
+a stale approval; restore it and the approval applies again, because the set
+matches what was approved. An excluded release changing doesn't re-lock
+anything, since the email makes no claim about it. `preview` and `test` are
 never gated — you can always look at an issue.
 
 A blocked scheduled run posts a Discord alert (`NEWSLETTER_WEBHOOK_URL`,

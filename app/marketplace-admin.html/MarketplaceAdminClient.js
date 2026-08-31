@@ -1033,7 +1033,7 @@ function formatWeekOf(iso) {
 // fingerprints the data — edit a date afterwards and it re-locks.
 function WeekDateCheck() {
   const [week, setWeek] = useState(null);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
 
   async function load() {
@@ -1050,17 +1050,19 @@ function WeekDateCheck() {
     load();
   }, []);
 
-  async function handleConfirm() {
-    setBusy(true);
+  // Every action returns the whole refreshed week, so the panel can't drift
+  // out of step with what the send would actually do.
+  async function act(payload, busyKey) {
+    setBusy(busyKey);
     setError('');
-    const { ok, data } = await postJson('/api/admin/marketplace/newsletter-week', { weekOf: week.weekOf });
-    setBusy(false);
+    const { ok, data } = await postJson('/api/admin/marketplace/newsletter-week', { weekOf: week.weekOf, ...payload });
+    setBusy('');
     if (!ok) {
-      setError(data.error || 'Could not confirm.');
+      setError(data.error || 'That did not work.');
       await load();
       return;
     }
-    await load();
+    setWeek(data);
   }
 
   if (error && !week) return <div className="status">{error}</div>;
@@ -1071,27 +1073,29 @@ function WeekDateCheck() {
   return (
     <div className="admin-table-wrap" style={{ padding: '1rem', marginBottom: '1.5rem' }}>
       <h3 style={{ margin: '0 0 0.25rem' }}>Release dates for the week of {formatWeekOf(week.weekOf)}</h3>
-      <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: '0 0 0.75rem' }}>
+      <p style={{ fontSize: '0.85rem', margin: '0 0 0.75rem' }}>
         {status.confirmed ? (
           <span style={{ color: '#1a7f37', fontWeight: 600 }}>
-            Confirmed {formatTimestamp(status.confirmedAt)} — the send is unlocked for this week.
+            Confirmed {formatTimestamp(status.confirmedAt)} — good to go. {week.includedCount}{' '}
+            {week.includedCount === 1 ? 'release' : 'releases'} will be in the email
+            {week.excludedCount > 0 ? `, ${week.excludedCount} struck out` : ''}.
           </span>
         ) : (
           <span style={{ color: '#d9a400', fontWeight: 600 }}>
             {status.staleSinceConfirmed
-              ? 'The release data changed after it was confirmed. Check it again — the send is locked until you do.'
+              ? 'Something changed since you confirmed. Check the list again — the send is locked until you do.'
               : 'Not confirmed yet — the weekly send is locked until these dates are checked.'}
           </span>
         )}
       </p>
 
-      <p style={{ fontSize: '0.85rem', margin: '0 0 0.75rem' }}>
-        Check each line below against{' '}
+      <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: '0 0 0.75rem' }}>
+        These are the exact claims the email makes. Check them against{' '}
         <a href="https://www.topps.com/release-calendar" target="_blank" rel="noopener noreferrer">
           the Topps release calendar
-        </a>
-        . These are the exact claims the email makes. Anything wrong gets fixed in <code>data/releases.json</code> first —
-        confirming here only records that you checked.
+        </a>{' '}
+        and press <strong>×</strong> on anything wrong to keep it out of this week's email — no code change or redeploy
+        needed. It stays on the site; the email just won't mention it.
       </p>
 
       {week.releases.length === 0 ? (
@@ -1099,23 +1103,61 @@ function WeekDateCheck() {
       ) : (
         <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1rem' }}>
           {week.releases.map((r) => (
-            <li key={r.id} style={{ padding: '0.5rem 0', borderTop: '1px solid var(--border)' }}>
-              <strong>{r.releaseDate}</strong> — {r.title}
-              <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>
-                {r.sport} · {r.format}
-                {r.eql ? ' · EQL raffle entry' : ' · standard checkout'}
-                {r.isPreorderOpenDate ? ' · preorder-open date, not the ship date' : ' · street date'}
+            <li
+              key={r.id}
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.6rem',
+                padding: '0.5rem 0',
+                borderTop: '1px solid var(--border)',
+                opacity: r.excluded ? 0.55 : 1,
+              }}
+            >
+              <button
+                type="button"
+                className="stock-toggle-btn"
+                aria-label={r.excluded ? `Put ${r.title} back in the email` : `Strike ${r.title} out of the email`}
+                title={r.excluded ? 'Put this back in the email' : 'Strike this out of the email'}
+                disabled={busy === r.id}
+                onClick={() => act({ action: r.excluded ? 'include' : 'exclude', releaseId: r.id }, r.id)}
+                style={{ flex: '0 0 auto', padding: '0.15rem 0.5rem', lineHeight: 1.4 }}
+              >
+                {r.excluded ? '↩' : '×'}
+              </button>
+              <div style={{ textDecoration: r.excluded ? 'line-through' : 'none' }}>
+                <strong>{r.releaseDate}</strong> — {r.title}
+                <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>
+                  {r.sport} · {r.format}
+                  {r.eql ? ' · EQL raffle entry' : ' · standard checkout'}
+                  {r.isPreorderOpenDate ? ' · preorder-open date, not the ship date' : ' · street date'}
+                </div>
+                {r.description && <div style={{ fontSize: '0.8rem' }}>{r.description}</div>}
               </div>
-              {r.description && <div style={{ fontSize: '0.8rem' }}>{r.description}</div>}
             </li>
           ))}
         </ul>
       )}
 
+      {week.includedCount === 0 && week.releases.length > 0 && (
+        <p style={{ fontSize: '0.8rem', color: '#d9a400', margin: '0 0 0.75rem' }}>
+          Everything is struck out — the email will go without a release list this week.
+        </p>
+      )}
+
       {error && <div className="status">{error}</div>}
 
-      <button type="button" className="notify-btn" onClick={handleConfirm} disabled={busy}>
-        {busy ? 'Confirming…' : status.confirmed ? 'Re-confirm these dates' : 'I checked these — unlock this week\'s send'}
+      <button
+        type="button"
+        className="notify-btn"
+        onClick={() => act({ action: 'confirm' }, 'confirm')}
+        disabled={busy === 'confirm'}
+      >
+        {busy === 'confirm'
+          ? 'Confirming…'
+          : status.confirmed
+            ? 'Re-confirm'
+            : "I checked these — unlock this week's send"}
       </button>
     </div>
   );
