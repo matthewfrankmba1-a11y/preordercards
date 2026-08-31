@@ -47,6 +47,8 @@ services:
         value: "false"
       - key: NEWSLETTER_SECRET
         sync: false
+      - key: NEWSLETTER_WEBHOOK_URL
+        sync: false
       - key: NEWSLETTER_AUDIENCE
         value: all
       - key: NEWSLETTER_SEND_HOUR

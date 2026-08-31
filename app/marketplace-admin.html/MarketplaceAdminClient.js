@@ -1027,6 +1027,100 @@ function formatWeekOf(iso) {
   });
 }
 
+// The accuracy gate. Release dates come from third-party trackers that lag
+// the manufacturer, so the send stays locked until someone has read this
+// list against the manufacturer's own calendar and confirmed it. Confirming
+// fingerprints the data — edit a date afterwards and it re-locks.
+function WeekDateCheck() {
+  const [week, setWeek] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  async function load() {
+    try {
+      const res = await fetch('/api/admin/marketplace/newsletter-week');
+      if (!res.ok) throw new Error('Request failed');
+      setWeek(await res.json());
+    } catch {
+      setError('Could not load this week\'s releases.');
+    }
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function handleConfirm() {
+    setBusy(true);
+    setError('');
+    const { ok, data } = await postJson('/api/admin/marketplace/newsletter-week', { weekOf: week.weekOf });
+    setBusy(false);
+    if (!ok) {
+      setError(data.error || 'Could not confirm.');
+      await load();
+      return;
+    }
+    await load();
+  }
+
+  if (error && !week) return <div className="status">{error}</div>;
+  if (!week) return <p style={{ color: 'var(--muted)' }}>Loading this week's releases…</p>;
+
+  const { status } = week;
+
+  return (
+    <div className="admin-table-wrap" style={{ padding: '1rem', marginBottom: '1.5rem' }}>
+      <h3 style={{ margin: '0 0 0.25rem' }}>Release dates for the week of {formatWeekOf(week.weekOf)}</h3>
+      <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: '0 0 0.75rem' }}>
+        {status.confirmed ? (
+          <span style={{ color: '#1a7f37', fontWeight: 600 }}>
+            Confirmed {formatTimestamp(status.confirmedAt)} — the send is unlocked for this week.
+          </span>
+        ) : (
+          <span style={{ color: '#d9a400', fontWeight: 600 }}>
+            {status.staleSinceConfirmed
+              ? 'The release data changed after it was confirmed. Check it again — the send is locked until you do.'
+              : 'Not confirmed yet — the weekly send is locked until these dates are checked.'}
+          </span>
+        )}
+      </p>
+
+      <p style={{ fontSize: '0.85rem', margin: '0 0 0.75rem' }}>
+        Check each line below against{' '}
+        <a href="https://www.topps.com/release-calendar" target="_blank" rel="noopener noreferrer">
+          the Topps release calendar
+        </a>
+        . These are the exact claims the email makes. Anything wrong gets fixed in <code>data/releases.json</code> first —
+        confirming here only records that you checked.
+      </p>
+
+      {week.releases.length === 0 ? (
+        <p style={{ fontSize: '0.9rem', color: 'var(--muted)' }}>No releases dated this week.</p>
+      ) : (
+        <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1rem' }}>
+          {week.releases.map((r) => (
+            <li key={r.id} style={{ padding: '0.5rem 0', borderTop: '1px solid var(--border)' }}>
+              <strong>{r.releaseDate}</strong> — {r.title}
+              <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>
+                {r.sport} · {r.format}
+                {r.eql ? ' · EQL raffle entry' : ' · standard checkout'}
+                {r.isPreorderOpenDate ? ' · preorder-open date, not the ship date' : ' · street date'}
+              </div>
+              {r.description && <div style={{ fontSize: '0.8rem' }}>{r.description}</div>}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {error && <div className="status">{error}</div>}
+
+      <button type="button" className="notify-btn" onClick={handleConfirm} disabled={busy}>
+        {busy ? 'Confirming…' : status.confirmed ? 'Re-confirm these dates' : 'I checked these — unlock this week\'s send'}
+      </button>
+    </div>
+  );
+}
+
 function NewsletterView() {
   const [summary, setSummary] = useState(null);
   const [emails, setEmails] = useState('');
@@ -1074,7 +1168,11 @@ function NewsletterView() {
 
   return (
     <>
-      <h2 style={{ margin: '1.5rem 0 1rem' }}>Newsletter List</h2>
+      <h2 style={{ margin: '1.5rem 0 1rem' }}>Newsletter</h2>
+
+      <WeekDateCheck />
+
+      <h3 style={{ margin: '0 0 0.5rem' }}>Subscriber list</h3>
 
       {summary && (
         <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '-0.5rem' }}>

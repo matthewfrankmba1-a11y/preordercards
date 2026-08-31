@@ -382,6 +382,30 @@ Clicks are also the thing being optimized for: traffic. The report reads only
 from `newsletter_sends`, so editing or renaming a post later can't
 retroactively change what was measured.
 
+**Nothing sends until the week's dates are confirmed.** `data/releases.json`
+is compiled by hand from third-party trackers (Beckett, Waxstat, and
+friends), which lag the manufacturer and sometimes disagree with each other.
+A wrong date on the site is a one-minute fix; a wrong date in an email is in
+someone's inbox permanently. So every real send — scheduled or manual — is
+gated on a row in `newsletter_date_checks` for that week, written when
+someone opens the Newsletter tab in the marketplace admin panel, reads the
+week's releases against the manufacturer's own calendar, and confirms.
+
+The confirmation is fingerprinted over exactly what the email asserts about
+each release (id, date, format, EQL flag, preorder-open flag). Correct a date
+afterwards and the fingerprint stops matching, which re-locks the send rather
+than letting the edit ride out on a stale approval. `preview` and `test` are
+never gated — you can always look at an issue.
+
+A blocked scheduled run posts a Discord alert (`NEWSLETTER_WEBHOOK_URL`,
+falling back to `DISCORD_WEBHOOK_URL`) once per week/cohort, so a skipped
+week is visible rather than silent. Skipping a week is the intended failure
+direction: better a missed issue than a wrong one.
+
+Note this gates the *email* only. The blog agent still publishes its post
+from the same data — a wrong date there is correctable in place, which is
+why it isn't held to the same bar.
+
 **Who gets it.** Everyone who has given the site an email address:
 `discount_signups` (the homepage banner and `/newsletter.html`) plus anyone
 who registered interest in a release or a marketplace listing. The interest
