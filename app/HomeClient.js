@@ -71,6 +71,7 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
   const [sourceNote] = useState(() =>
     initialSourceNote ? `${initialSourceNote} Last updated ${initialLastUpdated}.` : ''
   );
+  const [brandFilter, setBrandFilter] = useState('all');
   const [sportFilter, setSportFilter] = useState('all');
   const [inStockOnly, setInStockOnly] = useState(false);
 
@@ -79,14 +80,23 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
     return [...new Set(allReleases.map((r) => r.sport))].sort();
   }, [allReleases]);
 
+  // Derived from the data rather than a fixed list, so the control only
+  // offers brands that actually have releases on the calendar.
+  const brands = useMemo(() => {
+    if (!allReleases) return [];
+    return [...new Set(allReleases.map((r) => r.manufacturer || 'Topps'))].sort();
+  }, [allReleases]);
+
   const filtered = useMemo(() => {
     if (!allReleases) return [];
-    let result = sportFilter === 'all' ? allReleases : allReleases.filter((r) => r.sport === sportFilter);
+    let result = allReleases;
+    if (brandFilter !== 'all') result = result.filter((r) => (r.manufacturer || 'Topps') === brandFilter);
+    if (sportFilter !== 'all') result = result.filter((r) => r.sport === sportFilter);
     if (inStockOnly) {
       result = result.filter((r) => !isSoldOut(r));
     }
     return result;
-  }, [allReleases, sportFilter, inStockOnly]);
+  }, [allReleases, brandFilter, sportFilter, inStockOnly]);
 
   const sorted = useMemo(
     () => [...filtered].sort((a, b) => a.releaseDate.localeCompare(b.releaseDate)),
@@ -122,6 +132,15 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
 
       <main className="wrap">
         <div className="controls">
+          {brands.length > 1 && (
+            <>
+              <label htmlFor="brand-filter">Brand</label>
+              <select id="brand-filter" value={brandFilter} onChange={(e) => setBrandFilter(e.target.value)}>
+                <option value="all">All brands</option>
+                {brands.map((brand) => <option value={brand} key={brand}>{brand}</option>)}
+              </select>
+            </>
+          )}
           <label htmlFor="sport-filter">Filter by sport</label>
           <select id="sport-filter" value={sportFilter} onChange={(e) => setSportFilter(e.target.value)}>
             <option value="all">All sports</option>

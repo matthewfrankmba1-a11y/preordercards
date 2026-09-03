@@ -306,8 +306,9 @@ body {
   overflow: hidden;
 }
 
-.product-image::before {
-  content: "TOPPS";
+/* Was content: "TOPPS" — the calendar now tracks more than one brand, so
+   the label is rendered as an element by ReleaseCard instead. */
+.product-image-brand {
   position: absolute;
   top: 0.5rem;
   left: 0.6rem;
@@ -340,6 +341,11 @@ body {
   letter-spacing: 0.03em;
   padding: 0.2rem 0.5rem;
   border-radius: 999px;
+}
+
+.brand-badge {
+  background: var(--navy);
+  color: #fff;
 }
 
 .sport-badge {

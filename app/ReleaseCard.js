@@ -118,11 +118,13 @@ export default function ReleaseCard({ release, soldOut }) {
   const cardInner = (
     <>
       <div className={`product-image tile-${slug}`}>
+        <span className="product-image-brand">{(release.manufacturer || 'Topps').toUpperCase()}</span>
         <span dangerouslySetInnerHTML={{ __html: icon }} />
         <span className="product-image-format">{release.format}</span>
       </div>
 
       <div className="card-header">
+        <span className="badge brand-badge">{release.manufacturer || 'Topps'}</span>
         <span className="badge sport-badge">{release.sport}</span>
         <span className="badge format-badge">{release.format}</span>
         {release.eql && <span className="badge eql-badge">EQL</span>}

@@ -34,17 +34,44 @@ npm run dev
 
 ## Release data
 
-`data/releases.json` is a **manually curated** list — Topps does not
-publish a public API for release dates. It was seeded on 2026-07-21 from
+`data/releases.json` is a **manually curated** list — neither Topps nor
+Panini publishes a public API for release dates. It was seeded on 2026-07-21 from
 public release-date trackers (Beckett, Waxstat). Manufacturers change
 dates frequently, so treat this file as a starting point:
 
 - Edit `data/releases.json` directly to add, remove, or update releases.
-- Each entry: `id` (unique slug), `title`, `sport`, `format`, `releaseDate`
-  (`YYYY-MM-DD`), `description`, and optional `isPreorderOpenDate: true`
-  if the date marks when preorders open rather than the ship date.
+- Each entry: `id` (unique slug), `title`, `manufacturer` (`Topps` or
+  `Panini`), `sport`, `format`, `releaseDate` (`YYYY-MM-DD`),
+  `description`, and optional `isPreorderOpenDate: true` if the date marks
+  when preorders open rather than the ship date, `eql: true` for raffle-entry
+  releases, and `dutchAuction: true` (see exclusions below).
+- Run `node scripts/check-release-data.js` after editing by hand. It fails on
+  duplicate ids, malformed dates, an unknown manufacturer, a missing
+  description, and a `soldOut` flag on a future date — and lists which
+  entries the exclusion rules are currently hiding.
 - Update the top-level `lastUpdated` field when you refresh the data.
-- Always confirm against topps.com or your retailer before relying on a date.
+- Always confirm against the manufacturer's own calendar before relying on a
+  date — third-party trackers lag and disagree with each other.
+
+### Excluded categories
+
+Two kinds of release are deliberately never shown. `lib/releases.js` owns
+both rules, and `loadListableReleases()` applies them at a single point, so
+an excluded entry is absent from the homepage, `GET /api/releases`, new
+interest registrations, the weekly newsletter and the blog agent alike —
+adding one to the data is harmless because nothing will surface it.
+
+- **Women's sports** — matched on title and description against an explicit
+  word-boundary list (`women's`, `WNBA`, `NWSL`, `W-League`, `AFLW`, `WSL`)
+  rather than a loose substring, so it can't catch an unrelated product.
+- **Dutch auctions** — not inferable from a title, since Topps runs "First
+  Day Issue" Dutch auctions for products whose ordinary hobby release *is*
+  listed. Set `"dutchAuction": true` on the entry.
+
+`loadReleases()` returns the unfiltered file and is used only where an id has
+to resolve regardless: the admin panel showing existing registrations, and
+the secured/not-secured emails that go with them. Someone who registered
+before a release was excluded is still owed an answer.
 
 Any release with a `releaseDate` in the past is automatically shown greyed
 out with a "Sold Out" stamp and a disabled registration form — this is

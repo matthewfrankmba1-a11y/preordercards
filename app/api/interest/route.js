@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { upsertInterest, countByRelease, getInterestByReleaseAndContact, markEmailSent } from '../../../lib/db';
-import { loadReleases, todayISO, notifyDiscord, sendConfirmationEmail } from '../../../lib/releases';
+import { loadListableReleases, todayISO, notifyDiscord, sendConfirmationEmail } from '../../../lib/releases';
 import { EMAIL_RE, normalizePhone, createRateLimiter } from '../../../lib/utils';
 import bot from '../../../lib/bot';
 
@@ -20,7 +20,7 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Missing or invalid fields.' }, { status: 400 });
   }
 
-  const data = loadReleases();
+  const data = loadListableReleases();
   const release = data.releases.find((r) => r.id === releaseId);
   if (!release) {
     return NextResponse.json({ error: 'Unknown release.' }, { status: 404 });
