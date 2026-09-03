@@ -573,8 +573,30 @@ Hobby Box" and "... Mega Box" score identically and the check happily reports
 a date change against the wrong product.
 
 Run it on demand with `POST /api/admin/release-check/run` (header
-`x-admin-secret`), body `{"notify": false}` to skip the Discord post while
-testing.
+`x-admin-secret`):
+
+- `{"notify": false}` — skip the Discord post while testing.
+- `{"debug": true}` — fetch each source and return what actually came back
+  (status, final URL after redirects, content type, raw and extracted
+  lengths, and a sample of the HTML) without running extraction. This is the
+  tool for "a source stopped working": a character count on its own can't
+  tell a bot block from a client-rendered page from a redirect, and each
+  needs a different fix. Debug needs no API key and spends no tokens.
+
+### When a source breaks
+
+These are publisher pages that owe us nothing, and all three failed
+differently on the first production run. Expect to re-diagnose periodically:
+
+- **A 403** means the publisher is refusing non-browser requests.
+  `RELEASE_CHECK_USER_AGENT` can present a different string, but that is a
+  decision about their terms and is deliberately left to the operator rather
+  than hardcoded — it isn't set by default.
+- **A 200 with very little text** means the page renders its content in the
+  browser, so there is nothing in the HTML to read. The fix is a different
+  URL (a JSON endpoint, a feed, a sitemap) rather than a better parser.
+  `RELEASE_CHECK_SOURCES` swaps a source without a deploy.
+- **A redirect** shows up as a `finalUrl` different from the one configured.
 
 A courtesy note: this fetches each page once a week with an identifying
 User-Agent. That's modest, but check the sources' terms if you widen it —
