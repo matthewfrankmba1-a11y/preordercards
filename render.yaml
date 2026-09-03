@@ -65,6 +65,8 @@ services:
         sync: false
       - key: RELEASE_CHECK_USER_AGENT
         sync: false
+      - key: RELEASE_CHECK_PROXIES
+        sync: false
     disk:
       name: data
       mountPath: /var/data

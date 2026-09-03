@@ -609,6 +609,41 @@ permitted feed replaces one via `RELEASE_CHECK_SOURCES`). When every source
 refuses, the Discord report says so and points at the paste box, rather than
 reading like a broken job.
 
+### Fetching through a proxy pool
+
+`RELEASE_CHECK_PROXIES` takes a list of `host:port:username:password` entries,
+one per line or comma-separated. Each is a separate session and so a separate
+exit IP. On a block the next entry is tried, and the pool start rotates
+between runs so one entry isn't always first.
+
+**When the pool is set, every request goes through it.** There is no fallback
+to a direct connection: falling back would put the deploy's own IP in front
+of a publisher that has already refused it, which is the thing the pool
+exists to avoid. Redirects are followed inside the same tunnel for the same
+reason.
+
+Blocks are detected on more than status codes, because Imperva answers `200`
+with an interstitial in the body — that's what made Blowout look like a
+success carrying 83 characters. Cloudflare challenges and access-denied
+pages are matched too, and a page that yields under 500 characters of text
+counts as a failure and rotates.
+
+Tunnelling is done with Node's built-in `net`/`tls` (a `CONNECT` request,
+then TLS inside the tunnel) rather than pulling in undici's `ProxyAgent` —
+one less dependency for one weekly job.
+
+Reports name which entry served a request as `#2 host:port (session a1b2c3)`,
+where the marker is a short hash of the credential. **Credentials never appear
+in a report, a log, or an error.** The marker is a hash rather than a slice of
+the password because deriving a label from the password's own text leaks the
+whole thing whenever the format isn't what you assumed — a password with no
+separators returns itself — and a report that has printed a secret can't be
+un-printed.
+
+You will probably also need `RELEASE_CHECK_USER_AGENT` set to a browser
+string: a residential IP presenting a bot User-Agent is still identifiably a
+bot.
+
 ### When a source breaks
 
 These are publisher pages that owe us nothing, and all three failed
