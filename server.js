@@ -6,7 +6,6 @@ const bot = require('./lib/bot');
 const { startStatsSummarySchedule } = require('./lib/statsSummary');
 const { startBlogAgentSchedule } = require('./lib/blogAgent');
 const { startNewsletterSchedule } = require('./lib/newsletter');
-const { startReleaseCheckSchedule } = require('./lib/releaseCheck');
 const { loadReleases, sendConfirmationEmail } = require('./lib/releases');
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -22,6 +21,5 @@ app.prepare().then(() => {
     startStatsSummarySchedule();
     startBlogAgentSchedule();
     startNewsletterSchedule();
-    startReleaseCheckSchedule();
   });
 });

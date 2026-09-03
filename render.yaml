@@ -55,18 +55,6 @@ services:
         value: "10"
       - key: NEWSLETTER_MAX_PER_RUN
         value: "500"
-      - key: RELEASE_CHECK_ENABLED
-        value: "false"
-      - key: RELEASE_CHECK_HOUR
-        value: "9"
-      - key: RELEASE_CHECK_WEBHOOK_URL
-        sync: false
-      - key: RELEASE_CHECK_SOURCES
-        sync: false
-      - key: RELEASE_CHECK_USER_AGENT
-        sync: false
-      - key: RELEASE_CHECK_PROXIES
-        sync: false
     disk:
       name: data
       mountPath: /var/data

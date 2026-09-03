@@ -4,11 +4,10 @@ import { checkPastedText } from '../../../../../lib/releaseCheck';
 
 // Compares a pasted release calendar against data/releases.json.
 //
-// The scheduled fetch (lib/releaseCheck.js) is blocked by every publisher —
-// Panini and Topps answer 403, Blowout serves an Incapsula interstitial — so
-// this is the path that actually works: open the calendar in a browser, copy
-// the list, paste it here. Same extraction, same matching, same policy
-// exclusions as the scheduled run, and it writes nothing either.
+// Open a publisher's calendar in a browser, copy the list, paste it here.
+// Reports what differs and writes nothing — acting on it means editing
+// data/releases.json yourself, which is what keeps the newsletter's
+// accuracy gate meaningful.
 export async function POST(request) {
   const { error } = requireMarketplaceAdmin(request);
   if (error) return NextResponse.json({ error: error.message }, { status: error.status });

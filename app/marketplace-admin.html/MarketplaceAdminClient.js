@@ -1206,9 +1206,8 @@ function formatWeekOf(iso) {
 // the manufacturer, so the send stays locked until someone has read this
 // list against the manufacturer's own calendar and confirmed it. Confirming
 // fingerprints the data — edit a date afterwards and it re-locks.
-// The scheduled fetch is blocked by every publisher, so this is the working
-// path: paste what the calendar shows and the same comparison runs against
-// our data. Reports only — nothing here edits data/releases.json.
+// Paste what a publisher's calendar shows and it's compared against our
+// data. Reports only — nothing here edits data/releases.json.
 function ReleaseCheckPanel() {
   const [text, setText] = useState('');
   const [manufacturer, setManufacturer] = useState('');

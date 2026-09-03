@@ -530,63 +530,39 @@ report), `lib/newsletterEmail.js` (HTML/text bodies — sections are the same
 drift), `app/newsletter.html` (subscribe page, archive, unsubscribe landing),
 and the `newsletter_sends` / `newsletter_unsubscribes` tables.
 
-## Release check (Saturdays 9am ET)
+## Release check (paste a calendar, get a diff)
 
-`releaseCheck.js` fetches the published release calendars, extracts what they
-list, and diffs that against `data/releases.json`. **It never writes to the
-data file.** The accuracy gate on the newsletter rests on a human having
-checked the week's dates; a job that silently rewrote the calendar would
-hollow that out. This tells you what to look at — you still decide.
+The Newsletter tab in the marketplace admin panel has a **Release check**
+box. Open a publisher's release calendar in a browser, copy the list, paste
+it in, and it compares what they list against `data/releases.json`:
 
-It runs Saturday morning, before the blog agent writes Sunday 8am and the
-newsletter goes out Sunday 10am, so there's time to act on the report. Off
-unless `RELEASE_CHECK_ENABLED=true`.
+- **Not on our calendar** — listed there, missing from ours.
+- **Date differs** — including the useful case where we hold something as
+  `dateTbd` and they've now published a date.
+- **Couldn't tell which entry** — the pasted title matches two of ours
+  equally well, usually meaning our data has near-duplicates.
+- **Excluded by policy** — women's releases and Dutch auctions are dropped
+  before comparing, so they never appear as missing.
 
-Sources (override with `RELEASE_CHECK_SOURCES`): Panini's own coming-soon
-page, the Topps release calendar, and the Blowout Forums calendar thread. The
-manufacturers' pages come first deliberately — they're the authority the
-site's accuracy rule points at. The forum is a hand-kept list, useful as a
-cross-check and often earlier, but not the arbiter.
+**It reports; it never writes.** Act on it by editing `data/releases.json`
+yourself, running `node scripts/check-release-data.js`, then re-confirming
+the week's dates so the newsletter unlocks. That ordering is deliberate: the
+accuracy gate rests on a human having checked the dates, and a tool that
+edited the calendar for you would hollow it out.
 
-### Why the model reads the pages
+Costs one model call per use (needs `ANTHROPIC_API_KEY`) and takes about a
+minute a week.
 
-Extraction is a model call against the page text, not CSS selectors. Neither
-source promises a stable DOM, and a selector that silently stops matching
-looks exactly like "no changes this week" — the worst failure a checker can
-have, because it's indistinguishable from success. A model call with a strict
-schema fails loudly instead, and a page that fetches but yields nothing is
-reported as a problem rather than a clean bill of health.
+Matching is on significant words with two hard guards: box format and year
+must agree when both sides state them. Without those, "Bowman Chrome
+Baseball Hobby Box" and "... Mega Box" score identically and the check
+reports a date change against the wrong product.
 
-### What it reports
+### Why there's no scheduled fetch
 
-- **Not on our calendar** — listed at the source, no match in our data.
-- **Date differs** — including the useful case where we hold a release as
-  `dateTbd` and the source has now published a date.
-- **Couldn't tell which entry** — the source title matches two of ours
-  equally well. Usually means our data has near-duplicates worth tidying.
-- **Excluded by policy** — women's sports and Dutch auctions are dropped
-  before diffing, so they never show up as "missing".
-
-Matching is on significant words, with two hard guards: box format and year
-must agree when both sides state them. Without those, "Bowman Chrome Baseball
-Hobby Box" and "... Mega Box" score identically and the check happily reports
-a date change against the wrong product.
-
-Run it on demand with `POST /api/admin/release-check/run` (header
-`x-admin-secret`):
-
-- `{"notify": false}` — skip the Discord post while testing.
-- `{"debug": true}` — fetch each source and return what actually came back
-  (status, final URL after redirects, content type, raw and extracted
-  lengths, and a sample of the HTML) without running extraction. This is the
-  tool for "a source stopped working": a character count on its own can't
-  tell a bot block from a client-rendered page from a redirect, and each
-  needs a different fix. Debug needs no API key and spends no tokens.
-
-### The publishers block automated fetching
-
-Confirmed on the first production run, and this is the normal state rather
-than a temporary fault:
+There was one — it fetched Panini's, Topps' and Blowout's calendars on a
+Saturday schedule, later through a rotating residential proxy pool. All of it
+was removed, because all three publishers refuse automated clients:
 
 | Source  | Response |
 |---------|----------|
@@ -594,74 +570,10 @@ than a temporary fault:
 | Topps   | `403`, empty body |
 | Blowout | `200` whose body is an Imperva/Incapsula interstitial — a denial dressed as success |
 
-None of that is a parsing problem, and none of it has a fix on our side that
-isn't circumventing a WAF. Doing so risks the deploy's IP being banned
-outright and is a decision about their terms, so it isn't done here.
-
-**The working path is the paste box in the admin panel** (Newsletter tab →
-Release check). Open a publisher's calendar in a browser, copy the list,
-paste it in. It runs the same extraction, the same title matching and the
-same policy exclusions as the scheduled fetch, and likewise writes nothing.
-Takes under a minute a week.
-
-The scheduled fetch is still there for when a source becomes reachable (or a
-permitted feed replaces one via `RELEASE_CHECK_SOURCES`). When every source
-refuses, the Discord report says so and points at the paste box, rather than
-reading like a broken job.
-
-### Fetching through a proxy pool
-
-`RELEASE_CHECK_PROXIES` takes a list of `host:port:username:password` entries,
-one per line or comma-separated. Each is a separate session and so a separate
-exit IP. On a block the next entry is tried, and the pool start rotates
-between runs so one entry isn't always first.
-
-**When the pool is set, every request goes through it.** There is no fallback
-to a direct connection: falling back would put the deploy's own IP in front
-of a publisher that has already refused it, which is the thing the pool
-exists to avoid. Redirects are followed inside the same tunnel for the same
-reason.
-
-Blocks are detected on more than status codes, because Imperva answers `200`
-with an interstitial in the body — that's what made Blowout look like a
-success carrying 83 characters. Cloudflare challenges and access-denied
-pages are matched too, and a page that yields under 500 characters of text
-counts as a failure and rotates.
-
-Tunnelling is done with Node's built-in `net`/`tls` (a `CONNECT` request,
-then TLS inside the tunnel) rather than pulling in undici's `ProxyAgent` —
-one less dependency for one weekly job.
-
-Reports name which entry served a request as `#2 host:port (session a1b2c3)`,
-where the marker is a short hash of the credential. **Credentials never appear
-in a report, a log, or an error.** The marker is a hash rather than a slice of
-the password because deriving a label from the password's own text leaks the
-whole thing whenever the format isn't what you assumed — a password with no
-separators returns itself — and a report that has printed a secret can't be
-un-printed.
-
-You will probably also need `RELEASE_CHECK_USER_AGENT` set to a browser
-string: a residential IP presenting a bot User-Agent is still identifiably a
-bot.
-
-### When a source breaks
-
-These are publisher pages that owe us nothing, and all three failed
-differently on the first production run. Expect to re-diagnose periodically:
-
-- **A 403** means the publisher is refusing non-browser requests.
-  `RELEASE_CHECK_USER_AGENT` can present a different string, but that is a
-  decision about their terms and is deliberately left to the operator rather
-  than hardcoded — it isn't set by default.
-- **A 200 with very little text** means the page renders its content in the
-  browser, so there is nothing in the HTML to read. The fix is a different
-  URL (a JSON endpoint, a feed, a sitemap) rather than a better parser.
-  `RELEASE_CHECK_SOURCES` swaps a source without a deploy.
-- **A redirect** shows up as a `finalUrl` different from the one configured.
-
-A courtesy note: this fetches each page once a week with an identifying
-User-Agent. That's modest, but check the sources' terms if you widen it —
-Beckett in particular restricts automated access.
+The proxy route didn't get far enough to be worth the machinery it needed, so
+the fetching, the pool, the diagnostics endpoint and the schedule are gone
+along with their `RELEASE_CHECK_*` environment variables. Pasting is a minute
+a week and has no moving parts to break.
 
 ## Stats summary (Discord, once daily at 9am ET)
 
