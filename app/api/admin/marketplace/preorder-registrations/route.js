@@ -30,6 +30,11 @@ export async function GET(request) {
       createdAt: row.createdAt,
       releaseId: row.releaseId,
       releaseTitle: release ? release.title : row.releaseId,
+      // The release's own street date (or preorder-open date), so the admin
+      // table can sort by when a release actually lands rather than only by
+      // when the customer happened to register.
+      releaseDate: release ? release.releaseDate : null,
+      isPreorderOpenDate: release ? Boolean(release.isPreorderOpenDate) : false,
       registrationCount: countByContact.get(row.contactValue),
       cancelled: Boolean(row.cancelledAt),
       outcome: row.outcome || null,

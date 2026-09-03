@@ -26,6 +26,20 @@ function formatTimestamp(sqlTimestamp) {
   });
 }
 
+// Release dates are plain YYYY-MM-DD calendar dates, not instants — parsed
+// field-by-field so the local timezone can't shift them a day backwards the
+// way `new Date('2026-07-15')` (parsed as UTC midnight) would.
+function formatReleaseDate(isoDate) {
+  if (!isoDate) return '—';
+  const [y, m, d] = isoDate.split('-').map(Number);
+  if (!y || !m || !d) return isoDate;
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
 function formatDollar(amount) {
   return `$${amount.toFixed(2)}`;
 }
@@ -465,6 +479,9 @@ const PREORDER_SORT_ACCESSORS = {
   release: (r) => r.releaseTitle.toLowerCase(),
   quantity: (r) => r.quantity,
   registrationCount: (r) => r.registrationCount,
+  // Releases with no date left on file sort to the end ascending rather than
+  // to the top, where they'd bury the soonest real dates.
+  releaseDate: (r) => r.releaseDate || '9999-12-31',
   createdAt: (r) => r.createdAt,
 };
 
@@ -637,7 +654,7 @@ function PreorderRegistrationsView() {
   const [error, setError] = useState('');
   const [updatingId, setUpdatingId] = useState(null);
   const [notifyRow, setNotifyRow] = useState(null);
-  const { sorted, sort, handleSort } = useSortedData(registrations, PREORDER_SORT_ACCESSORS, 'createdAt');
+  const { sorted, sort, handleSort } = useSortedData(registrations, PREORDER_SORT_ACCESSORS, 'releaseDate');
 
   useEffect(() => {
     let cancelled = false;
@@ -699,6 +716,8 @@ function PreorderRegistrationsView() {
       <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '-0.5rem' }}>
         Release-calendar interest signups. &quot;Times Registered&quot; counts every registration that contact has made across all releases.
         Shade marks a registration unfulfilled (reversible); Delete permanently removes a row and should only be used for test records.
+        Sorted by release date by default (soonest first) so nothing slips past regardless of when the customer
+        registered — a * after a date means it&apos;s the preorder-open date, not the ship date.
         Notify sends the buyer a secured/not-secured email. Ack Email is green once the automatic
         &quot;we got your registration&quot; email has sent, red if it hasn&apos;t (or failed), grey if there&apos;s no email on file.
       </p>
@@ -708,20 +727,22 @@ function PreorderRegistrationsView() {
         <div className="admin-table-wrap">
           <table className="admin-table">
             <colgroup>
-              <col style={{ width: '18%' }} />
               <col style={{ width: '16%' }} />
-              <col style={{ width: '5%' }} />
-              <col style={{ width: '8%' }} />
+              <col style={{ width: '15%' }} />
               <col style={{ width: '9%' }} />
+              <col style={{ width: '4%' }} />
+              <col style={{ width: '7%' }} />
               <col style={{ width: '8%' }} />
-              <col style={{ width: '14%' }} />
-              <col style={{ width: '16%' }} />
+              <col style={{ width: '7%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '15%' }} />
               <col style={{ width: '6%' }} />
             </colgroup>
             <thead>
               <tr>
                 <SortHeader label="Contact" field="contact" sort={sort} onSort={handleSort} />
                 <SortHeader label="Release" field="release" sort={sort} onSort={handleSort} />
+                <SortHeader label="Release Date" field="releaseDate" sort={sort} onSort={handleSort} nowrap />
                 <SortHeader label="Qty" field="quantity" sort={sort} onSort={handleSort} nowrap />
                 <SortHeader label="Times Reg." field="registrationCount" sort={sort} onSort={handleSort} nowrap />
                 <SortHeader label="Registered" field="createdAt" sort={sort} onSort={handleSort} nowrap />
@@ -736,6 +757,13 @@ function PreorderRegistrationsView() {
                 <tr key={r.id} style={r.cancelled ? { opacity: 0.45 } : undefined}>
                   <td className="admin-nowrap-ellipsis" title={r.contactValue}>{r.contactValue}</td>
                   <td>{r.releaseTitle}</td>
+                  <td
+                    className="admin-nowrap"
+                    title={r.isPreorderOpenDate ? 'Preorder-open date, not the ship date' : 'Street date'}
+                  >
+                    {formatReleaseDate(r.releaseDate)}
+                    {r.isPreorderOpenDate && <span style={{ color: 'var(--muted)' }}> *</span>}
+                  </td>
                   <td className="admin-nowrap">{r.quantity}</td>
                   <td className="admin-nowrap">{r.registrationCount}</td>
                   <td className="admin-nowrap">{formatTimestamp(r.createdAt)}</td>
