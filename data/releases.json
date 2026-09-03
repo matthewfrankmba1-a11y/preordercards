@@ -373,7 +373,7 @@
       "manufacturer": "Topps",
       "sport": "Baseball",
       "format": "Hobby Box",
-      "releaseDate": "2026-08-18",
+      "releaseDate": "2026-09-08",
       "description": "Premium single-pack baseball release pairing multiple autographed relic and on-card autograph hits per box."
     },
     {
@@ -1066,6 +1066,42 @@
       "dateTbd": true,
       "description": "Holiday-themed Score bundle listed on Panini's coming-soon calendar.",
       "manufacturer": "Panini"
+    },
+    {
+      "id": "2026-bowman-football-first-day-issue",
+      "title": "2026 Bowman Football First Day Issue",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-04",
+      "description": "First Day Issue release of Bowman Football, sold on the release date itself.",
+      "manufacturer": "Topps"
+    },
+    {
+      "id": "2026-topps-update-series-baseball-hobby",
+      "title": "2026 Topps Update Series Baseball",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-14",
+      "description": "Flagship Update Series covering the second half of the baseball season.",
+      "manufacturer": "Topps"
+    },
+    {
+      "id": "2026-topps-neon-marvel",
+      "title": "2026 Topps Neon Marvel",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-15",
+      "description": "Neon-treatment Marvel release from Topps.",
+      "manufacturer": "Topps"
+    },
+    {
+      "id": "2025-26-topps-pristine-basketball",
+      "title": "2025-26 Topps Pristine Basketball",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-24",
+      "description": "Full hobby release of the refractor-parallel Pristine brand's first-ever NBA application, following its late-August preorder window.",
+      "manufacturer": "Topps"
     }
   ]
 }
