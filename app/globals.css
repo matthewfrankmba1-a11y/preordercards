@@ -56,6 +56,7 @@ body {
 .tile-football { background: linear-gradient(160deg, #6a9c1f, #294a0a); }
 .tile-mma { background: linear-gradient(160deg, #343a40, #101214); }
 .tile-soccer { background: linear-gradient(160deg, #0077b6, #023e8a); }
+.tile-golf { background: linear-gradient(160deg, #2d6a4f, #14342a); }
 .tile-entertainment { background: linear-gradient(160deg, #9d4edd, #ff006e); }
 
 .header-scrim {
@@ -135,6 +136,14 @@ body {
   border: 1px solid var(--border);
   background: #fff;
   font-size: 0.95rem;
+}
+
+/* Keeps the brand buttons together as one control rather than reading as
+   three unrelated toggles next to the sport filter. */
+.brand-filter-group {
+  display: inline-flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
 }
 
 .stock-toggle-btn {

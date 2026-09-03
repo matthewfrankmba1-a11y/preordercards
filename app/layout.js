@@ -4,7 +4,7 @@ import { headers } from 'next/headers';
 
 export const metadata = {
   metadataBase: new URL('https://preordercards.com'),
-  title: 'Topps Preorder Release Calendar',
+  title: 'Topps & Panini Preorder Release Calendar',
   twitter: {
     card: 'summary_large_image',
   },

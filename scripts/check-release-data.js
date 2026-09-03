@@ -9,7 +9,7 @@
 // an exclusion actually took.
 
 const path = require('path');
-const { loadReleases, exclusionReason, MANUFACTURERS } = require(path.join(__dirname, '..', 'lib', 'releases'));
+const { loadReleases, exclusionReason, hasKnownDate, MANUFACTURERS } = require(path.join(__dirname, '..', 'lib', 'releases'));
 
 const { releases, lastUpdated } = loadReleases();
 const problems = [];
@@ -18,14 +18,24 @@ const excluded = [];
 const seenIds = new Set();
 const seenTitleDate = new Set();
 
-for (const r of releases) {
-  const where = `${r.releaseDate} ${r.id}`;
+const undated = [];
 
-  if (!r.id || !r.title || !r.sport || !r.format || !r.releaseDate) {
-    problems.push(`${where}: missing a required field (id, title, sport, format, releaseDate)`);
+for (const r of releases) {
+  const where = `${hasKnownDate(r) ? r.releaseDate : 'TBA'} ${r.id}`;
+
+  if (!r.id || !r.title || !r.sport || !r.format) {
+    problems.push(`${where}: missing a required field (id, title, sport, format)`);
   }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(r.releaseDate || '')) {
-    problems.push(`${where}: releaseDate is not YYYY-MM-DD`);
+
+  // A release either has a real date or is explicitly marked dateTbd. A
+  // missing date with no flag is an oversight, and a date *with* the flag is
+  // a contradiction — both would end up misrepresented on the card.
+  if (hasKnownDate(r)) {
+    if (r.dateTbd) problems.push(`${where}: has both a releaseDate and dateTbd`);
+  } else if (r.dateTbd) {
+    undated.push(`${where}: ${r.title}`);
+  } else {
+    problems.push(`${where}: no valid releaseDate and no dateTbd flag`);
   }
   if (!MANUFACTURERS.includes(r.manufacturer)) {
     problems.push(`${where}: unknown manufacturer "${r.manufacturer}" (expected one of ${MANUFACTURERS.join(', ')})`);
@@ -42,7 +52,7 @@ for (const r of releases) {
 
   // A sold-out flag on a future date contradicts itself: the card says
   // "already shipped" while the date is still ahead.
-  if (r.soldOut && r.releaseDate > new Date().toISOString().slice(0, 10)) {
+  if (r.soldOut && hasKnownDate(r) && r.releaseDate > new Date().toISOString().slice(0, 10)) {
     problems.push(`${where}: soldOut is set but the date is in the future`);
   }
 
@@ -57,6 +67,12 @@ console.log('');
 if (excluded.length) {
   console.log(`Excluded from the site, newsletter and blog (${excluded.length}):`);
   for (const line of excluded) console.log('  ' + line);
+  console.log('');
+}
+
+if (undated.length) {
+  console.log(`Listed with no announced date, shown under "Date to be announced" (${undated.length}):`);
+  for (const line of undated) console.log('  ' + line);
   console.log('');
 }
 

@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-08-31",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com) as of 2026-08-31. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-09-03",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com, paniniamerica.net) as of 2026-09-03. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -976,6 +976,96 @@
       "releaseDate": "2026-09-08",
       "description": "Preorders open for a new holiday-themed installment of Topps' classic sci-fi Mars Attacks non-sport card line.",
       "isPreorderOpenDate": true
+    },
+    {
+      "id": "2026-panini-prizm-baseball-hobby",
+      "title": "2026 Panini Prizm Baseball Trading Card Box (Hobby)",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-04",
+      "description": "Hobby box release from Panini's flagship Prizm line for baseball.",
+      "manufacturer": "Panini"
+    },
+    {
+      "id": "2026-panini-contenders-liv-golf-hobby",
+      "title": "2026 Panini Contenders LIV Golf Trading Card Box (Hobby)",
+      "sport": "Golf",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-04",
+      "description": "Contenders-branded hobby box covering LIV Golf.",
+      "manufacturer": "Panini"
+    },
+    {
+      "id": "2025-26-panini-national-treasures-road-to-fifa-world-cup",
+      "title": "2025-26 Panini National Treasures Road to FIFA World Cup 2026 Trading Card Box (Hobby)",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "dateTbd": true,
+      "description": "National Treasures hobby box built around the road to the 2026 FIFA World Cup.",
+      "manufacturer": "Panini"
+    },
+    {
+      "id": "2025-26-panini-noir-basketball-hobby",
+      "title": "2025-26 Panini Noir Basketball Trading Card Box (Hobby)",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "dateTbd": true,
+      "description": "Hobby box release of Panini's Noir basketball line.",
+      "manufacturer": "Panini"
+    },
+    {
+      "id": "2026-panini-flawless-fifa-world-cup-hobby",
+      "title": "2026 Panini Flawless FIFA World Cup 2026 Trading Card Box (Hobby)",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "dateTbd": true,
+      "description": "Flawless-branded hobby box for the 2026 FIFA World Cup.",
+      "manufacturer": "Panini"
+    },
+    {
+      "id": "2026-panini-donruss-football-hobby",
+      "title": "2026 Panini Donruss Football Trading Card Box (Hobby)",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "dateTbd": true,
+      "description": "Hobby box release of Panini's Donruss football line.",
+      "manufacturer": "Panini"
+    },
+    {
+      "id": "2026-panini-donruss-football-blaster",
+      "title": "2026 Panini Donruss Football Trading Card Box (Hobby Blaster)",
+      "sport": "Football",
+      "format": "Blaster Box",
+      "dateTbd": true,
+      "description": "Blaster-format release of Panini's Donruss football line.",
+      "manufacturer": "Panini"
+    },
+    {
+      "id": "2026-panini-obsidian-football-hobby",
+      "title": "2026 Panini Obsidian Football Trading Card Box (Hobby)",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "dateTbd": true,
+      "description": "Hobby box release of Panini's Obsidian football line.",
+      "manufacturer": "Panini"
+    },
+    {
+      "id": "2026-panini-obsidian-k-league-soccer-hobby",
+      "title": "2026 Panini Obsidian K League Soccer Trading Card Box (Hobby)",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "dateTbd": true,
+      "description": "Obsidian-branded hobby box covering South Korea's K League.",
+      "manufacturer": "Panini"
+    },
+    {
+      "id": "2026-panini-score-a-treat-bundle",
+      "title": "2026 Panini Score-A-Treat Bundle",
+      "sport": "Football",
+      "format": "Bundle",
+      "dateTbd": true,
+      "description": "Holiday-themed Score bundle listed on Panini's coming-soon calendar.",
+      "manufacturer": "Panini"
     }
   ]
 }

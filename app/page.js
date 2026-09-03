@@ -4,10 +4,10 @@ import { getReleasesWithInterestCounts } from '../lib/releases';
 import { getHomepageViews } from '../lib/pageViews';
 
 export const metadata = {
-  title: 'Topps Preorder Release Calendar | PreorderCards',
+  title: 'Topps & Panini Preorder Release Calendar | PreorderCards',
   description: 'PreorderCards tracks upcoming Topps trading card release dates and lets you register interest for free — no upfront payment. Independent, not affiliated with Topps.',
   openGraph: {
-    title: 'Topps Preorder Release Calendar | PreorderCards',
+    title: 'Topps & Panini Preorder Release Calendar | PreorderCards',
     description: 'Track upcoming Topps release dates and register interest for free — no upfront payment required.',
     type: 'website',
     url: 'https://preordercards.com/',

@@ -12,7 +12,14 @@ function todayISO() {
   return `${y}-${m}-${day}`;
 }
 
+function hasKnownDate(release) {
+  return typeof release.releaseDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(release.releaseDate);
+}
+
+// A release with no announced date can't be in the past, so it's never
+// auto-marked sold out — only an explicit flag can do that.
 function isSoldOut(release) {
+  if (!hasKnownDate(release)) return release.soldOut === true;
   return release.releaseDate < todayISO() || release.soldOut === true;
 }
 
@@ -98,8 +105,17 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
     return result;
   }, [allReleases, brandFilter, sportFilter, inStockOnly]);
 
+  // Dated releases first in date order, then the undated ones alphabetically
+  // — they belong on the calendar but can't be placed on it.
   const sorted = useMemo(
-    () => [...filtered].sort((a, b) => a.releaseDate.localeCompare(b.releaseDate)),
+    () =>
+      [...filtered].sort((a, b) => {
+        const aKnown = hasKnownDate(a);
+        const bKnown = hasKnownDate(b);
+        if (aKnown && bKnown) return a.releaseDate.localeCompare(b.releaseDate);
+        if (aKnown !== bKnown) return aKnown ? -1 : 1;
+        return a.title.localeCompare(b.title);
+      }),
     [filtered]
   );
 
@@ -119,8 +135,8 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
       <header className="site-header">
         <div className="header-scrim"></div>
         <div className="wrap header-content">
-          <h1>Topps Preorder Release Calendar</h1>
-          <p className="tagline">Upcoming Topps Releases, by date. Register your interest, no upfront payment required, pricing guaranteed to be lower than market.</p>
+          <h1>Topps &amp; Panini Preorder Release Calendar</h1>
+          <p className="tagline">Upcoming Topps &amp; Panini Releases, by date. Register your interest, no upfront payment required, pricing guaranteed to be lower than market.</p>
           <div className="header-nav-links">
             <a className="header-nav-link" href="/success.html">See Success Stories →</a>
             <a className="header-nav-link" href="/marketplace.html">Browse Marketplace →</a>
@@ -133,13 +149,27 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
       <main className="wrap">
         <div className="controls">
           {brands.length > 1 && (
-            <>
-              <label htmlFor="brand-filter">Brand</label>
-              <select id="brand-filter" value={brandFilter} onChange={(e) => setBrandFilter(e.target.value)}>
-                <option value="all">All brands</option>
-                {brands.map((brand) => <option value={brand} key={brand}>{brand}</option>)}
-              </select>
-            </>
+            <div className="brand-filter-group" role="group" aria-label="Filter by brand">
+              <button
+                type="button"
+                className={`stock-toggle-btn${brandFilter === 'all' ? ' active' : ''}`}
+                aria-pressed={brandFilter === 'all'}
+                onClick={() => setBrandFilter('all')}
+              >
+                All brands
+              </button>
+              {brands.map((brand) => (
+                <button
+                  key={brand}
+                  type="button"
+                  className={`stock-toggle-btn${brandFilter === brand ? ' active' : ''}`}
+                  aria-pressed={brandFilter === brand}
+                  onClick={() => setBrandFilter(brand)}
+                >
+                  {brand}
+                </button>
+              ))}
+            </div>
           )}
           <label htmlFor="sport-filter">Filter by sport</label>
           <select id="sport-filter" value={sportFilter} onChange={(e) => setSportFilter(e.target.value)}>
@@ -160,7 +190,7 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
         {status && <div className="status">{status}</div>}
         <div className="releases">
           {sorted.map((release) => {
-            const groupLabel = formatGroupLabel(release.releaseDate);
+            const groupLabel = hasKnownDate(release) ? formatGroupLabel(release.releaseDate) : 'Date to be announced';
             const showGroup = groupLabel !== currentGroup;
             currentGroup = groupLabel;
             return (
@@ -177,11 +207,11 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
 
           <details>
             <summary>What is PreorderCards?</summary>
-            <p>PreorderCards is an independent site that tracks upcoming Topps trading card release dates and lets you register interest for free, with no upfront payment required. It is not affiliated with, endorsed by, or sponsored by Topps or any league or brand referenced on the site.</p>
+            <p>PreorderCards is an independent site that tracks upcoming Topps and Panini trading card release dates and lets you register interest for free, with no upfront payment required. It is not affiliated with, endorsed by, or sponsored by Topps or any league or brand referenced on the site.</p>
           </details>
 
           <details>
-            <summary>How do I preorder an upcoming Topps release?</summary>
+            <summary>How do I preorder an upcoming Topps or Panini release?</summary>
             <p>Browse the release calendar on PreorderCards, open a release, choose a quantity, and register your interest with an email address or phone number. No payment is collected at registration.</p>
           </details>
 

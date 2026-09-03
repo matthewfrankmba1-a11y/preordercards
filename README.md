@@ -66,7 +66,21 @@ adding one to the data is harmless because nothing will surface it.
   rather than a loose substring, so it can't catch an unrelated product.
 - **Dutch auctions** — not inferable from a title, since Topps runs "First
   Day Issue" Dutch auctions for products whose ordinary hobby release *is*
-  listed. Set `"dutchAuction": true` on the entry.
+  listed, and Panini's calendar marks them with their own badge. Set
+  `"dutchAuction": true` on the entry.
+
+### Releases with no announced date
+
+Panini lists a number of products as "coming soon" with no date at all. Those
+carry `"dateTbd": true` and **no** `releaseDate`, rather than a guessed one:
+they render under a "Date to be announced" group at the end of the calendar,
+sorted alphabetically, and are never auto-marked sold out. They're absent
+from the weekly newsletter and the blog agent too, since a release with no
+date belongs to no week — give one a real `releaseDate` (and drop the flag)
+and it joins the calendar and the next issue automatically.
+
+An entry must have exactly one of the two: the check script fails on a
+missing date with no flag, and on a date *with* the flag.
 
 `loadReleases()` returns the unfiltered file and is used only where an id has
 to resolve regardless: the admin panel showing existing registrations, and

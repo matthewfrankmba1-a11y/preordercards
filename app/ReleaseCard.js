@@ -43,6 +43,12 @@ const SPORT_ICONS = {
     <line x1="27" y1="34" x2="20" y2="46"/>
     <line x1="24" y1="24" x2="14" y2="18"/>
   </svg>`,
+  Golf: `<svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="#fff" stroke-width="2.5">
+    <circle cx="22" cy="20" r="9" fill="rgba(255,255,255,0.18)"/>
+    <line x1="42" y1="8" x2="42" y2="54"/>
+    <path d="M42 12 L26 18 L42 24" fill="rgba(255,255,255,0.3)"/>
+    <line x1="34" y1="54" x2="50" y2="54"/>
+  </svg>`,
   Entertainment: `<svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="#fff" stroke-width="2">
     <polygon points="32,4 38,22 58,20 44,34 50,54 32,42 14,54 20,34 6,20 26,22" fill="rgba(255,255,255,0.2)"/>
   </svg>`,
@@ -52,7 +58,11 @@ function sportSlug(sport) {
   return sport.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 
+// Undated releases show the manufacturer's own wording rather than a
+// fabricated date — Panini lists a number of products as "coming soon" with
+// no date attached, and guessing one would be a claim we can't stand behind.
 function formatDate(isoDate) {
+  if (typeof isoDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return 'Date to be announced';
   const d = new Date(isoDate + 'T00:00:00');
   return d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 }
