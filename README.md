@@ -530,6 +530,56 @@ report), `lib/newsletterEmail.js` (HTML/text bodies — sections are the same
 drift), `app/newsletter.html` (subscribe page, archive, unsubscribe landing),
 and the `newsletter_sends` / `newsletter_unsubscribes` tables.
 
+## Release check (Saturdays 9am ET)
+
+`releaseCheck.js` fetches the published release calendars, extracts what they
+list, and diffs that against `data/releases.json`. **It never writes to the
+data file.** The accuracy gate on the newsletter rests on a human having
+checked the week's dates; a job that silently rewrote the calendar would
+hollow that out. This tells you what to look at — you still decide.
+
+It runs Saturday morning, before the blog agent writes Sunday 8am and the
+newsletter goes out Sunday 10am, so there's time to act on the report. Off
+unless `RELEASE_CHECK_ENABLED=true`.
+
+Sources (override with `RELEASE_CHECK_SOURCES`): Panini's own coming-soon
+page, the Topps release calendar, and the Blowout Forums calendar thread. The
+manufacturers' pages come first deliberately — they're the authority the
+site's accuracy rule points at. The forum is a hand-kept list, useful as a
+cross-check and often earlier, but not the arbiter.
+
+### Why the model reads the pages
+
+Extraction is a model call against the page text, not CSS selectors. Neither
+source promises a stable DOM, and a selector that silently stops matching
+looks exactly like "no changes this week" — the worst failure a checker can
+have, because it's indistinguishable from success. A model call with a strict
+schema fails loudly instead, and a page that fetches but yields nothing is
+reported as a problem rather than a clean bill of health.
+
+### What it reports
+
+- **Not on our calendar** — listed at the source, no match in our data.
+- **Date differs** — including the useful case where we hold a release as
+  `dateTbd` and the source has now published a date.
+- **Couldn't tell which entry** — the source title matches two of ours
+  equally well. Usually means our data has near-duplicates worth tidying.
+- **Excluded by policy** — women's sports and Dutch auctions are dropped
+  before diffing, so they never show up as "missing".
+
+Matching is on significant words, with two hard guards: box format and year
+must agree when both sides state them. Without those, "Bowman Chrome Baseball
+Hobby Box" and "... Mega Box" score identically and the check happily reports
+a date change against the wrong product.
+
+Run it on demand with `POST /api/admin/release-check/run` (header
+`x-admin-secret`), body `{"notify": false}` to skip the Discord post while
+testing.
+
+A courtesy note: this fetches each page once a week with an identifying
+User-Agent. That's modest, but check the sources' terms if you widen it —
+Beckett in particular restricts automated access.
+
 ## Stats summary (Discord, once daily at 9am ET)
 
 `statsSummary.js` posts a "📊 Site Activity Summary" embed once a day at
