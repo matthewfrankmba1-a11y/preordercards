@@ -1206,6 +1206,121 @@ function formatWeekOf(iso) {
 // the manufacturer, so the send stays locked until someone has read this
 // list against the manufacturer's own calendar and confirmed it. Confirming
 // fingerprints the data — edit a date afterwards and it re-locks.
+// The scheduled fetch is blocked by every publisher, so this is the working
+// path: paste what the calendar shows and the same comparison runs against
+// our data. Reports only — nothing here edits data/releases.json.
+function ReleaseCheckPanel() {
+  const [text, setText] = useState('');
+  const [manufacturer, setManufacturer] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [report, setReport] = useState(null);
+
+  async function handleRun(e) {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    setReport(null);
+    const { ok, data } = await postJson('/api/admin/marketplace/release-check', { text, manufacturer: manufacturer || undefined });
+    setBusy(false);
+    if (!ok) {
+      setError(data.error || 'Could not run the check.');
+      return;
+    }
+    setReport(data);
+  }
+
+  return (
+    <div className="admin-table-wrap" style={{ padding: '1rem', marginBottom: '1.5rem' }}>
+      <h3 style={{ margin: '0 0 0.25rem' }}>Release check</h3>
+      <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: '0 0 0.75rem' }}>
+        Open a publisher&apos;s release calendar in your browser, select the list, and paste it here. It compares what
+        they list against our calendar and reports what differs — it never edits the data. Women&apos;s releases and
+        Dutch auctions are dropped before comparing, so they won&apos;t show up as missing.
+      </p>
+
+      <form onSubmit={handleRun}>
+        <textarea
+          className="contact-input"
+          rows={7}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={'Paste the release list here…'}
+          style={{ width: '100%', fontFamily: 'inherit', resize: 'vertical' }}
+        />
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', margin: '0.6rem 0' }}>
+          <label htmlFor="rc-brand" style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Brand</label>
+          <select id="rc-brand" value={manufacturer} onChange={(e) => setManufacturer(e.target.value)}>
+            <option value="">Work it out per product</option>
+            <option value="Topps">All Topps</option>
+            <option value="Panini">All Panini</option>
+          </select>
+          <button type="submit" className="notify-btn" disabled={busy || !text.trim()}>
+            {busy ? 'Comparing…' : 'Compare with our calendar'}
+          </button>
+        </div>
+      </form>
+
+      {error && <div className="status">{error}</div>}
+
+      {report && (
+        <div style={{ fontSize: '0.85rem' }}>
+          <p style={{ fontWeight: 600, margin: '0 0 0.5rem' }}>
+            Read {report.found} products · {report.confirmed.length} already match · {report.skipped.length} excluded by
+            policy
+          </p>
+
+          <ReleaseCheckList
+            title="Not on our calendar"
+            colour="var(--red)"
+            items={report.missing}
+            render={(m) => `${m.title}${m.releaseDate ? ` — ${m.releaseDate}` : ' — no date given'}`}
+          />
+          <ReleaseCheckList
+            title="Date differs"
+            colour="#d9a400"
+            items={report.dateMismatch}
+            render={(m) => `${m.title}: ours ${m.ourDate || 'TBA'} → they say ${m.sourceDate}`}
+          />
+          <ReleaseCheckList
+            title="Couldn't tell which of ours this is"
+            colour="var(--muted)"
+            items={report.ambiguous}
+            render={(m) => `"${m.sourceTitle}" could be: ${m.couldBe.join(' / ')}`}
+          />
+
+          {report.missing.length + report.dateMismatch.length + report.ambiguous.length === 0 && (
+            <p style={{ color: '#1a7f37', fontWeight: 600 }}>Nothing to action — our calendar agrees with that list.</p>
+          )}
+
+          <p style={{ color: 'var(--muted)', marginTop: '0.75rem' }}>
+            Nothing was changed. Edit <code>data/releases.json</code> for anything above, then re-confirm the week&apos;s
+            dates so the newsletter unlocks again.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ReleaseCheckList({ title, colour, items, render }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <div style={{ margin: '0 0 0.75rem' }}>
+      <p style={{ fontWeight: 600, color: colour, margin: '0 0 0.25rem' }}>
+        {title} ({items.length})
+      </p>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {items.map((item, i) => (
+          <li key={i} style={{ padding: '0.15rem 0' }}>
+            • {render(item)}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function WeekDateCheck() {
   const [week, setWeek] = useState(null);
   const [busy, setBusy] = useState('');
@@ -1388,6 +1503,8 @@ function NewsletterView() {
       <h2 style={{ margin: '1.5rem 0 1rem' }}>Newsletter</h2>
 
       <WeekDateCheck />
+
+      <ReleaseCheckPanel />
 
       <h3 style={{ margin: '0 0 0.5rem' }}>Subscriber list</h3>
 

@@ -583,6 +583,32 @@ Run it on demand with `POST /api/admin/release-check/run` (header
   tell a bot block from a client-rendered page from a redirect, and each
   needs a different fix. Debug needs no API key and spends no tokens.
 
+### The publishers block automated fetching
+
+Confirmed on the first production run, and this is the normal state rather
+than a temporary fault:
+
+| Source  | Response |
+|---------|----------|
+| Panini  | `403`, empty body |
+| Topps   | `403`, empty body |
+| Blowout | `200` whose body is an Imperva/Incapsula interstitial — a denial dressed as success |
+
+None of that is a parsing problem, and none of it has a fix on our side that
+isn't circumventing a WAF. Doing so risks the deploy's IP being banned
+outright and is a decision about their terms, so it isn't done here.
+
+**The working path is the paste box in the admin panel** (Newsletter tab →
+Release check). Open a publisher's calendar in a browser, copy the list,
+paste it in. It runs the same extraction, the same title matching and the
+same policy exclusions as the scheduled fetch, and likewise writes nothing.
+Takes under a minute a week.
+
+The scheduled fetch is still there for when a source becomes reachable (or a
+permitted feed replaces one via `RELEASE_CHECK_SOURCES`). When every source
+refuses, the Discord report says so and points at the paste box, rather than
+reading like a broken job.
+
 ### When a source breaks
 
 These are publisher pages that owe us nothing, and all three failed
