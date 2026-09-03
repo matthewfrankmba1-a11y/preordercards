@@ -649,12 +649,204 @@ function NotifyModal({ registration, onClose, onSent }) {
   );
 }
 
+// Column definitions drive the header, the body and the hide/show picker
+// from one place, so a column can't end up in the header without a matching
+// cell — the failure mode of editing thead and tbody separately. Order here
+// is the order on screen.
+const PREORDER_COLUMNS = [
+  {
+    key: 'contact',
+    label: 'Contact',
+    width: 16,
+    sortField: 'contact',
+    render: (r) => <span className="admin-nowrap-ellipsis" title={r.contactValue}>{r.contactValue}</span>,
+  },
+  { key: 'release', label: 'Release', width: 15, sortField: 'release', render: (r) => r.releaseTitle },
+  { key: 'quantity', label: 'Qty', width: 4, sortField: 'quantity', nowrap: true, render: (r) => r.quantity },
+  {
+    key: 'registrationCount',
+    label: 'Times Reg.',
+    width: 7,
+    sortField: 'registrationCount',
+    nowrap: true,
+    render: (r) => r.registrationCount,
+  },
+  {
+    key: 'createdAt',
+    label: 'Registered',
+    width: 8,
+    sortField: 'createdAt',
+    nowrap: true,
+    render: (r) => formatTimestamp(r.createdAt),
+  },
+  {
+    key: 'releaseDate',
+    label: 'Release Date',
+    width: 9,
+    sortField: 'releaseDate',
+    nowrap: true,
+    title: (r) => (r.isPreorderOpenDate ? 'Preorder-open date, not the ship date' : 'Street date'),
+    render: (r) => (
+      <>
+        {formatReleaseDate(r.releaseDate)}
+        {r.isPreorderOpenDate && <span style={{ color: 'var(--muted)' }}> *</span>}
+      </>
+    ),
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    width: 7,
+    nowrap: true,
+    render: (r) => (
+      <span className={`admin-badge ${r.cancelled ? 'admin-badge-no' : 'admin-badge-yes'}`}>
+        {r.cancelled ? 'Unfulfilled' : 'Active'}
+      </span>
+    ),
+  },
+  {
+    key: 'notify',
+    label: 'Notify',
+    width: 13,
+    render: (r, ctx) =>
+      r.contactType !== 'email' ? (
+        <span style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>No email</span>
+      ) : (
+        <div className="admin-actions-cell">
+          {r.outcome && (
+            <span className={`admin-badge ${r.outcome === 'secured' ? 'admin-badge-yes' : 'admin-badge-no'}`}>
+              {r.outcome === 'secured' ? 'Secured' : 'Not Secured'}
+            </span>
+          )}
+          <button type="button" className="admin-remove-btn" onClick={() => ctx.setNotifyRow(r)}>
+            {r.outcome ? 'Re-notify' : 'Notify'}
+          </button>
+        </div>
+      ),
+  },
+  {
+    key: 'actions',
+    label: 'Actions',
+    width: 15,
+    render: (r, ctx) => (
+      <div className="admin-actions-cell">
+        <button
+          type="button"
+          className="admin-remove-btn"
+          disabled={ctx.updatingId === r.id}
+          onClick={() => ctx.onToggleCancelled(r)}
+        >
+          {ctx.updatingId === r.id ? 'Saving…' : r.cancelled ? 'Restore' : 'Shade'}
+        </button>
+        <button type="button" className="admin-remove-btn" disabled={ctx.updatingId === r.id} onClick={() => ctx.onDelete(r)}>
+          Delete
+        </button>
+      </div>
+    ),
+  },
+  {
+    key: 'ackEmail',
+    label: 'Ack Email',
+    width: 6,
+    nowrap: true,
+    align: 'right',
+    render: (r) => (
+      <span
+        className="admin-status-dot"
+        title={
+          r.contactType !== 'email'
+            ? 'No email on file'
+            : r.emailSentAt
+              ? `Sent ${formatTimestamp(r.emailSentAt)}`
+              : 'Not sent — auto-send may still be in flight, or it failed'
+        }
+        style={{ background: r.contactType !== 'email' ? 'var(--muted)' : r.emailSentAt ? '#1a7f37' : 'var(--red)' }}
+      />
+    ),
+  },
+];
+
+// Remembered per browser, not per account — it's a display preference, and
+// storing it server-side would mean a migration and an endpoint for
+// something that should follow the screen you're working on.
+function useHiddenColumns(storageKey) {
+  const [hidden, setHidden] = useState([]);
+
+  // Read after mount rather than in the initial state: the server renders
+  // with nothing hidden, so reading localStorage during render would make
+  // the first client paint disagree with the server's HTML.
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      if (Array.isArray(stored)) setHidden(stored);
+    } catch {
+      /* unreadable or unavailable storage just means nothing is hidden */
+    }
+  }, [storageKey]);
+
+  function persist(next) {
+    setHidden(next);
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(next));
+    } catch {
+      /* the toggle still works for this session if storage is blocked */
+    }
+  }
+
+  return {
+    hidden,
+    toggle: (key) => persist(hidden.includes(key) ? hidden.filter((k) => k !== key) : [...hidden, key]),
+    showAll: () => persist([]),
+  };
+}
+
+function ColumnPicker({ columns, hidden, onToggle, onShowAll }) {
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', alignItems: 'center', margin: '0 0 0.75rem' }}>
+      <span style={{ fontSize: '0.75rem', color: 'var(--muted)', marginRight: '0.15rem' }}>Columns:</span>
+      {columns.map((col) => {
+        const isHidden = hidden.includes(col.key);
+        return (
+          <button
+            key={col.key}
+            type="button"
+            className={`stock-toggle-btn${isHidden ? '' : ' active'}`}
+            aria-pressed={!isHidden}
+            title={isHidden ? `Show ${col.label}` : `Hide ${col.label}`}
+            onClick={() => onToggle(col.key)}
+            style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem' }}
+          >
+            {col.label}
+          </button>
+        );
+      })}
+      {hidden.length > 0 && (
+        <button
+          type="button"
+          className="stock-toggle-btn"
+          onClick={onShowAll}
+          style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem' }}
+        >
+          Show all
+        </button>
+      )}
+    </div>
+  );
+}
+
 function PreorderRegistrationsView() {
   const [registrations, setRegistrations] = useState(null);
   const [error, setError] = useState('');
   const [updatingId, setUpdatingId] = useState(null);
   const [notifyRow, setNotifyRow] = useState(null);
   const { sorted, sort, handleSort } = useSortedData(registrations, PREORDER_SORT_ACCESSORS, 'releaseDate');
+  const { hidden, toggle, showAll } = useHiddenColumns('adminPreorderHiddenColumns');
+
+  const visibleColumns = PREORDER_COLUMNS.filter((col) => !hidden.includes(col.key));
+  // Widths are authored against the full set, so they under-sum once columns
+  // are hidden. table-layout is fixed, so rescale to keep the remaining
+  // columns proportional instead of leaving the table to guess.
+  const widthTotal = visibleColumns.reduce((sum, col) => sum + col.width, 0) || 1;
 
   useEffect(() => {
     let cancelled = false;
@@ -710,6 +902,8 @@ function PreorderRegistrationsView() {
     setNotifyRow(null);
   }
 
+  const ctx = { updatingId, setNotifyRow, onToggleCancelled: handleToggleCancelled, onDelete: handleDelete };
+
   return (
     <>
       <h2 style={{ margin: '1.5rem 0 1rem' }}>Preorder Registrations ({registrations ? registrations.length : '…'})</h2>
@@ -720,114 +914,67 @@ function PreorderRegistrationsView() {
         registered — a * after a date means it&apos;s the preorder-open date, not the ship date.
         Notify sends the buyer a secured/not-secured email. Ack Email is green once the automatic
         &quot;we got your registration&quot; email has sent, red if it hasn&apos;t (or failed), grey if there&apos;s no email on file.
+        Click a column name below to hide it — the choice is remembered on this device.
       </p>
       {error && <div className="status">{error}</div>}
       {registrations && registrations.length === 0 && <div className="status">No registrations yet.</div>}
       {registrations && registrations.length > 0 && (
-        <div className="admin-table-wrap">
-          <table className="admin-table">
-            <colgroup>
-              <col style={{ width: '16%' }} />
-              <col style={{ width: '15%' }} />
-              <col style={{ width: '9%' }} />
-              <col style={{ width: '4%' }} />
-              <col style={{ width: '7%' }} />
-              <col style={{ width: '8%' }} />
-              <col style={{ width: '7%' }} />
-              <col style={{ width: '13%' }} />
-              <col style={{ width: '15%' }} />
-              <col style={{ width: '6%' }} />
-            </colgroup>
-            <thead>
-              <tr>
-                <SortHeader label="Contact" field="contact" sort={sort} onSort={handleSort} />
-                <SortHeader label="Release" field="release" sort={sort} onSort={handleSort} />
-                <SortHeader label="Release Date" field="releaseDate" sort={sort} onSort={handleSort} nowrap />
-                <SortHeader label="Qty" field="quantity" sort={sort} onSort={handleSort} nowrap />
-                <SortHeader label="Times Reg." field="registrationCount" sort={sort} onSort={handleSort} nowrap />
-                <SortHeader label="Registered" field="createdAt" sort={sort} onSort={handleSort} nowrap />
-                <th className="admin-nowrap">Status</th>
-                <th>Notify</th>
-                <th>Actions</th>
-                <th className="admin-nowrap" style={{ textAlign: 'right' }}>Ack Email</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sorted.map((r) => (
-                <tr key={r.id} style={r.cancelled ? { opacity: 0.45 } : undefined}>
-                  <td className="admin-nowrap-ellipsis" title={r.contactValue}>{r.contactValue}</td>
-                  <td>{r.releaseTitle}</td>
-                  <td
-                    className="admin-nowrap"
-                    title={r.isPreorderOpenDate ? 'Preorder-open date, not the ship date' : 'Street date'}
-                  >
-                    {formatReleaseDate(r.releaseDate)}
-                    {r.isPreorderOpenDate && <span style={{ color: 'var(--muted)' }}> *</span>}
-                  </td>
-                  <td className="admin-nowrap">{r.quantity}</td>
-                  <td className="admin-nowrap">{r.registrationCount}</td>
-                  <td className="admin-nowrap">{formatTimestamp(r.createdAt)}</td>
-                  <td className="admin-nowrap">
-                    <span className={`admin-badge ${r.cancelled ? 'admin-badge-no' : 'admin-badge-yes'}`}>
-                      {r.cancelled ? 'Unfulfilled' : 'Active'}
-                    </span>
-                  </td>
-                  <td>
-                    {r.contactType !== 'email' ? (
-                      <span style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>No email</span>
-                    ) : (
-                      <div className="admin-actions-cell">
-                        {r.outcome && (
-                          <span className={`admin-badge ${r.outcome === 'secured' ? 'admin-badge-yes' : 'admin-badge-no'}`}>
-                            {r.outcome === 'secured' ? 'Secured' : 'Not Secured'}
-                          </span>
-                        )}
-                        <button type="button" className="admin-remove-btn" onClick={() => setNotifyRow(r)}>
-                          {r.outcome ? 'Re-notify' : 'Notify'}
-                        </button>
-                      </div>
+        <>
+          <ColumnPicker columns={PREORDER_COLUMNS} hidden={hidden} onToggle={toggle} onShowAll={showAll} />
+          {visibleColumns.length === 0 ? (
+            <div className="status">Every column is hidden — turn one back on above.</div>
+          ) : (
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <colgroup>
+                  {visibleColumns.map((col) => (
+                    <col key={col.key} style={{ width: `${((col.width / widthTotal) * 100).toFixed(2)}%` }} />
+                  ))}
+                </colgroup>
+                <thead>
+                  <tr>
+                    {visibleColumns.map((col) =>
+                      col.sortField ? (
+                        <SortHeader
+                          key={col.key}
+                          label={col.label}
+                          field={col.sortField}
+                          sort={sort}
+                          onSort={handleSort}
+                          nowrap={col.nowrap}
+                        />
+                      ) : (
+                        <th
+                          key={col.key}
+                          className={col.nowrap ? 'admin-nowrap' : undefined}
+                          style={col.align === 'right' ? { textAlign: 'right' } : undefined}
+                        >
+                          {col.label}
+                        </th>
+                      )
                     )}
-                  </td>
-                  <td>
-                    <div className="admin-actions-cell">
-                      <button
-                        type="button"
-                        className="admin-remove-btn"
-                        disabled={updatingId === r.id}
-                        onClick={() => handleToggleCancelled(r)}
-                      >
-                        {updatingId === r.id ? 'Saving…' : r.cancelled ? 'Restore' : 'Shade'}
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-remove-btn"
-                        disabled={updatingId === r.id}
-                        onClick={() => handleDelete(r)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                  <td className="admin-nowrap" style={{ textAlign: 'right' }}>
-                    <span
-                      className="admin-status-dot"
-                      title={
-                        r.contactType !== 'email'
-                          ? 'No email on file'
-                          : r.emailSentAt
-                          ? `Sent ${formatTimestamp(r.emailSentAt)}`
-                          : 'Not sent — auto-send may still be in flight, or it failed'
-                      }
-                      style={{
-                        background: r.contactType !== 'email' ? 'var(--muted)' : r.emailSentAt ? '#1a7f37' : 'var(--red)',
-                      }}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sorted.map((r) => (
+                    <tr key={r.id} style={r.cancelled ? { opacity: 0.45 } : undefined}>
+                      {visibleColumns.map((col) => (
+                        <td
+                          key={col.key}
+                          className={col.nowrap ? 'admin-nowrap' : undefined}
+                          title={col.title ? col.title(r) : undefined}
+                          style={col.align === 'right' ? { textAlign: 'right' } : undefined}
+                        >
+                          {col.render(r, ctx)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
       {notifyRow && <NotifyModal registration={notifyRow} onClose={() => setNotifyRow(null)} onSent={handleNotifySent} />}
     </>
