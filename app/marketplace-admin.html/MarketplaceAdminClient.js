@@ -1363,7 +1363,12 @@ function WeekDateCheck() {
     <div className="admin-table-wrap" style={{ padding: '1rem', marginBottom: '1.5rem' }}>
       <h3 style={{ margin: '0 0 0.25rem' }}>Release dates for the week of {formatWeekOf(week.weekOf)}</h3>
       <p style={{ fontSize: '0.85rem', margin: '0 0 0.75rem' }}>
-        {status.confirmed ? (
+        {status.skipped ? (
+          <span style={{ color: '#b3261e', fontWeight: 600 }}>
+            Skipped {formatTimestamp(status.skippedAt)} — no email goes out this week. The week's blog post still
+            publishes as usual.
+          </span>
+        ) : status.confirmed ? (
           <span style={{ color: '#1a7f37', fontWeight: 600 }}>
             Confirmed {formatTimestamp(status.confirmedAt)} — good to go. {week.includedCount}{' '}
             {week.includedCount === 1 ? 'release' : 'releases'} will be in the email
@@ -1436,18 +1441,36 @@ function WeekDateCheck() {
 
       {error && <div className="status">{error}</div>}
 
-      <button
-        type="button"
-        className="notify-btn"
-        onClick={() => act({ action: 'confirm' }, 'confirm')}
-        disabled={busy === 'confirm'}
-      >
-        {busy === 'confirm'
-          ? 'Confirming…'
-          : status.confirmed
-            ? 'Re-confirm'
-            : "I checked these — unlock this week's send"}
-      </button>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', alignItems: 'center' }}>
+        <button
+          type="button"
+          className="notify-btn"
+          onClick={() => act({ action: 'confirm' }, 'confirm')}
+          disabled={busy === 'confirm' || status.skipped}
+          title={status.skipped ? 'Un-skip this week first' : undefined}
+        >
+          {busy === 'confirm'
+            ? 'Confirming…'
+            : status.confirmed
+              ? 'Re-confirm'
+              : "I checked these — unlock this week's send"}
+        </button>
+
+        <button
+          type="button"
+          className="stock-toggle-btn"
+          onClick={() => act({ action: status.skipped ? 'unskip' : 'skip' }, 'skip')}
+          disabled={busy === 'skip'}
+        >
+          {busy === 'skip' ? 'Saving…' : status.skipped ? 'Un-skip this week' : 'Skip this week'}
+        </button>
+      </div>
+
+      <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: '0.6rem 0 0' }}>
+        {status.skipped
+          ? 'Un-skipping puts the week back where it was — you still have to confirm the dates before anything sends.'
+          : 'Skipping calls off this week\u2019s email entirely — for a quiet release week or a holiday. Nothing sends until you un-skip.'}
+      </p>
     </div>
   );
 }

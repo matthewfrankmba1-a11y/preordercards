@@ -5,6 +5,8 @@ import {
   setNewsletterDateCheck,
   addNewsletterExclusion,
   removeNewsletterExclusion,
+  addNewsletterWeekSkip,
+  removeNewsletterWeekSkip,
 } from '../../../../../lib/db';
 import {
   buildIssue,
@@ -25,6 +27,13 @@ import {
 // where fixing data/releases.json properly means an edit, a commit and a
 // redeploy. The release keeps showing on the site; it just isn't asserted
 // in the email.
+//
+// Skipping is the fourth action and the bluntest one: it calls the week's
+// email off entirely, for a quiet release week or a holiday. It's kept
+// separate from the date check so un-skipping doesn't silently pass for a
+// confirmation, and it outranks one — a skipped week stays skipped even if
+// its dates were confirmed earlier. The week's blog post still publishes on
+// its own schedule; only the email is called off.
 //
 // The confirmation is fingerprinted over what actually ships — the included
 // releases only — so striking one out after confirming re-locks the send,
@@ -105,6 +114,12 @@ export async function POST(request) {
     return NextResponse.json(await weekPayload());
   }
 
+  if (action === 'skip' || action === 'unskip') {
+    if (action === 'skip') addNewsletterWeekSkip.run({ weekOf: issue.weekOf });
+    else removeNewsletterWeekSkip.run({ weekOf: issue.weekOf });
+    return NextResponse.json(await weekPayload());
+  }
+
   if (action === 'confirm') {
     setNewsletterDateCheck.run({
       weekOf: issue.weekOf,
@@ -114,5 +129,8 @@ export async function POST(request) {
     return NextResponse.json(await weekPayload());
   }
 
-  return NextResponse.json({ error: 'action must be one of: confirm, exclude, include.' }, { status: 400 });
+  return NextResponse.json(
+    { error: 'action must be one of: confirm, exclude, include, skip, unskip.' },
+    { status: 400 }
+  );
 }

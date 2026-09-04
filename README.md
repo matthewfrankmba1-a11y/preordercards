@@ -450,9 +450,21 @@ anything, since the email makes no claim about it. `preview` and `test` are
 never gated — you can always look at an issue.
 
 A blocked scheduled run posts a Discord alert (`NEWSLETTER_WEBHOOK_URL`,
-falling back to `DISCORD_WEBHOOK_URL`) once per week/cohort, so a skipped
-week is visible rather than silent. Skipping a week is the intended failure
+falling back to `DISCORD_WEBHOOK_URL`) once per week/cohort, so a held-back
+week is visible rather than silent. Not sending is the intended failure
 direction: better a missed issue than a wrong one.
+
+**Skip this week** calls a week's email off deliberately — a quiet release
+week, a holiday, anything not worth an inbox. It's a separate row
+(`newsletter_week_skips`) rather than a flag on the date check, because
+skipping and confirming are independent: a week can be skipped before anyone
+has checked its dates, and un-skipping must not pass for a confirmation. A
+skip outranks a confirmation, so a week already unlocked stays called off
+until it's un-skipped, and the send refuses at the same choke point every
+other block uses. Because it's deliberate, it logs rather than raising the
+Discord alert, and the scheduled run checks it before building the issue so
+a called-off week doesn't pay for a generated post. The week's blog post
+still publishes on its own schedule — skipping calls off the email only.
 
 Note this gates the *email* only. The blog agent still publishes its post
 from the same data — a wrong date there is correctable in place, which is
