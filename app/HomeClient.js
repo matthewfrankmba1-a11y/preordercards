@@ -77,6 +77,23 @@ function usePageViewCount(initialViews) {
   return views;
 }
 
+// Header links, in order. `hidden` takes one off the homepage without losing
+// it: the page it points at stays reachable by URL and nothing else about it
+// changes, so putting a link back is one flag rather than an archaeology
+// exercise. The two hidden ones came off on 2026-09-08 — four links in the
+// header read as clutter.
+const HEADER_LINKS = [
+  { href: '/success.html', label: 'See Success Stories' },
+  { href: '/marketplace.html', label: 'Browse Marketplace' },
+  {
+    href: 'https://docs.google.com/forms/d/e/1FAIpQLScFl_nJ4tvYHxAmU6X-cQ5RoheIe4GJxTJnbQI5zUxqj4Ea3Q/viewform?usp=sharing&ouid=105723711896896295891',
+    label: 'Submit Slot Details',
+    external: true,
+    hidden: true,
+  },
+  { href: '/pokemon-autocheckout.html', label: 'Pokemon Center Autocheckout', hidden: true },
+];
+
 export default function HomeClient({ initialReleases, initialSourceNote, initialLastUpdated, initialViews }) {
   const pageViews = usePageViewCount(initialViews);
   const now = useSoldOutClock();
@@ -151,10 +168,16 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
           <h1>Topps &amp; Panini Preorder Release Calendar</h1>
           <p className="tagline">Upcoming Topps &amp; Panini Releases, by date. Register your interest, no upfront payment required, pricing guaranteed to be lower than market.</p>
           <div className="header-nav-links">
-            <a className="header-nav-link" href="/success.html">See Success Stories →</a>
-            <a className="header-nav-link" href="/marketplace.html">Browse Marketplace →</a>
-            <a className="header-nav-link" href="https://docs.google.com/forms/d/e/1FAIpQLScFl_nJ4tvYHxAmU6X-cQ5RoheIe4GJxTJnbQI5zUxqj4Ea3Q/viewform?usp=sharing&ouid=105723711896896295891" target="_blank" rel="noopener">Submit Slot Details →</a>
-            <a className="header-nav-link" href="/pokemon-autocheckout.html">Pokemon Center Autocheckout →</a>
+            {HEADER_LINKS.filter((link) => !link.hidden).map((link) => (
+              <a
+                key={link.href}
+                className="header-nav-link"
+                href={link.href}
+                {...(link.external ? { target: '_blank', rel: 'noopener' } : {})}
+              >
+                {link.label} →
+              </a>
+            ))}
           </div>
         </div>
       </header>
