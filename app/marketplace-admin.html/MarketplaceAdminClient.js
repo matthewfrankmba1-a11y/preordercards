@@ -1320,7 +1320,7 @@ function ReleaseCheckList({ title, colour, items, render }) {
   );
 }
 
-function WeekDateCheck() {
+function WeekDateCheck({ onChange }) {
   const [week, setWeek] = useState(null);
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
@@ -1349,9 +1349,13 @@ function WeekDateCheck() {
     if (!ok) {
       setError(data.error || 'That did not work.');
       await load();
+      if (onChange) onChange();
       return;
     }
     setWeek(data);
+    // Confirming or skipping changes whether the send is allowed at all, so
+    // the panel below has to re-read rather than sit on a stale answer.
+    if (onChange) onChange();
   }
 
   if (error && !week) return <div className="status">{error}</div>;
@@ -1475,12 +1479,161 @@ function WeekDateCheck() {
   );
 }
 
+const VARIANT_LABELS = { sunday: 'Sunday cohort', monday: 'Monday cohort' };
+
+// Mails the week's issue on demand, behind the same gate the schedule
+// obeys. Worth having even once the schedule is armed: it's the only way to
+// send while NEWSLETTER_ENABLED is off, to catch up a cohort whose run was
+// cut short, and to retry addresses whose last attempt failed.
+function SendNowPanel({ refreshKey }) {
+  const [state, setState] = useState(null);
+  const [busy, setBusy] = useState('');
+  const [error, setError] = useState('');
+  // The variant waiting on a second click. Mailing a few hundred people is
+  // not undoable, so the button asks once with the count in it.
+  const [confirming, setConfirming] = useState('');
+
+  async function load() {
+    try {
+      const res = await fetch('/api/admin/marketplace/newsletter-send');
+      if (!res.ok) throw new Error('Request failed');
+      setState(await res.json());
+    } catch {
+      setError('Could not load the send status.');
+    }
+  }
+
+  useEffect(() => {
+    load();
+  }, [refreshKey]);
+
+  // A send runs in the background — the request that starts it returns
+  // straight away — so progress arrives by polling rather than in a
+  // response body.
+  const running = Boolean(state && state.running);
+  useEffect(() => {
+    if (!running) return undefined;
+    const timer = setInterval(load, 3000);
+    return () => clearInterval(timer);
+  }, [running]);
+
+  async function send(variant) {
+    setBusy(variant);
+    setError('');
+    const { ok, data } = await postJson('/api/admin/marketplace/newsletter-send', {
+      weekOf: state.weekOf,
+      variant,
+    });
+    setBusy('');
+    setConfirming('');
+    if (!ok) {
+      setError(data.error || 'That did not work.');
+      await load();
+      return;
+    }
+    setState(data);
+  }
+
+  if (!state) return null;
+
+  return (
+    <div className="admin-table-wrap" style={{ padding: '1rem', marginBottom: '1.5rem' }}>
+      <h3 style={{ margin: '0 0 0.25rem' }}>Send this week's issue</h3>
+      <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: '0 0 0.75rem' }}>
+        {state.subject}
+      </p>
+
+      {state.blocker ? (
+        <p style={{ fontSize: '0.85rem', color: '#d9a400', fontWeight: 600, margin: '0 0 0.75rem' }}>
+          {state.blocker}
+        </p>
+      ) : (
+        <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: '0 0 0.75rem' }}>
+          The list is split in half for the A/B test, so each cohort is its own send — mail both to reach everyone.
+          Sending twice is safe: anyone who already got this issue is skipped.
+          {state.scheduleArmed ? '' : ' The weekly schedule is off, so nothing goes out unless you send it here.'}
+        </p>
+      )}
+
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {state.cohorts.map((cohort) => {
+          const done = cohort.remaining === 0;
+          return (
+            <li
+              key={cohort.variant}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '0.6rem',
+                padding: '0.6rem 0',
+                borderTop: '1px solid var(--border)',
+              }}
+            >
+              <div>
+                <strong>{VARIANT_LABELS[cohort.variant] || cohort.variant}</strong>
+                <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>
+                  {cohort.eligible} on the list · {cohort.sent} sent
+                  {cohort.failed > 0 ? ` · ${cohort.failed} failed` : ''}
+                  {done ? '' : ` · ${cohort.remaining} to send`}
+                </div>
+              </div>
+
+              {done ? (
+                <span style={{ fontSize: '0.85rem', color: cohort.eligible === 0 ? 'var(--muted)' : '#1a7f37' }}>
+                  {cohort.eligible === 0 ? 'Nobody in this cohort yet' : 'Everyone has this issue'}
+                </span>
+              ) : confirming === cohort.variant ? (
+                <span style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    className="notify-btn"
+                    disabled={busy === cohort.variant}
+                    onClick={() => send(cohort.variant)}
+                  >
+                    {busy === cohort.variant ? 'Starting…' : `Yes — mail ${cohort.remaining}`}
+                  </button>
+                  <button type="button" className="stock-toggle-btn" onClick={() => setConfirming('')}>
+                    Cancel
+                  </button>
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  className="notify-btn"
+                  disabled={Boolean(state.blocker) || running}
+                  title={state.blocker || (running ? 'A send is already running' : undefined)}
+                  onClick={() => setConfirming(cohort.variant)}
+                >
+                  Send now
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+
+      {running && (
+        <p style={{ fontSize: '0.85rem', margin: '0.75rem 0 0' }}>
+          Sending… this page updates every few seconds. You can leave it — the send finishes on its own and posts to
+          Discord when it's done.
+        </p>
+      )}
+
+      {error && <div className="status">{error}</div>}
+    </div>
+  );
+}
+
 function NewsletterView() {
   const [summary, setSummary] = useState(null);
   const [emails, setEmails] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
+  // Bumped whenever the date check changes, to re-read the send gate.
+  const [weekChanges, setWeekChanges] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -1524,7 +1677,9 @@ function NewsletterView() {
     <>
       <h2 style={{ margin: '1.5rem 0 1rem' }}>Newsletter</h2>
 
-      <WeekDateCheck />
+      <WeekDateCheck onChange={() => setWeekChanges((n) => n + 1)} />
+
+      <SendNowPanel refreshKey={weekChanges} />
 
       <ReleaseCheckPanel />
 

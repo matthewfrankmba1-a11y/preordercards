@@ -525,8 +525,26 @@ has a row for the issue is skipped, so a run cut short by the
 than double-mailing anyone. A row left `failed` (a Resend rate limit or
 timeout, as opposed to a bad mailbox) is the one case that gets retried.
 
-Manual control is `POST /api/admin/newsletter/run` (header `x-admin-secret`),
-with `week` (any date inside the target week) and `limit` as optional extras:
+**Send now** in the Newsletter tab mails the week's issue on demand, behind
+the marketplace admin panel's TOTP session — no `ADMIN_SECRET` in a
+terminal. One button per cohort, each showing how many are on it, how many
+already have the issue and how many are left; the click asks once with the
+count in it (`Yes — mail 412`), since a send isn't undoable. It obeys the
+same gate as the schedule, so it's disabled with the reason shown while the
+week is unconfirmed or skipped, and confirming or un-skipping above
+re-enables it without a reload.
+
+The run happens in the background and the panel polls for progress: a few
+hundred messages spaced by `NEWSLETTER_SEND_DELAY_MS` takes minutes, longer
+than a proxy will hold a request open. Closing the tab doesn't stop it —
+it finishes on its own and posts the Discord notice. Sending a cohort twice
+is safe (anyone with a row for the issue is skipped), which is what makes it
+the way to finish a run cut short by the per-run ceiling, or to retry
+addresses whose last attempt failed.
+
+The same thing over the API is `POST /api/admin/newsletter/run` (header
+`x-admin-secret`), with `week` (any date inside the target week) and `limit`
+as optional extras:
 
 ```bash
 # Assemble this week's issue and see the rendered email. Sends nothing, and
