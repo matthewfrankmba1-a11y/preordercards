@@ -449,10 +449,21 @@ matches what was approved. An excluded release changing doesn't re-lock
 anything, since the email makes no claim about it. `preview` and `test` are
 never gated — you can always look at an issue.
 
-A blocked scheduled run posts a Discord alert (`NEWSLETTER_WEBHOOK_URL`,
-falling back to `DISCORD_WEBHOOK_URL`) once per week/cohort, so a held-back
-week is visible rather than silent. Not sending is the intended failure
-direction: better a missed issue than a wrong one.
+Both outcomes reach Discord (`NEWSLETTER_WEBHOOK_URL`, falling back to
+`DISCORD_WEBHOOK_URL`). A completed send posts a notice with the delivered
+and failed counts and a link to the post it pointed at; a blocked one posts
+the reason, so a held-back week is visible rather than silent. Not sending
+is the intended failure direction: better a missed issue than a wrong one.
+
+The sent notice waits until the cohort is actually finished — a run that hits
+`NEWSLETTER_MAX_PER_RUN` resumes on the next tick, and announcing after the
+first batch would report part of a send as the whole of it. Its counts come
+from `newsletter_sends`, so they're the total across however many runs it
+took. Each notice is claimed in `newsletter_alerts` before it's posted, which
+is durable rather than in-memory: the send hour ticks every five minutes and
+survives restarts, and a second announcement of the same issue would read as
+a double send. A send where every message failed posts as a failure rather
+than as a success, so an all-failed run can't pass for a delivered one.
 
 **Skip this week** calls a week's email off deliberately — a quiet release
 week, a holiday, anything not worth an inbox. It's a separate row
