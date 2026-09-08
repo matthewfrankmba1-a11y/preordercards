@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { todayInTZ } from '../lib/soldOut';
 
 // Generic, original icon per sport (mirrors the header montage) — used to build
 // a placeholder product image since we don't have licensed Topps box photography.
@@ -70,6 +71,15 @@ function formatDate(isoDate) {
 function countText(count) {
   if (!count) return 'Be the first to register interest.';
   return `${count} collector${count === 1 ? '' : 's'} interested so far.`;
+}
+
+// A release that dropped this morning hasn't shipped — it's just closed. The
+// old copy said "already shipped" for everything sold out, which stopped
+// being true once same-day releases started flipping at 2pm.
+function soldOutNote(release) {
+  return release.releaseDate === todayInTZ()
+    ? "Today's drop — registrations are closed."
+    : 'This release has already shipped.';
 }
 
 export default function ReleaseCard({ release, soldOut }) {
@@ -144,7 +154,7 @@ export default function ReleaseCard({ release, soldOut }) {
       <p className="card-desc">{release.description || ''}</p>
       <p className="card-preorder-note">{release.isPreorderOpenDate ? 'This date is when preorders open, not the ship date.' : ''}</p>
       <p className="card-preorder-note">{release.eql ? 'Sold via EQL raffle entry, not first-come-first-served.' : ''}</p>
-      <p className="card-count">{soldOut ? 'This release has already shipped.' : countText(interestCount)}</p>
+      <p className="card-count">{soldOut ? soldOutNote(release) : countText(interestCount)}</p>
 
       <form className="signup-form" onSubmit={handleSubmit}>
         <label className="form-field">

@@ -87,14 +87,31 @@ to resolve regardless: the admin panel showing existing registrations, and
 the secured/not-secured emails that go with them. Someone who registered
 before a release was excluded is still owed an answer.
 
-Any release with a `releaseDate` in the past is automatically shown greyed
-out with a "Sold Out" stamp and a disabled registration form — this is
-computed from today's date at render/request time, not a flag you set
-manually. Add `"soldOut": true` to a release to mark it sold out by hand
-before its date has passed (e.g. it sold out same-day). Both cases get
-identical treatment, and the `POST /api/interest` endpoint rejects
-registrations for either (HTTP 410) server-side, so it can't be bypassed
-by calling the API directly.
+A release stops accepting registrations **from 2pm Eastern on its own
+release day** — not at midnight, which is when it used to flip. In practice
+a drop is claimed the morning it releases, so registering interest in the
+afternoon means registering for something nobody can still get. It's shown
+greyed out with a "Sold Out" stamp and a disabled form from that moment,
+and only the single most recent sold-out release stays on the calendar
+(`MAX_SOLD_OUT_SHOWN`), so today's drop is the one that remains visible
+once it flips.
+
+`lib/soldOut.js` owns the rule and is imported by both the browser and the
+server, so the card and the API can't disagree. Every judgement is anchored
+to `America/New_York` rather than the machine or the visitor: someone in
+California sees the flip at 11am their time, because it's a fact about the
+drop, not about where they're sitting. A page left open re-renders itself at
+2pm and again at midnight, so it can't offer a form the API would reject.
+(This also retires an older inconsistency: the server compared against its
+own clock, which is UTC on Render, so "today" ended at 8pm Eastern there
+while the browser still thought it was open.)
+
+Add `"soldOut": true` to a release to mark it sold out by hand ahead of that
+(e.g. it went in an hour). Both cases get identical treatment, and
+`POST /api/interest` rejects registrations for either (HTTP 410)
+server-side, so it can't be bypassed by calling the API directly. A release
+with no announced date is never auto-sold-out — only the explicit flag can
+do that.
 
 ## Interest registrations
 

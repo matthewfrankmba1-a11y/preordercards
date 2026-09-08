@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { upsertInterest, countByRelease, getInterestByReleaseAndContact, markEmailSent } from '../../../lib/db';
-import { loadListableReleases, todayISO, notifyDiscord, sendConfirmationEmail } from '../../../lib/releases';
+import { loadListableReleases, notifyDiscord, sendConfirmationEmail } from '../../../lib/releases';
+import { isSoldOut } from '../../../lib/soldOut';
 import { EMAIL_RE, normalizePhone, createRateLimiter } from '../../../lib/utils';
 import bot from '../../../lib/bot';
 
@@ -26,9 +27,9 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Unknown release.' }, { status: 404 });
   }
 
-  if (release.releaseDate < todayISO() || release.soldOut === true) {
+  if (isSoldOut(release)) {
     return NextResponse.json(
-      { error: 'This release has already shipped and is no longer accepting registrations.' },
+      { error: 'This release is no longer accepting registrations.' },
       { status: 410 }
     );
   }

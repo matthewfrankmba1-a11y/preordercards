@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { checkAdminSecret } from '../../../../lib/utils';
-import { loadReleases, todayISO, sendDropReminderEmail } from '../../../../lib/releases';
+import { loadReleases, sendDropReminderEmail } from '../../../../lib/releases';
+import { isSoldOut } from '../../../../lib/soldOut';
 import { getPendingReminderInterestsByRelease, markReminderSent } from '../../../../lib/db';
 
 // Batch-sends the "drop is coming up" reminder to everyone who registered
@@ -22,7 +23,7 @@ export async function POST(request) {
   if (!release) {
     return NextResponse.json({ error: 'Release not found.' }, { status: 404 });
   }
-  if (release.soldOut === true || release.releaseDate < todayISO()) {
+  if (isSoldOut(release)) {
     return NextResponse.json({ error: 'This release is already sold out or past its release date.' }, { status: 400 });
   }
 

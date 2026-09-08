@@ -3,24 +3,30 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import DiscountBanner from './DiscountBanner';
 import ReleaseCard from './ReleaseCard';
+import { hasKnownDate, isSoldOut, msUntilNextChange } from '../lib/soldOut';
 
-function todayISO() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
+// Re-renders when the sold-out answer changes underneath a page that's just
+// sitting open — 2pm Eastern, when the day's releases flip, and midnight,
+// when the next day's become current. Without this, someone who opened the
+// page at 1:55 could still register at 2:05 against a card that says the
+// release is available; the API would reject it, which is a worse way to
+// find out.
+function useSoldOutClock() {
+  const [now, setNow] = useState(() => new Date());
 
-function hasKnownDate(release) {
-  return typeof release.releaseDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(release.releaseDate);
-}
+  useEffect(() => {
+    let timer;
+    const schedule = () => {
+      timer = setTimeout(() => {
+        setNow(new Date());
+        schedule();
+      }, msUntilNextChange());
+    };
+    schedule();
+    return () => clearTimeout(timer);
+  }, []);
 
-// A release with no announced date can't be in the past, so it's never
-// auto-marked sold out — only an explicit flag can do that.
-function isSoldOut(release) {
-  if (!hasKnownDate(release)) return release.soldOut === true;
-  return release.releaseDate < todayISO() || release.soldOut === true;
+  return now;
 }
 
 // Cap how many sold-out cards ever appear at once, so the page doesn't read as
@@ -28,10 +34,10 @@ function isSoldOut(release) {
 // sold-out releases are dropped from the listing entirely.
 const MAX_SOLD_OUT_SHOWN = 1;
 
-function limitSoldOut(releases) {
-  const active = releases.filter((r) => !isSoldOut(r));
+function limitSoldOut(releases, now) {
+  const active = releases.filter((r) => !isSoldOut(r, now));
   const soldOut = releases
-    .filter((r) => isSoldOut(r))
+    .filter((r) => isSoldOut(r, now))
     .sort((a, b) => b.releaseDate.localeCompare(a.releaseDate))
     .slice(0, MAX_SOLD_OUT_SHOWN);
   return [...active, ...soldOut];
@@ -73,7 +79,14 @@ function usePageViewCount(initialViews) {
 
 export default function HomeClient({ initialReleases, initialSourceNote, initialLastUpdated, initialViews }) {
   const pageViews = usePageViewCount(initialViews);
-  const [allReleases] = useState(() => (initialReleases ? limitSoldOut(initialReleases) : null));
+  const now = useSoldOutClock();
+  // Recomputed against the clock rather than pinned at first render: which
+  // releases count as sold out — and so which single sold-out card is the
+  // one still shown — changes at 2pm and again at midnight.
+  const allReleases = useMemo(
+    () => (initialReleases ? limitSoldOut(initialReleases, now) : null),
+    [initialReleases, now]
+  );
   const [error] = useState(!initialReleases);
   const [sourceNote] = useState(() =>
     initialSourceNote ? `${initialSourceNote} Last updated ${initialLastUpdated}.` : ''
@@ -100,10 +113,10 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
     if (brandFilter !== 'all') result = result.filter((r) => (r.manufacturer || 'Topps') === brandFilter);
     if (sportFilter !== 'all') result = result.filter((r) => r.sport === sportFilter);
     if (inStockOnly) {
-      result = result.filter((r) => !isSoldOut(r));
+      result = result.filter((r) => !isSoldOut(r, now));
     }
     return result;
-  }, [allReleases, brandFilter, sportFilter, inStockOnly]);
+  }, [allReleases, brandFilter, sportFilter, inStockOnly, now]);
 
   // Dated releases first in date order, then the undated ones alphabetically
   // — they belong on the calendar but can't be placed on it.
@@ -196,7 +209,7 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
             return (
               <div key={release.id} style={{ display: 'contents' }}>
                 {showGroup && <div className="date-group">{groupLabel}</div>}
-                <ReleaseCard release={release} soldOut={isSoldOut(release)} />
+                <ReleaseCard release={release} soldOut={isSoldOut(release, now)} />
               </div>
             );
           })}
