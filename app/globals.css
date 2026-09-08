@@ -9,6 +9,13 @@
   --muted: #6b7280;
   --border: #e3e5ea;
   --radius: 10px;
+
+  /* Header banner tint — the gradient blended over banner.webp and the scrim
+     beneath the text. Kept apart from --navy, which 16 other rules use, so
+     re-colouring the header can't restyle buttons and badges by accident. */
+  --header-tint-top: #131a3e;
+  --header-tint-bottom: #24406f;
+  --header-scrim-rgb: 14, 22, 52;
 }
 
 * { box-sizing: border-box; }
@@ -37,7 +44,7 @@ body {
   min-height: 340px;
   display: flex;
   align-items: flex-end;
-  background: linear-gradient(135deg, var(--navy), var(--navy-light)), url('/images/banner.webp');
+  background: linear-gradient(135deg, var(--header-tint-top), var(--header-tint-bottom)), url('/images/banner.webp');
   background-size: cover;
   background-position: center top;
   background-blend-mode: overlay;
@@ -64,9 +71,9 @@ body {
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(11, 31, 58, 0.1) 0%,
-    rgba(11, 31, 58, 0.55) 55%,
-    rgba(11, 31, 58, 0.95) 100%
+    rgba(var(--header-scrim-rgb), 0.1) 0%,
+    rgba(var(--header-scrim-rgb), 0.55) 55%,
+    rgba(var(--header-scrim-rgb), 0.95) 100%
   );
   pointer-events: none;
 }
