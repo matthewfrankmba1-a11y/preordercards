@@ -113,6 +113,24 @@ body {
   border-bottom-color: #fff;
 }
 
+/* Homepage only. Its header is the front door — title, tagline and links read
+   as one centered block there — while the inner pages keep their left-aligned
+   headers, where the text sits above left-aligned content. */
+.site-header.header-centered .header-content {
+  text-align: center;
+}
+
+.site-header.header-centered .tagline {
+  /* The tagline keeps its 640px measure; these centre that block rather than
+     letting it sit against the left edge of a centered header. */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.site-header.header-centered .header-nav-links {
+  justify-content: center;
+}
+
 @media (max-width: 640px) {
   .site-header { min-height: 260px; }
 }

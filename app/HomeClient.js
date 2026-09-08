@@ -162,7 +162,7 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
     <>
       <DiscountBanner />
 
-      <header className="site-header">
+      <header className="site-header header-centered">
         <div className="header-scrim"></div>
         <div className="wrap header-content">
           <h1>Topps &amp; Panini Preorder Release Calendar</h1>
