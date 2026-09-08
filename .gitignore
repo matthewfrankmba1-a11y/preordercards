@@ -3,5 +3,6 @@ node_modules/
 data/preorders.db
 data/preorders.db-shm
 data/preorders.db-wal
+data/success/
 .DS_Store
 .env

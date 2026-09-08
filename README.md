@@ -211,10 +211,31 @@ access when prompted).
 
 ## Success stories page
 
-`/success.html` shows a photo grid of order screenshots. Drop image files
-(`.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`) into `public/success/` and they
-appear automatically, newest first — `GET /api/success-photos` lists
-whatever's in that folder at request time, no manifest file to maintain.
+`/success.html` shows a photo grid of order screenshots, newest first.
+`GET /api/success-photos` lists what's there at request time — no manifest
+file to maintain — and there are two ways in:
+
+- **The Success Stories tab** in the marketplace admin panel. Pick files (up
+  to 10 at a time, 8MB each) and they're live immediately, which is the point:
+  a confirmation can go up from a phone the moment it lands, with no commit
+  and no deploy. Each one gets a **Remove** button.
+- **`public/success/`** in the repo, as before. Drop `.jpg`, `.jpeg`, `.png`,
+  `.gif` or `.webp` files in and they appear on the next deploy. These show in
+  the admin grid too, marked as repo files with no Remove button — deleting
+  one at runtime would only last until the next deploy restores it.
+
+Uploads are written to `$DATA_DIR/success` (the mounted disk on Render), not
+into `public/`, which is part of the deploy and replaced by it. They're
+served by `GET /api/success-photos/<name>` rather than the static handler,
+since nothing outside the bundle is served on its own.
+
+What an upload is allowed to be is decided from the file's own bytes, never
+from its name or the browser's claimed type: PNG, JPEG, GIF and WebP only,
+and the stored name is a random digest plus the extension those bytes imply.
+SVG is deliberately excluded — it can carry script, and these are displayed
+on a public page from our own origin. The serving route sends the sniffed
+type with `nosniff`, so a file that lied about itself can't be talked into
+executing.
 
 ## Seller marketplace
 

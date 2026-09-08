@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 async function postJson(url, body, extraHeaders) {
   const res = await fetch(url, {
@@ -1758,12 +1758,165 @@ function NewsletterView() {
   );
 }
 
+// Success Stories page uploads. Photos land on the mounted data disk rather
+// than in public/, so they survive a redeploy — and so an order confirmation
+// can go up from a phone the moment it arrives, without a commit.
+function SuccessStoriesView() {
+  const [photos, setPhotos] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [rejected, setRejected] = useState([]);
+  const inputRef = useRef(null);
+
+  async function load() {
+    try {
+      const res = await fetch('/api/admin/marketplace/success-photos');
+      if (!res.ok) throw new Error('Request failed');
+      const data = await res.json();
+      setPhotos(data.photos);
+    } catch {
+      setError('Could not load the success photos.');
+    }
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function handleUpload(e) {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setBusy(true);
+    setError('');
+    setRejected([]);
+
+    const body = new FormData();
+    files.forEach((file) => body.append('photos', file));
+
+    try {
+      // Not postJson: this is multipart, and setting Content-Type by hand
+      // would strip the boundary the browser generates.
+      const res = await fetch('/api/admin/marketplace/success-photos', { method: 'POST', body });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) setError(data.error || 'Those files could not be uploaded.');
+      else {
+        setPhotos(data.photos);
+        setRejected(data.rejected || []);
+      }
+    } catch {
+      setError('Those files could not be uploaded.');
+    }
+
+    setBusy(false);
+    // Clear the input so picking the same file again still fires a change.
+    if (inputRef.current) inputRef.current.value = '';
+  }
+
+  async function handleDelete(photo) {
+    if (!window.confirm('Remove this photo from the Success Stories page?')) return;
+    setError('');
+    const res = await fetch(`/api/admin/marketplace/success-photos?filename=${encodeURIComponent(photo.filename)}`, {
+      method: 'DELETE',
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setError(data.error || 'That photo could not be removed.');
+      return;
+    }
+    setPhotos(data.photos);
+  }
+
+  return (
+    <>
+      <h2 style={{ margin: '1.5rem 0 0.5rem' }}>Success Stories</h2>
+      <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: '0 0 1rem' }}>
+        Order confirmation screenshots for{' '}
+        <a href="/success.html" target="_blank" rel="noopener noreferrer">
+          the Success Stories page
+        </a>
+        . Newest first — an upload goes live immediately, no deploy needed. PNG, JPEG, GIF or WebP, up to 8MB each.
+      </p>
+
+      <label className="notify-btn" style={{ display: 'inline-block', cursor: busy ? 'default' : 'pointer' }}>
+        {busy ? 'Uploading…' : 'Upload screenshots'}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/gif,image/webp"
+          multiple
+          disabled={busy}
+          onChange={handleUpload}
+          style={{ display: 'none' }}
+        />
+      </label>
+
+      {error && <div className="status">{error}</div>}
+
+      {rejected.length > 0 && (
+        <ul style={{ listStyle: 'none', padding: 0, margin: '0.75rem 0 0' }}>
+          {rejected.map((row) => (
+            <li key={row.name} style={{ fontSize: '0.85rem', color: '#b3261e' }}>
+              {row.name} — {row.error}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {photos === null ? (
+        <p style={{ color: 'var(--muted)' }}>Loading…</p>
+      ) : photos.length === 0 ? (
+        <p style={{ color: 'var(--muted)' }}>Nothing posted yet.</p>
+      ) : (
+        <>
+          <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: '1rem 0 0.5rem' }}>
+            {photos.length} on the page · {photos.filter((p) => p.uploaded).length} uploaded here
+          </p>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+              gap: '0.75rem',
+            }}
+          >
+            {photos.map((photo) => (
+              <div key={photo.url} className="admin-table-wrap" style={{ padding: '0.5rem' }}>
+                <img
+                  src={photo.url}
+                  alt=""
+                  loading="lazy"
+                  style={{ width: '100%', height: '130px', objectFit: 'contain', background: '#fff' }}
+                />
+                {photo.uploaded ? (
+                  <button
+                    type="button"
+                    className="stock-toggle-btn"
+                    style={{ width: '100%', marginTop: '0.4rem' }}
+                    onClick={() => handleDelete(photo)}
+                  >
+                    Remove
+                  </button>
+                ) : (
+                  <p style={{ fontSize: '0.7rem', color: 'var(--muted)', margin: '0.4rem 0 0', textAlign: 'center' }}>
+                    In the repo — delete it there
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
 const TABS = [
   { id: 'sellers', label: 'Sellers' },
   { id: 'preorders', label: 'Preorder Registrations' },
   { id: 'listingInterests', label: 'Marketplace Buyer Interest' },
   { id: 'discountSignups', label: 'Discount Signups' },
   { id: 'newsletter', label: 'Newsletter List' },
+  { id: 'success', label: 'Success Stories' },
 ];
 
 function Dashboard({ onLoggedOut }) {
@@ -1797,6 +1950,7 @@ function Dashboard({ onLoggedOut }) {
       {tab === 'listingInterests' && <ListingInterestsView />}
       {tab === 'discountSignups' && <DiscountSignupsView />}
       {tab === 'newsletter' && <NewsletterView />}
+      {tab === 'success' && <SuccessStoriesView />}
     </>
   );
 }
