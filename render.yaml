@@ -35,6 +35,8 @@ services:
         sync: false
       - key: VERIFIED_SELLER_WEBHOOK_URL
         sync: false
+      - key: PREORDER_REQUEST_WEBHOOK_URL
+        sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: BLOG_AGENT_WEBHOOK_URL

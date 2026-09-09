@@ -1758,6 +1758,139 @@ function NewsletterView() {
   );
 }
 
+// Special preorder requests — someone asking for a product that isn't on
+// the calendar. They come through Discord as they land; this is the record
+// that outlives the channel, and where each one gets marked off.
+function PreorderRequestsView() {
+  const [requests, setRequests] = useState(null);
+  const [error, setError] = useState('');
+  const [busyId, setBusyId] = useState(null);
+  const [showHandled, setShowHandled] = useState(false);
+
+  async function load() {
+    try {
+      const res = await fetch('/api/admin/marketplace/preorder-requests');
+      if (!res.ok) throw new Error('Request failed');
+      const data = await res.json();
+      setRequests(data.requests);
+    } catch {
+      setError('Could not load preorder requests.');
+    }
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function act(row, payload, confirmText) {
+    if (confirmText && !window.confirm(confirmText)) return;
+    setBusyId(row.id);
+    setError('');
+    const { ok, data } = await postJson('/api/admin/marketplace/preorder-requests', { id: row.id, ...payload });
+    setBusyId(null);
+    if (!ok) {
+      setError(data.error || 'That did not work.');
+      return;
+    }
+    setRequests(data.requests);
+  }
+
+  if (error && !requests) return <div className="status">{error}</div>;
+  if (!requests) return <p style={{ color: 'var(--muted)' }}>Loading requests…</p>;
+
+  const open = requests.filter((r) => !r.handled);
+  const handled = requests.filter((r) => r.handled);
+  const shown = showHandled ? requests : open;
+
+  return (
+    <>
+      <h2 style={{ margin: '1.5rem 0 0.5rem' }}>Preorder Requests</h2>
+      <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: '0 0 1rem' }}>
+        Submitted from{' '}
+        <a href="/request-preorder.html" target="_blank" rel="noopener noreferrer">
+          the Request a Preorder page
+        </a>{' '}
+        — products people want that aren't on the calendar.{' '}
+        <strong style={{ color: 'var(--text)' }}>{open.length}</strong> open ·{' '}
+        <strong style={{ color: 'var(--text)' }}>{handled.length}</strong> handled.
+      </p>
+
+      {handled.length > 0 && (
+        <button
+          type="button"
+          className="stock-toggle-btn"
+          style={{ marginBottom: '1rem' }}
+          onClick={() => setShowHandled((v) => !v)}
+        >
+          {showHandled ? 'Hide handled' : `Show handled (${handled.length})`}
+        </button>
+      )}
+
+      {error && <div className="status">{error}</div>}
+
+      {shown.length === 0 ? (
+        <p style={{ color: 'var(--muted)' }}>
+          {requests.length === 0 ? 'No requests yet.' : 'Nothing open — everything has been handled.'}
+        </p>
+      ) : (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {shown.map((row) => (
+            <li
+              key={row.id}
+              className="admin-table-wrap"
+              style={{ padding: '0.9rem 1rem', marginBottom: '0.75rem', opacity: row.handled ? 0.6 : 1 }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+                <div style={{ minWidth: '260px', flex: 1 }}>
+                  <strong style={{ textDecoration: row.handled ? 'line-through' : 'none' }}>{row.product}</strong>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '0.2rem' }}>
+                    Qty {row.quantity} · {row.contactType === 'email' ? 'Email' : 'Phone'}:{' '}
+                    <a href={`${row.contactType === 'email' ? 'mailto:' : 'tel:'}${row.contactValue}`}>
+                      {row.contactValue}
+                    </a>{' '}
+                    · {formatTimestamp(row.createdAt)}
+                    {row.handled ? ` · handled ${formatTimestamp(row.handledAt)}` : ''}
+                  </div>
+                  {row.notes && (
+                    // Plain text, rendered as text: this is whatever a
+                    // stranger typed into a public form.
+                    <p style={{ fontSize: '0.85rem', margin: '0.5rem 0 0', whiteSpace: 'pre-wrap' }}>{row.notes}</p>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                  <button
+                    type="button"
+                    className="stock-toggle-btn"
+                    disabled={busyId === row.id}
+                    onClick={() => act(row, { action: 'handled', handled: !row.handled })}
+                  >
+                    {row.handled ? 'Reopen' : 'Mark handled'}
+                  </button>
+                  <button
+                    type="button"
+                    className="stock-toggle-btn"
+                    disabled={busyId === row.id}
+                    onClick={() =>
+                      act(
+                        row,
+                        { action: 'delete' },
+                        `Permanently delete this request (${row.contactValue} — ${row.product})? This is for test records only and can't be undone.`
+                      )
+                    }
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+}
+
 // Success Stories page uploads. Photos land on the mounted data disk rather
 // than in public/, so they survive a redeploy — and so an order confirmation
 // can go up from a phone the moment it arrives, without a commit.
@@ -1913,6 +2046,7 @@ function SuccessStoriesView() {
 const TABS = [
   { id: 'sellers', label: 'Sellers' },
   { id: 'preorders', label: 'Preorder Registrations' },
+  { id: 'preorderRequests', label: 'Preorder Requests' },
   { id: 'listingInterests', label: 'Marketplace Buyer Interest' },
   { id: 'discountSignups', label: 'Discount Signups' },
   { id: 'newsletter', label: 'Newsletter List' },
@@ -1947,6 +2081,7 @@ function Dashboard({ onLoggedOut }) {
 
       {tab === 'sellers' && <SellersView />}
       {tab === 'preorders' && <PreorderRegistrationsView />}
+      {tab === 'preorderRequests' && <PreorderRequestsView />}
       {tab === 'listingInterests' && <ListingInterestsView />}
       {tab === 'discountSignups' && <DiscountSignupsView />}
       {tab === 'newsletter' && <NewsletterView />}

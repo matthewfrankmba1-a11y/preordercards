@@ -134,6 +134,25 @@ should never be committed). A person can register once per release —
 resubmitting updates the quantity instead of erroring. A simple in-memory
 rate limiter caps requests per IP.
 
+## Preorder requests
+
+`/request-preorder.html` is for what the calendar doesn't cover — an older
+release, a case instead of a box, a brand we don't track. `POST
+/api/request-preorder` takes a free-text product, a quantity, an email or
+phone number and optional notes; there's no release id to validate against,
+since the whole point is that we don't have an entry for it yet.
+
+Each request posts to Discord (`PREORDER_REQUEST_WEBHOOK_URL`, falling back
+to `DISCORD_WEBHOOK_URL`) and is stored in `preorder_requests`. The alert
+sets `allowed_mentions: { parse: [] }`: every field in it is text a stranger
+typed into a public form, and without that an `@everyone` in the product box
+would ping the whole server.
+
+The **Preorder Requests** tab in the marketplace admin panel is the record
+that outlives the Discord scrollback — open ones first, each with **Mark
+handled** (reversible) and **Delete** for test rows. Nothing is deduplicated:
+two people asking for the same box are two requests to answer.
+
 ## Discord bot (interest alerts + manual email send)
 
 Every registration posts an alert to Discord with the release, sport,
@@ -521,9 +540,9 @@ why it isn't held to the same bar.
 
 **Who gets it.** Everyone who has given the site an email address:
 `discount_signups` (the homepage banner and `/newsletter.html`) plus anyone
-who registered interest in a release or a marketplace listing. The interest
-form says so under the email field before the address is submitted, and the
-registration confirmation email repeats it — a list this broad is only fair
+who registered interest in a release or a marketplace listing, or sent a
+preorder request. Each of those forms says so under the email field before
+the address is submitted, and the registration confirmation email repeats it — a list this broad is only fair
 if people are told at the point of collection, not after. Set
 `NEWSLETTER_AUDIENCE=signups` to narrow it back to just the two dedicated
 signup forms.

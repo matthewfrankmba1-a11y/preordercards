@@ -85,6 +85,7 @@ function usePageViewCount(initialViews) {
 const HEADER_LINKS = [
   { href: '/success.html', label: 'See Success Stories' },
   { href: '/marketplace.html', label: 'Browse Marketplace' },
+  { href: '/request-preorder.html', label: 'Request Preorder' },
   {
     href: 'https://docs.google.com/forms/d/e/1FAIpQLScFl_nJ4tvYHxAmU6X-cQ5RoheIe4GJxTJnbQI5zUxqj4Ea3Q/viewform?usp=sharing&ouid=105723711896896295891',
     label: 'Submit Slot Details',
