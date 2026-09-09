@@ -1844,7 +1844,11 @@ function PreorderRequestsView() {
                 <div style={{ minWidth: '260px', flex: 1 }}>
                   <strong style={{ textDecoration: row.handled ? 'line-through' : 'none' }}>{row.product}</strong>
                   <div style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '0.2rem' }}>
-                    Qty {row.quantity} · {row.contactType === 'email' ? 'Email' : 'Phone'}:{' '}
+                    Qty {row.quantity}
+                    {/* The customer's own claim about the release date — labelled as
+                        theirs, since nothing here verifies it. */}
+                    {row.releaseDate ? ` · out ${row.releaseDate} (per customer)` : ''} ·{' '}
+                    {row.contactType === 'email' ? 'Email' : 'Phone'}:{' '}
                     <a href={`${row.contactType === 'email' ? 'mailto:' : 'tel:'}${row.contactValue}`}>
                       {row.contactValue}
                     </a>{' '}

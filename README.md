@@ -136,11 +136,18 @@ rate limiter caps requests per IP.
 
 ## Preorder requests
 
-`/request-preorder.html` is for what the calendar doesn't cover — an older
-release, a case instead of a box, a brand we don't track. `POST
-/api/request-preorder` takes a free-text product, a quantity, an email or
-phone number and optional notes; there's no release id to validate against,
-since the whole point is that we don't have an entry for it yet.
+`/request-preorder.html` is for what the calendar doesn't cover, and not
+only cards — a signed record, a console anniversary edition, a sealed case,
+an older release, a brand we don't track. `POST /api/request-preorder` takes
+a free-text product, a quantity, an email or phone number, and optionally a
+release date and notes; there's no release id to validate against, since the
+whole point is that we don't have an entry for it yet.
+
+The release date is the customer's claim, not ours — it's labelled that way
+in Discord and in the admin list, and nothing on the site is scheduled off
+it. It's validated by round-tripping through `Date`, which rejects a
+well-formed date that doesn't exist (`2026-02-31`) as well as a malformed
+one.
 
 Each request posts to Discord (`PREORDER_REQUEST_WEBHOOK_URL`, falling back
 to `DISCORD_WEBHOOK_URL`) and is stored in `preorder_requests`. The alert

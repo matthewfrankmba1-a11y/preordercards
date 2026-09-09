@@ -8,6 +8,7 @@ export default function RequestPreorderForm() {
   const [contactType, setContactType] = useState('email');
   const [contactValue, setContactValue] = useState('');
   const [notes, setNotes] = useState('');
+  const [releaseDate, setReleaseDate] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
@@ -21,7 +22,7 @@ export default function RequestPreorderForm() {
       const res = await fetch('/api/request-preorder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product, quantity, contactType, contactValue, notes }),
+        body: JSON.stringify({ product, quantity, contactType, contactValue, notes, releaseDate }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -64,7 +65,7 @@ export default function RequestPreorderForm() {
         id="request-product"
         className="contact-input"
         style={{ width: '100%', marginBottom: '1rem' }}
-        placeholder="2026 Topps Chrome Baseball — Hobby Box"
+        placeholder="Taylor Swift signed vinyl, Xbox 25th Anniversary Edition…"
         maxLength={200}
         required
         value={product}
@@ -87,6 +88,21 @@ export default function RequestPreorderForm() {
           </option>
         ))}
       </select>
+
+      <label className="form-label" htmlFor="request-release-date">
+        When does it come out? <span style={{ fontWeight: 400, color: 'var(--muted)' }}>(optional)</span>
+      </label>
+      <input
+        id="request-release-date"
+        className="contact-input"
+        type="date"
+        style={{ marginBottom: '0.3rem' }}
+        value={releaseDate}
+        onChange={(e) => setReleaseDate(e.target.value)}
+      />
+      <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0 0 1rem' }}>
+        Only if you know it — leave it blank and we'll find out.
+      </p>
 
       <label className="form-label">How should we reach you?</label>
       <div style={{ display: 'flex', gap: '0.5rem', margin: '0.4rem 0 0.6rem' }}>
@@ -132,7 +148,7 @@ export default function RequestPreorderForm() {
         rows={4}
         maxLength={1000}
         style={{ width: '100%', marginBottom: '1rem', fontFamily: 'inherit', resize: 'vertical' }}
-        placeholder="A price you have in mind, a release window, a specific configuration…"
+        placeholder="A price you have in mind, a specific edition, signed or unsigned…"
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
       />

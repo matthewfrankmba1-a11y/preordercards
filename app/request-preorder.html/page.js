@@ -3,7 +3,7 @@ import RequestPreorderForm from './RequestPreorderForm';
 export const metadata = {
   title: 'Request a Preorder — PreorderCards',
   description:
-    "Looking for a trading card release that isn't on our calendar? Tell us what you want and we'll try to secure it — free to ask, no upfront payment.",
+    "Want something we don't list — a signed record, a console edition, an older release? Tell us what you're after and we'll try to secure it. Free to ask, no upfront payment.",
 };
 
 export default function RequestPreorderPage() {
@@ -14,7 +14,7 @@ export default function RequestPreorderPage() {
         <div className="wrap header-content">
           <h1>Request a Preorder</h1>
           <p className="tagline">
-            Want something that isn't on the calendar? Tell us what you're after and we'll try to secure it.
+            Cards or not — tell us what you're after and we'll try to secure it.
           </p>
           <a className="header-nav-link" href="/">← Back to Releases</a>
         </div>
@@ -23,9 +23,9 @@ export default function RequestPreorderPage() {
       <main className="wrap">
         <article className="legal" style={{ paddingBottom: '0.5rem' }}>
           <p>
-            The calendar covers Topps and Panini releases we track. If what you want isn't there — an older release, a
-            different configuration, a case rather than a box, or a brand we don't list — send it through and we'll tell
-            you whether we can get it and what it would cost.
+            The calendar covers the Topps and Panini releases we track. This form is for everything else — a signed
+            record, a console anniversary edition, a sealed case, an older release, a brand we don't list. Send it
+            through and we'll tell you whether we can get it and what it would cost.
           </p>
           <p>
             <strong>Asking costs nothing.</strong> No payment is collected here and nothing is committed on your side.

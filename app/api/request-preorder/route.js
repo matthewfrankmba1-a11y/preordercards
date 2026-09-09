@@ -20,7 +20,7 @@ export async function POST(request) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const { product, contactType, contactValue, quantity, notes } = body || {};
+  const { product, contactType, contactValue, quantity, notes, releaseDate } = body || {};
 
   const productText = String(product || '').trim();
   if (productText.length < 3 || productText.length > MAX_PRODUCT) {
@@ -33,6 +33,24 @@ export async function POST(request) {
   const notesText = String(notes || '').trim();
   if (notesText.length > MAX_NOTES) {
     return NextResponse.json({ error: `Keep the details under ${MAX_NOTES} characters.` }, { status: 400 });
+  }
+
+  // Optional, and the customer's claim rather than ours — nothing is
+  // scheduled off it. Round-tripping through Date catches a well-formed date
+  // that doesn't exist, like 2026-02-31, which the regex alone would pass.
+  const dateText = String(releaseDate || '').trim();
+  let requestedDate = null;
+  if (dateText) {
+    // The round-trip catches a well-formed date that doesn't exist, like
+    // 2026-02-31. The isNaN check has to come first: a month of 13 makes an
+    // Invalid Date, whose toISOString() throws rather than returning
+    // something that fails the comparison.
+    const parsed = /^\d{4}-\d{2}-\d{2}$/.test(dateText) ? new Date(`${dateText}T00:00:00Z`) : null;
+    const valid = parsed && !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === dateText;
+    if (!valid) {
+      return NextResponse.json({ error: 'That release date is not a valid date.' }, { status: 400 });
+    }
+    requestedDate = dateText;
   }
 
   const qty = quantity === undefined || quantity === '' ? 1 : Number(quantity);
@@ -66,16 +84,24 @@ export async function POST(request) {
     contactType,
     contactValue: normalizedValue,
     notes: notesText,
+    releaseDate: requestedDate,
   });
 
   // Fire-and-forget, like the interest alert: a webhook hiccup must not fail
   // a request we've already recorded.
-  notifyPreorderRequest({ product: productText, quantity: qty, contactType, contactValue: normalizedValue, notes: notesText });
+  notifyPreorderRequest({
+    product: productText,
+    quantity: qty,
+    contactType,
+    contactValue: normalizedValue,
+    notes: notesText,
+    releaseDate: requestedDate,
+  });
 
   return NextResponse.json({ success: true }, { status: 201 });
 }
 
-async function notifyPreorderRequest({ product, quantity, contactType, contactValue, notes }) {
+async function notifyPreorderRequest({ product, quantity, contactType, contactValue, notes, releaseDate }) {
   const webhook = process.env.PREORDER_REQUEST_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL;
   if (!webhook) return;
 
@@ -84,6 +110,7 @@ async function notifyPreorderRequest({ product, quantity, contactType, contactVa
     { name: 'Quantity', value: String(quantity), inline: true },
     { name: contactType === 'email' ? 'Email' : 'Phone', value: contactValue, inline: true },
   ];
+  if (releaseDate) fields.push({ name: 'Release date (per customer)', value: releaseDate, inline: true });
   if (notes) fields.push({ name: 'Details', value: notes });
 
   try {
