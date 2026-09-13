@@ -87,6 +87,14 @@ const HEADER_LINKS = [
   { href: '/marketplace.html', label: 'Browse Marketplace' },
   { href: '/request-preorder.html', label: 'Request Preorder' },
   {
+    href: 'https://midvalebox.com/products/cardshell-mailers-rigid-paperboard-trading-card-envelopes-pack-of-50',
+    label: 'Cardshell Mailers',
+    external: true,
+    // Picked out in the banner gold so it reads as a different kind of link
+    // from the site's own pages — it leaves for someone else's shop.
+    accent: true,
+  },
+  {
     href: 'https://docs.google.com/forms/d/e/1FAIpQLScFl_nJ4tvYHxAmU6X-cQ5RoheIe4GJxTJnbQI5zUxqj4Ea3Q/viewform?usp=sharing&ouid=105723711896896295891',
     label: 'Submit Slot Details',
     external: true,
@@ -172,7 +180,7 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
             {HEADER_LINKS.filter((link) => !link.hidden).map((link) => (
               <a
                 key={link.href}
-                className="header-nav-link"
+                className={`header-nav-link${link.accent ? ' accent' : ''}`}
                 href={link.href}
                 {...(link.external ? { target: '_blank', rel: 'noopener' } : {})}
               >

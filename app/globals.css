@@ -120,6 +120,17 @@ body {
   border-bottom-color: #fff;
 }
 
+/* The same gold the discount banner highlights with, so an off-site link
+   stands out from the site's own pages without introducing a new colour. */
+.header-nav-link.accent {
+  color: #ffd166;
+  border-bottom-color: rgba(255, 209, 102, 0.5);
+}
+
+.header-nav-link.accent:hover {
+  border-bottom-color: #ffd166;
+}
+
 /* Homepage only. Its header is the front door — title, tagline and links read
    as one centered block there — while the inner pages keep their left-aligned
    headers, where the text sits above left-aligned content. */
