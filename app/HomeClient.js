@@ -293,6 +293,10 @@ export default function HomeClient({ initialReleases, initialSourceNote, initial
           <p className="disclaimer" style={{ marginBottom: '0.5rem' }}>
             Release dates are compiled from public trackers including <a href="https://www.beckett.com/" target="_blank" rel="noopener">Beckett</a> and Waxstat — always confirm on Topps.com before buying.
           </p>
+          <p className="disclaimer" style={{ marginBottom: '0.5rem' }}>
+            Some links here, including Cardshell Mailers, are partner links — we may be paid a commission if you buy
+            through them, at no extra cost to you. We only link to products we'd use ourselves.
+          </p>
           <p className="disclaimer">
             This site is an independent release-tracking and interest-registration service.
             It is not affiliated with, endorsed by, or sponsored by Topps, MLB, the NBA, the NFL,
