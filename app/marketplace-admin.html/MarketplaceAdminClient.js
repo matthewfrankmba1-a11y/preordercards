@@ -1758,6 +1758,219 @@ function NewsletterView() {
   );
 }
 
+// Composing a one-off message to a customer from the admin@ mailbox.
+// Not a mailing tool: the recipient cap and the absence of any list-picker
+// are the point — mailing everyone is the newsletter's job, and it carries
+// the unsubscribe machinery that goes with it.
+function EmailView() {
+  const [state, setState] = useState(null);
+  const [to, setTo] = useState('');
+  const [subject, setSubject] = useState('');
+  const [body, setBody] = useState('');
+  const [allowUnsubscribed, setAllowUnsubscribed] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
+  const [result, setResult] = useState(null);
+
+  // Re-checked as the recipient box is edited, so an unsubscribed address is
+  // flagged before the send rather than reported after it.
+  useEffect(() => {
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      fetch(`/api/admin/marketplace/email?check=${encodeURIComponent(to)}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!cancelled && data) setState(data);
+        })
+        .catch(() => {
+          if (!cancelled) setError('Could not load the email panel.');
+        });
+    }, to ? 400 : 0);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [to]);
+
+  // What will actually go out — an unsubscribed address is skipped unless
+  // the box below is ticked, so counting every valid address would promise
+  // more sends than the server will make.
+  function sendCount() {
+    if (!state) return 0;
+    const { valid, unsubscribed } = state.recipients;
+    return allowUnsubscribed ? valid.length : valid.filter((email) => !unsubscribed.includes(email)).length;
+  }
+
+  async function handleSend(e) {
+    e.preventDefault();
+    const count = sendCount();
+    if (!window.confirm(`Send this to ${count} ${count === 1 ? 'person' : 'people'}? Emails can't be unsent.`)) {
+      return;
+    }
+
+    setSending(true);
+    setError('');
+    setResult(null);
+    const { ok, data } = await postJson('/api/admin/marketplace/email', { to, subject, body, allowUnsubscribed });
+    setSending(false);
+    if (!ok) {
+      setError(data.error || 'That could not be sent.');
+      return;
+    }
+    setResult(data);
+    setState((prev) => (prev ? { ...prev, recent: data.recent } : prev));
+    // Only clear on a clean send — a partial failure needs the text kept so
+    // it can be retried against the addresses that didn't go.
+    if ((data.failed || []).length === 0) {
+      setTo('');
+      setSubject('');
+      setBody('');
+      setAllowUnsubscribed(false);
+    }
+  }
+
+  if (!state) return <p style={{ color: 'var(--muted)' }}>Loading…</p>;
+
+  const { recipients, limits } = state;
+  const willSend = sendCount();
+  const ready = willSend > 0 && subject.trim() && body.trim();
+
+  return (
+    <>
+      <h2 style={{ margin: '1.5rem 0 0.5rem' }}>Email a customer</h2>
+      <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: '0 0 1rem' }}>
+        Sends from <strong style={{ color: 'var(--text)' }}>{state.from}</strong>, and replies come back there. Up to{' '}
+        {limits.recipients} addresses at a time, each getting their own copy — nobody sees anyone else's address. For
+        mailing the whole list, use the Newsletter tab instead.
+      </p>
+
+      {!state.configured && (
+        <div className="status">RESEND_API_KEY isn't set, so nothing can be sent yet.</div>
+      )}
+
+      <form onSubmit={handleSend} style={{ maxWidth: '720px' }}>
+        <label className="form-label" htmlFor="email-to">
+          To — one per line, or separated by commas
+        </label>
+        <textarea
+          id="email-to"
+          className="contact-input"
+          rows={2}
+          value={to}
+          onChange={(e) => setTo(e.target.value)}
+          placeholder={'someone@example.com\nanother@example.com'}
+          style={{ width: '100%', margin: '0.4rem 0 0.35rem', fontFamily: 'inherit', resize: 'vertical' }}
+        />
+        <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0 0 1rem' }}>
+          {recipients.invalid.length > 0 ? (
+            <span style={{ color: '#b3261e' }}>
+              Not a valid address: {recipients.invalid.slice(0, 5).join(', ')}
+            </span>
+          ) : (
+            `${recipients.valid.length} recipient${recipients.valid.length === 1 ? '' : 's'}`
+          )}
+        </p>
+
+        {recipients.unsubscribed.length > 0 && (
+          <div className="admin-table-wrap" style={{ padding: '0.75rem 0.9rem', marginBottom: '1rem' }}>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: '#d9a400', fontWeight: 600 }}>
+              {recipients.unsubscribed.join(', ')} unsubscribed from the newsletter.
+            </p>
+            <label style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', fontSize: '0.8rem', marginTop: '0.5rem' }}>
+              <input
+                type="checkbox"
+                checked={allowUnsubscribed}
+                onChange={(e) => setAllowUnsubscribed(e.target.checked)}
+                style={{ marginTop: '0.2rem' }}
+              />
+              <span>
+                Send anyway — this is a direct reply to them, not marketing. Left unticked, they're skipped.
+              </span>
+            </label>
+          </div>
+        )}
+
+        <label className="form-label" htmlFor="email-subject">
+          Subject
+        </label>
+        <input
+          id="email-subject"
+          className="contact-input"
+          maxLength={limits.subject}
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+          style={{ width: '100%', margin: '0.4rem 0 1rem' }}
+        />
+
+        <label className="form-label" htmlFor="email-body">
+          Message
+        </label>
+        <textarea
+          id="email-body"
+          className="contact-input"
+          rows={12}
+          maxLength={limits.body}
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          placeholder="Hi — thanks for registering interest in…"
+          style={{ width: '100%', margin: '0.4rem 0 0.35rem', fontFamily: 'inherit', resize: 'vertical' }}
+        />
+        <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0 0 1rem' }}>
+          Plain text — blank lines become paragraphs and links become clickable. It goes out on the PreorderCards
+          letterhead with a line telling them they can reply.
+        </p>
+
+        {error && <div className="status">{error}</div>}
+
+        <button type="submit" className="notify-btn" disabled={sending || !ready || !state.configured}>
+          {sending ? 'Sending…' : `Send${willSend > 1 ? ` to ${willSend}` : ''}`}
+        </button>
+      </form>
+
+      {result && (
+        <div className="admin-table-wrap" style={{ padding: '0.9rem 1rem', margin: '1.25rem 0', maxWidth: '720px' }}>
+          <p style={{ margin: 0, fontWeight: 600 }}>
+            {result.sent} sent
+            {result.failed.length > 0 ? `, ${result.failed.length} failed` : ''}
+            {result.skippedUnsubscribed.length > 0 ? `, ${result.skippedUnsubscribed.length} skipped (unsubscribed)` : ''}
+          </p>
+          {result.failed.map((row) => (
+            <p key={row.email} style={{ fontSize: '0.8rem', color: '#b3261e', margin: '0.35rem 0 0' }}>
+              {row.email} — {row.error}
+            </p>
+          ))}
+        </div>
+      )}
+
+      <h3 style={{ margin: '1.75rem 0 0.5rem' }}>Sent from here</h3>
+      {state.recent.length === 0 ? (
+        <p style={{ color: 'var(--muted)' }}>Nothing sent yet.</p>
+      ) : (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, maxWidth: '720px' }}>
+          {state.recent.map((row) => (
+            <li
+              key={row.id}
+              className="admin-table-wrap"
+              style={{ padding: '0.7rem 0.9rem', marginBottom: '0.5rem' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <strong style={{ fontSize: '0.9rem' }}>{row.subject}</strong>
+                <span style={{ fontSize: '0.78rem', color: row.status === 'failed' ? '#b3261e' : 'var(--muted)' }}>
+                  {row.status === 'failed' ? `failed — ${row.error}` : formatTimestamp(row.createdAt)}
+                </span>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>to {row.toEmail}</div>
+              <p style={{ fontSize: '0.8rem', margin: '0.4rem 0 0', whiteSpace: 'pre-wrap' }}>
+                {row.body.length > 240 ? `${row.body.slice(0, 240)}…` : row.body}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+}
+
 // Special preorder requests — someone asking for a product that isn't on
 // the calendar. They come through Discord as they land; this is the record
 // that outlives the channel, and where each one gets marked off.
@@ -2054,6 +2267,7 @@ const TABS = [
   { id: 'listingInterests', label: 'Marketplace Buyer Interest' },
   { id: 'discountSignups', label: 'Discount Signups' },
   { id: 'newsletter', label: 'Newsletter List' },
+  { id: 'email', label: 'Email' },
   { id: 'success', label: 'Success Stories' },
 ];
 
@@ -2089,6 +2303,7 @@ function Dashboard({ onLoggedOut }) {
       {tab === 'listingInterests' && <ListingInterestsView />}
       {tab === 'discountSignups' && <DiscountSignupsView />}
       {tab === 'newsletter' && <NewsletterView />}
+      {tab === 'email' && <EmailView />}
       {tab === 'success' && <SuccessStoriesView />}
     </>
   );

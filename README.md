@@ -235,6 +235,38 @@ and a traditional preorder (no action needed, allocation email later).
   release date, and `404` if the release ID doesn't exist.
 - Phone-only registrants are skipped — there's no email to send to.
 
+## Emailing a customer (admin panel)
+
+The **Email** tab in the marketplace admin panel composes a one-off message
+out of `EMAIL_FROM` — the same `admin@preordercards.com` everything else
+sends from, so replies land in the usual inbox (see the section below).
+`lib/adminEmail.js` owns it; `POST /api/admin/marketplace/email` is
+TOTP-gated like the rest of the panel.
+
+It is deliberately not a mailing tool. At most 50 addresses a send, no
+list-picker, and each recipient gets their own message rather than one
+message addressed to everyone — customers must never see each other's
+addresses. Mailing the whole list is what the weekly newsletter is for, and
+it carries the unsubscribe links, suppression and per-issue tracking that go
+with that.
+
+An address that unsubscribed from the newsletter is flagged **as the
+recipient box is typed**, not after the send, and is skipped unless a
+checkbox is ticked to say the message is a direct reply rather than
+marketing. Unsubscribing is a standing instruction about marketing; it
+shouldn't silently block an answer to a question the person asked. The send
+button counts only what will actually go out, so a skipped address can't be
+promised.
+
+The body is plain text — blank lines become paragraphs, URLs become
+clickable — rendered into a small PreorderCards letterhead. It's escaped
+before it reaches the HTML part regardless of who typed it, so an ampersand
+or an angle bracket can't break the markup around it.
+
+Every message is recorded in `admin_emails`, one row per recipient with its
+own status, and the tab lists the recent ones. The mailbox is shared and a
+reply weeks later needs the original to make sense of it.
+
 ## admin@preordercards.com replies → Discord
 
 `admin@preordercards.com` forwards for free (via ImprovMX, DNS records at
