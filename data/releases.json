@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-09-03",
-  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com, paniniamerica.net) as of 2026-09-03. Topps and other manufacturers can change dates with little notice — always confirm on Topps.com before buying.",
+  "lastUpdated": "2026-09-21",
+  "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com, paniniamerica.net) as of 2026-09-03. Topps and other manufacturers can change dates with little notice \u2014 always confirm on Topps.com before buying.",
   "releases": [
     {
       "id": "2026-topps-dynamic-duals-baseball",
@@ -454,7 +454,7 @@
       "manufacturer": "Topps",
       "sport": "Baseball",
       "format": "Retail Box",
-      "releaseDate": "2026-10-22",
+      "releaseDate": "2026-09-21",
       "description": "Holiday-themed retail release with snow-parallel variations."
     },
     {
@@ -582,7 +582,7 @@
       "sport": "Entertainment",
       "format": "Hobby Box",
       "releaseDate": "2026-09-11",
-      "description": "WWE release covering the current roster, Legends, and the NXT rookie class — two autographs and a relic per hobby box."
+      "description": "WWE release covering the current roster, Legends, and the NXT rookie class \u2014 two autographs and a relic per hobby box."
     },
     {
       "id": "2026-topps-wwe-universe-preorder",
@@ -1102,6 +1102,33 @@
       "releaseDate": "2026-09-24",
       "description": "Full hobby release of the refractor-parallel Pristine brand's first-ever NBA application, following its late-August preorder window.",
       "manufacturer": "Topps"
+    },
+    {
+      "id": "2026-topps-stadium-club-wwe",
+      "title": "2026 Topps Stadium Club WWE",
+      "manufacturer": "Topps",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-21",
+      "description": "Photography-driven WWE release under the Stadium Club brand."
+    },
+    {
+      "id": "2026-topps-heritage-football",
+      "title": "2026 Topps Heritage Football",
+      "manufacturer": "Topps",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-21",
+      "description": "Retro-design football release built on a vintage Topps set design."
+    },
+    {
+      "id": "2026-27-topps-royalty-premier-league-soccer",
+      "title": "2026-27 Topps Royalty Premier League Soccer",
+      "manufacturer": "Topps",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-24",
+      "description": "Premium Premier League release under the Topps Royalty brand."
     }
   ]
 }
