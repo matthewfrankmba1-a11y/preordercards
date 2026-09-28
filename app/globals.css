@@ -65,6 +65,9 @@ body {
 .tile-soccer { background: linear-gradient(160deg, #0077b6, #023e8a); }
 .tile-golf { background: linear-gradient(160deg, #2d6a4f, #14342a); }
 .tile-entertainment { background: linear-gradient(160deg, #9d4edd, #ff006e); }
+.tile-tennis { background: linear-gradient(160deg, #c2d92b, #5c7a0a); }
+.tile-racing { background: linear-gradient(160deg, #495057, #16181b); }
+.tile-multisport { background: linear-gradient(160deg, #3a7ca5, #16425b); }
 
 .header-scrim {
   position: absolute;

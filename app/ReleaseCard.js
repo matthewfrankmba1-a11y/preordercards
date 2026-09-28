@@ -53,6 +53,19 @@ const SPORT_ICONS = {
   Entertainment: `<svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="#fff" stroke-width="2">
     <polygon points="32,4 38,22 58,20 44,34 50,54 32,42 14,54 20,34 6,20 26,22" fill="rgba(255,255,255,0.2)"/>
   </svg>`,
+  Tennis: `<svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="#fff" stroke-width="2.5">
+    <circle cx="32" cy="32" r="22"/>
+    <path d="M14 18c8 6 10 20 4 28M50 18c-8 6-10 20-4 28"/>
+  </svg>`,
+  Racing: `<svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="#fff" stroke-width="2.5">
+    <path d="M16 10v44"/>
+    <path d="M16 14h32v18H16z" fill="rgba(255,255,255,0.2)"/>
+    <path d="M32 14v18M16 23h32"/>
+  </svg>`,
+  'Multi-Sport': `<svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="#fff" stroke-width="2.5">
+    <path d="M10 22h44v28H10z" fill="rgba(255,255,255,0.2)"/>
+    <path d="M10 22l6-8h32l6 8M32 14v36"/>
+  </svg>`,
 };
 
 function sportSlug(sport) {

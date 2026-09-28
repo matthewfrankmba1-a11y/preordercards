@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-21",
+  "lastUpdated": "2026-09-28",
   "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com, paniniamerica.net) as of 2026-09-03. Topps and other manufacturers can change dates with little notice \u2014 always confirm on Topps.com before buying.",
   "releases": [
     {
@@ -373,7 +373,7 @@
       "manufacturer": "Topps",
       "sport": "Baseball",
       "format": "Hobby Box",
-      "releaseDate": "2026-09-08",
+      "releaseDate": "2026-10-07",
       "description": "Premium single-pack baseball release pairing multiple autographed relic and on-card autograph hits per box."
     },
     {
@@ -535,7 +535,7 @@
       "manufacturer": "Topps",
       "sport": "Baseball",
       "format": "Hobby Box",
-      "releaseDate": "2026-12-31",
+      "releaseDate": "2026-10-07",
       "description": "Vintage-styled release mixing baseball with non-sport subjects, a longtime Allen & Ginter tradition."
     },
     {
@@ -1081,7 +1081,7 @@
       "title": "2026 Topps Update Series Baseball",
       "sport": "Baseball",
       "format": "Hobby Box",
-      "releaseDate": "2026-09-14",
+      "releaseDate": "2026-10-14",
       "description": "Flagship Update Series covering the second half of the baseball season.",
       "manufacturer": "Topps"
     },
@@ -1090,7 +1090,7 @@
       "title": "2026 Topps Neon Marvel",
       "sport": "Entertainment",
       "format": "Hobby Box",
-      "releaseDate": "2026-09-15",
+      "releaseDate": "2026-10-14",
       "description": "Neon-treatment Marvel release from Topps.",
       "manufacturer": "Topps"
     },
@@ -1129,6 +1129,105 @@
       "format": "Hobby Box",
       "releaseDate": "2026-09-24",
       "description": "Premium Premier League release under the Topps Royalty brand."
+    },
+    {
+      "id": "2026-topps-collector-kit-wave-2",
+      "title": "2026 Topps Collector Kit Wave 2",
+      "manufacturer": "Topps",
+      "sport": "Multi-Sport",
+      "format": "Kit",
+      "releaseDate": "2026-09-28",
+      "description": "Second wave of the Topps Collector Kit."
+    },
+    {
+      "id": "2026-topps-holiday-football",
+      "title": "2026 Topps Holiday Football",
+      "manufacturer": "Topps",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-28",
+      "description": "Holiday-themed football release."
+    },
+    {
+      "id": "2026-topps-chrome-tennis",
+      "title": "2026 Topps Chrome Tennis",
+      "manufacturer": "Topps",
+      "sport": "Tennis",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-30",
+      "description": "Chrome-format tennis release covering the current tour."
+    },
+    {
+      "id": "2026-bowman-football",
+      "title": "2026 Bowman Football",
+      "manufacturer": "Topps",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-09-30",
+      "description": "Bowman-branded college and NFL rookie prospect football release."
+    },
+    {
+      "id": "2026-topps-cosmic-chrome-baseball",
+      "title": "2026 Topps Cosmic Chrome Baseball",
+      "manufacturer": "Topps",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-05",
+      "description": "Cosmic-treatment Chrome baseball release."
+    },
+    {
+      "id": "2026-bowman-u-best-football",
+      "title": "2026 Bowman U Best Football",
+      "manufacturer": "Topps",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-05",
+      "description": "Bowman University Best college football release."
+    },
+    {
+      "id": "2026-topps-inception-football",
+      "title": "2026 Topps Inception Football",
+      "manufacturer": "Topps",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-05",
+      "description": "Rookie-focused football release in the Inception line."
+    },
+    {
+      "id": "2026-27-topps-flagship-basketball",
+      "title": "2026-27 Topps Flagship Basketball",
+      "manufacturer": "Topps",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-06",
+      "description": "Topps' flagship basketball set for the 2026-27 season."
+    },
+    {
+      "id": "2026-topps-mars-attacks-christmas",
+      "title": "2026 Topps Mars Attacks Christmas",
+      "manufacturer": "Topps",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-06",
+      "description": "Holiday-themed installment of Topps' Mars Attacks non-sport card line."
+    },
+    {
+      "id": "2026-bowman-chrome-baseball-sapphire",
+      "title": "2026 Bowman Chrome Baseball Sapphire Edition",
+      "manufacturer": "Topps",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-07",
+      "description": "Sapphire-parallel edition of the Bowman Chrome prospect release."
+    },
+    {
+      "id": "2026-topps-chrome-formula-1",
+      "title": "2026 Topps Chrome Formula 1",
+      "manufacturer": "Topps",
+      "sport": "Racing",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-15",
+      "description": "Chrome-format Formula 1 release covering the current grid."
     }
   ]
 }
