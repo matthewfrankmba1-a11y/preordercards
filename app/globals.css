@@ -986,6 +986,27 @@ body {
   margin: 0;
 }
 
+/* One row of tabs. They used to wrap to a second line, which read as two
+   groups rather than one strip. Below the width where eight fit, the row
+   scrolls sideways instead of wrapping — a strip you can push along stays
+   one strip, where a second line looks like a separate control. */
+.admin-tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding-bottom: 2px;
+}
+
+.admin-tabs .stock-toggle-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.85rem;
+}
+
 .admin-table-wrap {
   overflow-x: auto;
   border: 1px solid var(--border);

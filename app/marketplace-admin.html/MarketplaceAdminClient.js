@@ -2349,13 +2349,13 @@ function SuccessStoriesView() {
 
 const TABS = [
   { id: 'sellers', label: 'Sellers' },
-  { id: 'preorders', label: 'Preorder Registrations' },
-  { id: 'preorderRequests', label: 'Preorder Requests' },
-  { id: 'listingInterests', label: 'Marketplace Buyer Interest' },
-  { id: 'discountSignups', label: 'Discount Signups' },
-  { id: 'newsletter', label: 'Newsletter List' },
+  { id: 'preorders', label: 'Registrations' },
+  { id: 'preorderRequests', label: 'Requests' },
+  { id: 'listingInterests', label: 'Buyer Interest' },
+  { id: 'discountSignups', label: 'Signups' },
+  { id: 'newsletter', label: 'Newsletter' },
   { id: 'email', label: 'Email' },
-  { id: 'success', label: 'Success Stories' },
+  { id: 'success', label: 'Success' },
 ];
 
 function Dashboard({ onLoggedOut }) {
@@ -2369,7 +2369,7 @@ function Dashboard({ onLoggedOut }) {
   return (
     <>
       <div className="admin-toolbar">
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div className="admin-tabs">
           {TABS.map((t) => (
             <button
               key={t.id}
