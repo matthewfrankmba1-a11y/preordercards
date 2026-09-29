@@ -1768,6 +1768,7 @@ function EmailView() {
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [allowUnsubscribed, setAllowUnsubscribed] = useState(false);
+  const [audience, setAudience] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
@@ -1791,6 +1792,23 @@ function EmailView() {
       clearTimeout(timer);
     };
   }, [to]);
+
+  // Appends a release's registrants to whatever is already in the box, so
+  // several releases can be combined — anyone already listed is left alone
+  // rather than added twice.
+  function addAudience() {
+    const chosen = state.audiences.find((a) => a.releaseId === audience);
+    if (!chosen) return;
+    const existing = new Set(
+      to
+        .split(/[\s,;]+/)
+        .map((entry) => entry.trim().toLowerCase())
+        .filter(Boolean)
+    );
+    const added = chosen.emails.filter((email) => !existing.has(email));
+    if (added.length > 0) setTo(to.trim() ? `${to.trim()}\n${added.join('\n')}` : added.join('\n'));
+    setAudience('');
+  }
 
   // What will actually go out — an unsubscribed address is skipped unless
   // the box below is ticked, so counting every valid address would promise
@@ -1849,6 +1867,35 @@ function EmailView() {
       )}
 
       <form onSubmit={handleSend} style={{ maxWidth: '720px' }}>
+        {state.audiences.length > 0 && (
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '1rem' }}>
+            <div>
+              <label className="form-label" htmlFor="email-audience">
+                Add everyone who registered for…
+              </label>
+              <select
+                id="email-audience"
+                className="quantity-select"
+                value={audience}
+                onChange={(e) => setAudience(e.target.value)}
+                style={{ display: 'block', marginTop: '0.4rem', maxWidth: '520px' }}
+              >
+                <option value="">Choose a release…</option>
+                {state.audiences.map((a) => (
+                  <option key={a.releaseId} value={a.releaseId}>
+                    {a.title}
+                    {a.releaseDate ? ` (${a.releaseDate})` : ''} — {a.emails.length}{' '}
+                    {a.emails.length === 1 ? 'address' : 'addresses'}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button type="button" className="stock-toggle-btn" disabled={!audience} onClick={addAudience}>
+              Add to the list
+            </button>
+          </div>
+        )}
+
         <label className="form-label" htmlFor="email-to">
           To — one per line, or separated by commas
         </label>

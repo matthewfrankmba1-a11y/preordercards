@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireMarketplaceAdmin } from '../../../../../lib/marketplaceAdminAuth';
-import { listAdminEmails, isNewsletterUnsubscribed } from '../../../../../lib/db';
+import { listAdminEmails, isNewsletterUnsubscribed, listAllInterestsForAdmin } from '../../../../../lib/db';
+import { loadReleases } from '../../../../../lib/releases';
 import { isEmailConfigured, EMAIL_FROM } from '../../../../../lib/email';
 import { MAX_BODY, MAX_RECIPIENTS, MAX_SUBJECT, parseRecipients, sendAdminEmail } from '../../../../../lib/adminEmail';
 
@@ -8,6 +9,38 @@ const LOG_LIMIT = 50;
 
 function recentLog() {
   return listAdminEmails.all({ limit: LOG_LIMIT });
+}
+
+// The people who registered interest in a given release, so "email everyone
+// who preordered X" doesn't mean copying addresses out of the registrations
+// table by hand. Cancelled registrations are left out — they asked to be
+// taken off that release. Phone-only registrants have no address to add.
+//
+// This is a targeted audience, not a list: it's still capped by the same
+// per-send limit, and mailing everyone is still the newsletter's job.
+function audiences() {
+  const titles = new Map(loadReleases().releases.map((r) => [r.id, r]));
+  const byRelease = new Map();
+
+  for (const row of listAllInterestsForAdmin.all()) {
+    if (row.cancelledAt || row.contactType !== 'email') continue;
+    const email = String(row.contactValue || '').trim().toLowerCase();
+    if (!email) continue;
+    if (!byRelease.has(row.releaseId)) byRelease.set(row.releaseId, new Set());
+    byRelease.get(row.releaseId).add(email);
+  }
+
+  return [...byRelease.entries()]
+    .map(([releaseId, emails]) => {
+      const release = titles.get(releaseId);
+      return {
+        releaseId,
+        title: release ? release.title : releaseId,
+        releaseDate: release ? release.releaseDate || null : null,
+        emails: [...emails].sort(),
+      };
+    })
+    .sort((a, b) => (b.releaseDate || '').localeCompare(a.releaseDate || '') || a.title.localeCompare(b.title));
 }
 
 export async function GET(request) {
@@ -25,6 +58,7 @@ export async function GET(request) {
     from: EMAIL_FROM,
     limits: { recipients: MAX_RECIPIENTS, subject: MAX_SUBJECT, body: MAX_BODY },
     recipients: { valid, invalid, unsubscribed: valid.filter((email) => isNewsletterUnsubscribed.get(email)) },
+    audiences: audiences(),
     recent: recentLog(),
   });
 }
