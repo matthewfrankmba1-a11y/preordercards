@@ -1768,7 +1768,7 @@ function EmailView() {
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [allowUnsubscribed, setAllowUnsubscribed] = useState(false);
-  const [audience, setAudience] = useState('');
+  const [audienceQuery, setAudienceQuery] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
@@ -1796,8 +1796,7 @@ function EmailView() {
   // Appends a release's registrants to whatever is already in the box, so
   // several releases can be combined — anyone already listed is left alone
   // rather than added twice.
-  function addAudience() {
-    const chosen = state.audiences.find((a) => a.releaseId === audience);
+  function addAudience(chosen) {
     if (!chosen) return;
     const existing = new Set(
       to
@@ -1807,7 +1806,6 @@ function EmailView() {
     );
     const added = chosen.emails.filter((email) => !existing.has(email));
     if (added.length > 0) setTo(to.trim() ? `${to.trim()}\n${added.join('\n')}` : added.join('\n'));
-    setAudience('');
   }
 
   // What will actually go out — an unsubscribed address is skipped unless
@@ -1850,6 +1848,17 @@ function EmailView() {
   if (!state) return <p style={{ color: 'var(--muted)' }}>Loading…</p>;
 
   const { recipients, limits } = state;
+  // Every word has to appear somewhere in the title or the date, so "bowman
+  // football" narrows rather than widening to everything Bowman. Unsearched,
+  // the list is the releases people actually registered for.
+  const terms = audienceQuery.toLowerCase().split(/\s+/).filter(Boolean);
+  const matchingAudiences = (terms.length
+    ? state.audiences.filter((a) => {
+        const haystack = `${a.title} ${a.releaseDate || ''} ${a.releaseId}`.toLowerCase();
+        return terms.every((term) => haystack.includes(term));
+      })
+    : state.audiences.filter((a) => a.emails.length > 0)
+  ).slice(0, 8);
   const willSend = sendCount();
   const ready = willSend > 0 && subject.trim() && body.trim();
 
@@ -1868,31 +1877,62 @@ function EmailView() {
 
       <form onSubmit={handleSend} style={{ maxWidth: '720px' }}>
         {state.audiences.length > 0 && (
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '1rem' }}>
-            <div>
-              <label className="form-label" htmlFor="email-audience">
-                Add everyone who registered for…
-              </label>
-              <select
-                id="email-audience"
-                className="quantity-select"
-                value={audience}
-                onChange={(e) => setAudience(e.target.value)}
-                style={{ display: 'block', marginTop: '0.4rem', maxWidth: '520px' }}
-              >
-                <option value="">Choose a release…</option>
-                {state.audiences.map((a) => (
-                  <option key={a.releaseId} value={a.releaseId}>
-                    {a.title}
-                    {a.releaseDate ? ` (${a.releaseDate})` : ''} — {a.emails.length}{' '}
-                    {a.emails.length === 1 ? 'address' : 'addresses'}
-                  </option>
+          <div style={{ marginBottom: '1.25rem' }}>
+            <label className="form-label" htmlFor="email-audience">
+              Add everyone who registered for a release
+            </label>
+            <input
+              id="email-audience"
+              className="contact-input"
+              type="search"
+              value={audienceQuery}
+              onChange={(e) => setAudienceQuery(e.target.value)}
+              placeholder="Search releases — e.g. bowman football"
+              style={{ width: '100%', maxWidth: '520px', margin: '0.4rem 0 0.5rem' }}
+            />
+
+            {matchingAudiences.length === 0 ? (
+              <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: 0 }}>No release matches that.</p>
+            ) : (
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, maxWidth: '520px' }}>
+                {matchingAudiences.map((a) => (
+                  <li
+                    key={a.releaseId}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      padding: '0.4rem 0',
+                      borderTop: '1px solid var(--border)',
+                    }}
+                  >
+                    <span style={{ fontSize: '0.85rem' }}>
+                      {a.title}
+                      <span style={{ color: 'var(--muted)' }}>
+                        {a.releaseDate ? ` · ${a.releaseDate}` : ''} · {a.emails.length}{' '}
+                        {a.emails.length === 1 ? 'address' : 'addresses'}
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      className="stock-toggle-btn"
+                      disabled={a.emails.length === 0}
+                      title={a.emails.length === 0 ? 'Nobody registered by email for this one' : undefined}
+                      onClick={() => addAudience(a)}
+                      style={{ flex: '0 0 auto' }}
+                    >
+                      Add
+                    </button>
+                  </li>
                 ))}
-              </select>
-            </div>
-            <button type="button" className="stock-toggle-btn" disabled={!audience} onClick={addAudience}>
-              Add to the list
-            </button>
+              </ul>
+            )}
+            {!audienceQuery && (
+              <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0.5rem 0 0' }}>
+                Showing the releases with the most registrations. Search to find any other.
+              </p>
+            )}
           </div>
         )}
 

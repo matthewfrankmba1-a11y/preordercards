@@ -19,7 +19,6 @@ function recentLog() {
 // This is a targeted audience, not a list: it's still capped by the same
 // per-send limit, and mailing everyone is still the newsletter's job.
 function audiences() {
-  const titles = new Map(loadReleases().releases.map((r) => [r.id, r]));
   const byRelease = new Map();
 
   for (const row of listAllInterestsForAdmin.all()) {
@@ -30,18 +29,34 @@ function audiences() {
     byRelease.get(row.releaseId).add(email);
   }
 
-  return [...byRelease.entries()]
-    .map(([releaseId, emails]) => {
-      const release = titles.get(releaseId);
-      return {
-        releaseId,
-        title: release ? release.title : releaseId,
-        releaseDate: release ? release.releaseDate || null : null,
-        emails: [...emails].sort(),
-      };
-    })
-    .sort((a, b) => (b.releaseDate || '').localeCompare(a.releaseDate || '') || a.title.localeCompare(b.title));
+  // Every release is listed, not only the ones with registrants. A release
+  // missing from the list is indistinguishable from a release nobody
+  // registered for, and the second is the far more common case — showing it
+  // with "0 addresses" answers the question instead of raising it.
+  const rows = loadReleases().releases.map((release) => ({
+    releaseId: release.id,
+    title: release.title,
+    releaseDate: release.releaseDate || null,
+    emails: [...(byRelease.get(release.id) || [])].sort(),
+  }));
+
+  // Registrations whose release id is no longer in the data — a renamed or
+  // deleted entry. Those people are still owed an answer, so the id itself
+  // stands in for the title rather than the audience disappearing.
+  const known = new Set(rows.map((r) => r.releaseId));
+  for (const [releaseId, emails] of byRelease) {
+    if (known.has(releaseId)) continue;
+    rows.push({ releaseId, title: releaseId, releaseDate: null, emails: [...emails].sort() });
+  }
+
+  return rows.sort(
+    (a, b) =>
+      b.emails.length - a.emails.length ||
+      (b.releaseDate || '').localeCompare(a.releaseDate || '') ||
+      a.title.localeCompare(b.title)
+  );
 }
+
 
 export async function GET(request) {
   const { error } = requireMarketplaceAdmin(request);
