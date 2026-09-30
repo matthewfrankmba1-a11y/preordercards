@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { getInviteKey, markInviteKeyUsed, insertSeller } from '../../../../lib/db';
-import { EMAIL_RE } from '../../../../lib/utils';
+import { EMAIL_RE, ADMIN_DISPLAY_NAME } from '../../../../lib/utils';
 import { generateSellerName, issueSessionCookie, sellerAuthRateLimit } from '../../../../lib/sellerAuthCore';
 
 export async function POST(request) {
@@ -37,7 +37,9 @@ export async function POST(request) {
 
   const isAdmin = keyRow.key_type === 'admin';
   const passwordHash = bcrypt.hashSync(password, 10);
-  const displayName = generateSellerName();
+  // Only the super-key account is named; every other seller keeps the
+  // anonymous random name, which is what buyers are meant to see.
+  const displayName = isAdmin ? ADMIN_DISPLAY_NAME : generateSellerName();
   const result = insertSeller.run({
     inviteKey: normalizedKey,
     passwordHash,
