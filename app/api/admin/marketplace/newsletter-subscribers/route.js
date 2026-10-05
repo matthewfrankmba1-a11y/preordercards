@@ -5,6 +5,7 @@ import {
   getDiscountSignupByEmail,
   isNewsletterUnsubscribed,
   countNewsletterUnsubscribes,
+  listNewsletterUnsubscribes,
 } from '../../../../../lib/db';
 import { EMAIL_RE, isLikelyTestContact } from '../../../../../lib/utils';
 import {
@@ -48,6 +49,7 @@ function listSummary() {
     receivingNext: listRecipients(nextWeek).length,
     totalOnList: listRecipients(SENTINEL_FAR_FUTURE).length,
     unsubscribed: countNewsletterUnsubscribes.get().c,
+    unsubscribes: listNewsletterUnsubscribes.all(),
     audience: AUDIENCE,
     nextIssueWeek: nextWeek,
     firstIssueWeek: firstEligibleWeek(today),

@@ -1634,6 +1634,7 @@ function NewsletterView() {
   const [result, setResult] = useState(null);
   // Bumped whenever the date check changes, to re-read the send gate.
   const [weekChanges, setWeekChanges] = useState(0);
+  const [showUnsubscribes, setShowUnsubscribes] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -1690,11 +1691,54 @@ function NewsletterView() {
           <strong style={{ color: 'var(--text)' }}>{summary.receivingNext}</strong> will get the next issue (week of{' '}
           {formatWeekOf(summary.nextIssueWeek)}) ·{' '}
           <strong style={{ color: 'var(--text)' }}>{summary.totalOnList - summary.receivingNext}</strong> waiting for a
-          later one · <strong style={{ color: 'var(--text)' }}>{summary.unsubscribed}</strong> unsubscribed
+          later one ·{' '}
+          {summary.unsubscribed > 0 ? (
+            <button
+              type="button"
+              onClick={() => setShowUnsubscribes((v) => !v)}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                font: 'inherit',
+                color: 'inherit',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+              }}
+            >
+              <strong style={{ color: 'var(--text)' }}>{summary.unsubscribed}</strong> unsubscribed
+            </button>
+          ) : (
+            <><strong style={{ color: 'var(--text)' }}>0</strong> unsubscribed</>
+          )}
           {summary.audience === 'all'
             ? ' · includes everyone who registered interest by email'
             : ' · signup forms only (NEWSLETTER_AUDIENCE=signups)'}
         </p>
+      )}
+
+      {showUnsubscribes && summary && (
+        <div className="admin-table-wrap" style={{ padding: '0.75rem 1rem', marginBottom: '1.25rem' }}>
+          <p style={{ margin: '0 0 0.5rem', fontSize: '0.8rem', color: 'var(--muted)' }}>
+            These addresses are suppressed everywhere — they can't be added back from the box below, and the Email tab
+            warns before writing to them. Re-subscribing has to be their own doing, through the signup form.
+          </p>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {summary.unsubscribes.map((row) => (
+              <li
+                key={row.email}
+                style={{ fontSize: '0.85rem', padding: '0.25rem 0', borderTop: '1px solid var(--border)' }}
+              >
+                {row.email}
+                <span style={{ color: 'var(--muted)' }}>
+                  {' · '}
+                  {formatTimestamp(row.createdAt)}
+                  {row.source ? ` · ${row.source}` : ''}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       <form onSubmit={handleAdd} style={{ margin: '1.25rem 0' }}>
