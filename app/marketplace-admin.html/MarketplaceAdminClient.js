@@ -1813,6 +1813,7 @@ function EmailView() {
   const [body, setBody] = useState('');
   const [allowUnsubscribed, setAllowUnsubscribed] = useState(false);
   const [audienceQuery, setAudienceQuery] = useState('');
+  const [queued, setQueued] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
@@ -1836,6 +1837,33 @@ function EmailView() {
       clearTimeout(timer);
     };
   }, [to]);
+
+  // Parks the draft in Discord rather than sending it. No confirm step here:
+  // the Discord card is the confirm step, and nothing leaves until it's
+  // tapped.
+  async function handleQueue() {
+    setSending(true);
+    setError('');
+    setResult(null);
+    setQueued('');
+    const { ok, data } = await postJson('/api/admin/marketplace/email', {
+      to,
+      subject,
+      body,
+      allowUnsubscribed,
+      queue: true,
+    });
+    setSending(false);
+    if (!ok) {
+      setError(data.error || 'That could not be queued.');
+      return;
+    }
+    setQueued(data.toEmail);
+    setTo('');
+    setSubject('');
+    setBody('');
+    setAllowUnsubscribed(false);
+  }
 
   // Appends a release's registrants to whatever is already in the box, so
   // several releases can be combined — anyone already listed is left alone
@@ -1871,6 +1899,7 @@ function EmailView() {
     setSending(true);
     setError('');
     setResult(null);
+    setQueued('');
     const { ok, data } = await postJson('/api/admin/marketplace/email', { to, subject, body, allowUnsubscribed });
     setSending(false);
     if (!ok) {
@@ -2053,10 +2082,33 @@ function EmailView() {
 
         {error && <div className="status">{error}</div>}
 
-        <button type="submit" className="notify-btn" disabled={sending || !ready || !state.configured}>
-          {sending ? 'Sending…' : `Send${willSend > 1 ? ` to ${willSend}` : ''}`}
-        </button>
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <button type="submit" className="notify-btn" disabled={sending || !ready || !state.configured}>
+            {sending ? 'Sending…' : `Send${willSend > 1 ? ` to ${willSend}` : ''}`}
+          </button>
+          <button
+            type="button"
+            className="stock-toggle-btn"
+            disabled={sending || !ready || !state.configured || willSend !== 1}
+            title={willSend === 1 ? undefined : 'One recipient at a time'}
+            onClick={handleQueue}
+          >
+            {sending ? 'Working…' : 'Queue in Discord'}
+          </button>
+        </div>
+        <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0.5rem 0 0' }}>
+          Queueing posts it to Discord with a Send button instead of sending it now — for approving from your phone.
+          One recipient at a time.
+        </p>
       </form>
+
+      {queued && (
+        <div className="admin-table-wrap" style={{ padding: '0.9rem 1rem', margin: '1.25rem 0', maxWidth: '720px' }}>
+          <p style={{ margin: 0, fontWeight: 600, color: '#1a7f37' }}>
+            Posted to Discord for {queued}. Nothing has been sent yet — tap <strong>Send Email</strong> on the card.
+          </p>
+        </div>
+      )}
 
       {result && (
         <div className="admin-table-wrap" style={{ padding: '0.9rem 1rem', margin: '1.25rem 0', maxWidth: '720px' }}>

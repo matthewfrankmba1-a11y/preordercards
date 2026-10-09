@@ -7,6 +7,7 @@ const { startStatsSummarySchedule } = require('./lib/statsSummary');
 const { startBlogAgentSchedule } = require('./lib/blogAgent');
 const { startNewsletterSchedule } = require('./lib/newsletter');
 const { loadReleases, sendConfirmationEmail } = require('./lib/releases');
+const { sendQueuedEmail } = require('./lib/adminEmail');
 
 const dev = process.env.NODE_ENV !== 'production';
 const PORT = process.env.PORT || 3000;
@@ -17,7 +18,7 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
   createServer((req, res) => handle(req, res)).listen(PORT, () => {
     console.log(`Topps release tracker running at http://localhost:${PORT}`);
-    bot.init({ loadReleases, sendConfirmationEmail });
+    bot.init({ loadReleases, sendConfirmationEmail, sendQueuedEmail });
     startStatsSummarySchedule();
     startBlogAgentSchedule();
     startNewsletterSchedule();

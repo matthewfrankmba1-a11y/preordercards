@@ -267,6 +267,19 @@ Every message is recorded in `admin_emails`, one row per recipient with its
 own status, and the tab lists the recent ones. The mailbox is shared and a
 reply weeks later needs the original to make sense of it.
 
+**Queue in Discord** parks a draft instead of sending it: the bot posts the
+recipient, subject and body to the alert channel with a **Send Email**
+button, the same shape as the confirmation button on an interest alert. It's
+for approving a message from a phone — write it at a desk, send it from the
+sofa. One recipient at a time, since a card standing for twenty people would
+be a mailshot approved by reflex.
+
+Queued drafts live in `pending_emails` rather than as an unsent status on
+`admin_emails`, which is the record of what actually went out. The row is
+claimed before the send, so two taps a second apart can't both mail it, and
+released again if Resend rejects it so the button can be retried. Either way
+the attempt is logged in `admin_emails` with its status.
+
 ## admin@preordercards.com replies → Discord
 
 `admin@preordercards.com` forwards for free (via ImprovMX, DNS records at

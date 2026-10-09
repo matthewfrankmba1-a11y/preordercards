@@ -3,7 +3,15 @@ import { requireMarketplaceAdmin } from '../../../../../lib/marketplaceAdminAuth
 import { listAdminEmails, isNewsletterUnsubscribed, listAllInterestsForAdmin } from '../../../../../lib/db';
 import { loadReleases } from '../../../../../lib/releases';
 import { isEmailConfigured, EMAIL_FROM } from '../../../../../lib/email';
-import { MAX_BODY, MAX_RECIPIENTS, MAX_SUBJECT, parseRecipients, sendAdminEmail } from '../../../../../lib/adminEmail';
+import {
+  MAX_BODY,
+  MAX_RECIPIENTS,
+  MAX_SUBJECT,
+  parseRecipients,
+  queueEmail,
+  sendAdminEmail,
+} from '../../../../../lib/adminEmail';
+import bot from '../../../../../lib/bot';
 
 const LOG_LIMIT = 50;
 
@@ -83,6 +91,35 @@ export async function POST(request) {
   if (error) return NextResponse.json({ error: error.message }, { status: error.status });
 
   const body = await request.json().catch(() => ({}));
+
+  // Park it for approval instead of sending now — the point is to tap Send
+  // from a phone, in Discord, rather than coming back to the panel.
+  if (body?.queue) {
+    if (!bot.isConfigured()) {
+      return NextResponse.json(
+        { error: 'The Discord bot is not configured (DISCORD_BOT_TOKEN / DISCORD_CHANNEL_ID), so there is nowhere to post it.' },
+        { status: 400 }
+      );
+    }
+
+    const queued = queueEmail({
+      to: body?.to,
+      subject: body?.subject,
+      body: body?.body,
+      allowUnsubscribed: Boolean(body?.allowUnsubscribed),
+    });
+    if (queued.error) return NextResponse.json({ error: queued.error }, { status: 400 });
+
+    const posted = await bot.postQueuedEmail(queued);
+    if (!posted) {
+      return NextResponse.json(
+        { error: "Couldn't post to Discord — the bot may be offline. Nothing was sent." },
+        { status: 502 }
+      );
+    }
+    return NextResponse.json({ queued: true, toEmail: queued.toEmail, recent: recentLog() });
+  }
+
   const result = await sendAdminEmail({
     to: body?.to,
     subject: body?.subject,
