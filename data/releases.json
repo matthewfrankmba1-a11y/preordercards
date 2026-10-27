@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-28",
+  "lastUpdated": "2026-10-27",
   "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com, paniniamerica.net). Topps and other manufacturers can change dates with little notice \u2014 always confirm on Topps.com before buying.",
   "releases": [
     {
@@ -373,7 +373,7 @@
       "manufacturer": "Topps",
       "sport": "Baseball",
       "format": "Hobby Box",
-      "releaseDate": "2026-10-07",
+      "releaseDate": "2026-11-11",
       "description": "Premium single-pack baseball release pairing multiple autographed relic and on-card autograph hits per box."
     },
     {
@@ -409,7 +409,7 @@
       "manufacturer": "Topps",
       "sport": "Baseball",
       "format": "Hobby Box",
-      "releaseDate": "2026-09-26",
+      "releaseDate": "2026-10-28",
       "description": "Ultra-premium, low-print-run baseball release with booklet autographs."
     },
     {
@@ -1118,7 +1118,7 @@
       "manufacturer": "Topps",
       "sport": "Football",
       "format": "Hobby Box",
-      "releaseDate": "2026-09-21",
+      "releaseDate": "2026-11-04",
       "description": "Retro-design football release built on a vintage Topps set design."
     },
     {
@@ -1136,7 +1136,7 @@
       "manufacturer": "Topps",
       "sport": "Multi-Sport",
       "format": "Kit",
-      "releaseDate": "2026-09-28",
+      "releaseDate": "2026-10-28",
       "description": "Second wave of the Topps Collector Kit."
     },
     {
@@ -1172,7 +1172,7 @@
       "manufacturer": "Topps",
       "sport": "Baseball",
       "format": "Hobby Box",
-      "releaseDate": "2026-10-05",
+      "releaseDate": "2026-11-04",
       "description": "Cosmic-treatment Chrome baseball release."
     },
     {
@@ -1181,7 +1181,7 @@
       "manufacturer": "Topps",
       "sport": "Football",
       "format": "Hobby Box",
-      "releaseDate": "2026-10-05",
+      "releaseDate": "2026-10-30",
       "description": "Bowman University Best college football release."
     },
     {
@@ -1190,7 +1190,7 @@
       "manufacturer": "Topps",
       "sport": "Football",
       "format": "Hobby Box",
-      "releaseDate": "2026-10-05",
+      "releaseDate": "2026-11-06",
       "description": "Rookie-focused football release in the Inception line."
     },
     {
@@ -1199,7 +1199,7 @@
       "manufacturer": "Topps",
       "sport": "Basketball",
       "format": "Hobby Box",
-      "releaseDate": "2026-10-06",
+      "releaseDate": "2026-11-05",
       "description": "Topps' flagship basketball set for the 2026-27 season."
     },
     {
@@ -1228,6 +1228,69 @@
       "format": "Hobby Box",
       "releaseDate": "2026-10-15",
       "description": "Chrome-format Formula 1 release covering the current grid."
+    },
+    {
+      "id": "2026-topps-chrome-tennis-sapphire",
+      "title": "2026 Topps Chrome Tennis Sapphire Edition",
+      "manufacturer": "Topps",
+      "sport": "Tennis",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-28",
+      "description": "Sapphire-parallel edition of the Chrome Tennis release."
+    },
+    {
+      "id": "2026-topps-chrome-star-wars-sapphire",
+      "title": "2026 Topps Chrome Star Wars Sapphire Edition",
+      "manufacturer": "Topps",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-28",
+      "description": "Sapphire-parallel edition of the Chrome Star Wars release."
+    },
+    {
+      "id": "2026-topps-chrome-update-series-baseball-first-day-issue",
+      "title": "2026 Topps Chrome Update Series Baseball First Day Issue",
+      "manufacturer": "Topps",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-29",
+      "description": "First Day Issue printing of Chrome Update Series, ahead of the main release."
+    },
+    {
+      "id": "2026-bowman-football-sapphire",
+      "title": "2026 Bowman Football Sapphire Edition",
+      "manufacturer": "Topps",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-10-29",
+      "description": "Sapphire-parallel edition of the Bowman Football prospect release."
+    },
+    {
+      "id": "2025-26-topps-stadium-club-chrome-uefa-champions-league",
+      "title": "2025/26 Topps Stadium Club Chrome UEFA Champions League",
+      "manufacturer": "Topps",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-04",
+      "description": "Chrome edition of Stadium Club covering the UEFA Champions League season."
+    },
+    {
+      "id": "2026-topps-mint-disney",
+      "title": "2026 Topps Mint Disney",
+      "manufacturer": "Topps",
+      "sport": "Entertainment",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-04",
+      "description": "Disney-licensed release in Topps' Mint line."
+    },
+    {
+      "id": "2026-topps-royalty-tennis",
+      "title": "2026 Topps Royalty Tennis",
+      "manufacturer": "Topps",
+      "sport": "Tennis",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-13",
+      "description": "Premium tennis release under the Topps Royalty brand."
     }
   ]
 }
