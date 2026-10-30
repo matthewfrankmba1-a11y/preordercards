@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-10-27",
+  "lastUpdated": "2026-10-30",
   "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com, paniniamerica.net). Topps and other manufacturers can change dates with little notice \u2014 always confirm on Topps.com before buying.",
   "releases": [
     {
@@ -844,8 +844,8 @@
       "manufacturer": "Topps",
       "sport": "Basketball",
       "format": "Countdown Calendar Box",
-      "releaseDate": "2026-10-30",
-      "description": "Advent-style basketball release with a sealed pack or card revealed behind each daily door."
+      "description": "Advent-style basketball release with a sealed pack or card revealed behind each daily door.",
+      "dateTbd": true
     },
     {
       "id": "2026-topps-chrome-jennie-preorder",
