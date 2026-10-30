@@ -1802,6 +1802,39 @@ function NewsletterView() {
   );
 }
 
+// Drafts written ahead of time, so a message that has to go out doesn't
+// have to be composed from scratch at the keyboard. Loading one fills the
+// subject and body and leaves the recipients alone — who it goes to is
+// picked separately, and a template that carried addresses would be one
+// stale list away from mailing the wrong people.
+//
+// Each is plain text, like anything else typed into the composer: blank
+// lines become paragraphs, links become clickable. Edit freely before
+// sending — the template is a starting point, not a form.
+const EMAIL_TEMPLATES = [
+  {
+    id: 'countdown-pushed',
+    name: 'Countdown Calendar — pushed back',
+    audienceHint: 'countdown',
+    subject: 'Topps Holiday Basketball Countdown Calendar — pushed back',
+    body: `Hi — you registered interest in the 2026-27 Topps Holiday Basketball
+Countdown Calendar, so you should hear it from us first: Topps has
+pushed the release. There's no new date announced yet.
+
+Nothing changes on your end. You're still on the list, we're watching
+the release calendar daily, and the moment a date lands we'll be in
+line early to secure as many as we can for the people who registered
+— you included.
+
+We'll email you as soon as there's a date to share. No payment was
+ever taken and nothing is owed; if you'd rather come off the list for
+this one, just reply and say so.
+
+Thanks for your patience.
+— PreorderCards`,
+  },
+];
+
 // Composing a one-off message to a customer from the admin@ mailbox.
 // Not a mailing tool: the recipient cap and the absence of any list-picker
 // are the point — mailing everyone is the newsletter's job, and it carries
@@ -1814,6 +1847,7 @@ function EmailView() {
   const [allowUnsubscribed, setAllowUnsubscribed] = useState(false);
   const [audienceQuery, setAudienceQuery] = useState('');
   const [queued, setQueued] = useState('');
+  const [usedTemplate, setUsedTemplate] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
@@ -1837,6 +1871,19 @@ function EmailView() {
       clearTimeout(timer);
     };
   }, [to]);
+
+  // Fills the subject and body, never the recipients. Asks first if there's
+  // already a draft in the box, since this overwrites it.
+  function loadTemplate(template) {
+    if ((subject.trim() || body.trim()) && !window.confirm('Replace what you have written?')) return;
+    setSubject(template.subject);
+    setBody(template.body);
+    setUsedTemplate(template.name);
+    setError('');
+    setResult(null);
+    setQueued('');
+    if (template.audienceHint && !to.trim()) setAudienceQuery(template.audienceHint);
+  }
 
   // Parks the draft in Discord rather than sending it. No confirm step here:
   // the Discord card is the confirm step, and nothing leaves until it's
@@ -1946,6 +1993,21 @@ function EmailView() {
 
       {!state.configured && (
         <div className="status">RESEND_API_KEY isn't set, so nothing can be sent yet.</div>
+      )}
+
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+        <span className="form-label" style={{ margin: 0 }}>Start from a draft</span>
+        {EMAIL_TEMPLATES.map((template) => (
+          <button key={template.id} type="button" className="stock-toggle-btn" onClick={() => loadTemplate(template)}>
+            {template.name}
+          </button>
+        ))}
+      </div>
+
+      {usedTemplate && (
+        <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: '-0.75rem 0 1rem' }}>
+          Loaded “{usedTemplate}”. Edit it however you like, pick who it goes to, then send.
+        </p>
       )}
 
       <form onSubmit={handleSend} style={{ maxWidth: '720px' }}>

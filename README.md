@@ -267,6 +267,14 @@ Every message is recorded in `admin_emails`, one row per recipient with its
 own status, and the tab lists the recent ones. The mailbox is shared and a
 reply weeks later needs the original to make sense of it.
 
+**Start from a draft** loads a prepared message into the composer —
+`EMAIL_TEMPLATES` in `MarketplaceAdminClient.js`, one entry per draft. It
+fills the subject and body only: who it goes to is picked separately, and a
+template carrying addresses would be one stale list away from mailing the
+wrong people. A draft can name an `audienceHint`, which prefills the
+release search so the right registrants are one click away. Loading over
+existing text asks first.
+
 **Queue in Discord** parks a draft instead of sending it: the bot posts the
 recipient, subject and body to the alert channel with a **Send Email**
 button, the same shape as the confirmation button on an interest alert. It's
