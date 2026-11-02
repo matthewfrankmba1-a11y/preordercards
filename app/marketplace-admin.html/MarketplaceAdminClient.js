@@ -1813,6 +1813,40 @@ function NewsletterView() {
 // sending — the template is a starting point, not a form.
 const EMAIL_TEMPLATES = [
   {
+    id: 'week-of-nov-2',
+    name: "This week's drops + update",
+    subject: "This week's drops — and what we've been building",
+    body: `Here's what's dropping this week, plus a few things worth knowing.
+
+THIS WEEK
+Wed Nov 4 — Topps Heritage Football
+Wed Nov 4 — Topps Cosmic Chrome Baseball
+Wed Nov 4 — Topps Stadium Club Chrome UEFA Champions League 2025/26
+Wed Nov 4 — Topps Mint Disney
+Thu Nov 5 — 2026-27 Topps Flagship Basketball
+Fri Nov 6 — Topps Stadium Club Baseball
+Fri Nov 6 — Topps Inception Football
+
+Register interest on any of them at https://preordercards.com and we'll work to secure your allocation. No payment up front, and pricing below market as always.
+
+THE HOLIDAY BASKETBALL COUNTDOWN CALENDAR HAS BEEN PUSHED
+It's our most-subscribed release, Topps has moved it, and there's no new date yet. Nobody loses their place in line — we're watching the release calendar daily and you'll hear from us the moment a date lands.
+
+WE'RE STILL BUILDING OUT OUR CHECKOUT SYSTEMS
+The goal is straightforward: secure more allocation, faster, on the drops that sell out in seconds. That work is ongoing and it's where most of our time is going.
+
+CHEAP CARDSHELL MAILERS
+If you ship cards, the rigid paperboard Cardshell mailers at Midvale Box are the cheapest we've found anywhere — packs of 50 here:
+https://midvalebox.com/products/cardshell-mailers-rigid-paperboard-trading-card-envelopes-pack-of-50
+That's a partner link — we may earn a commission if you buy through it, at no extra cost to you.
+
+ONE BIT OF HOUSEKEEPING
+I'm in the middle of a move, which is why things have been slower than usual these past few weeks. Normal pace resumes mid-November.
+
+Thanks for sticking with us.
+— PreorderCards`,
+  },
+  {
     id: 'countdown-pushed',
     name: 'Countdown Calendar — pushed back',
     audienceHint: 'countdown',
