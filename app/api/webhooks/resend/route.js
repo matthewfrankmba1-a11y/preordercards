@@ -5,7 +5,11 @@ import {
   markNewsletterSendStatusByResendId,
   insertNewsletterUnsubscribe,
   getNewsletterSendByResendId,
+  markAdminEmailBouncedByResendId,
+  markAdminEmailComplainedByResendId,
+  getAdminEmailByResendId,
 } from '../../../../lib/db';
+import { notifyBroadcastBounce } from '../../../../lib/broadcastAlerts';
 
 const RESEND_WEBHOOK_SECRET = process.env.RESEND_WEBHOOK_SECRET;
 // The verify() call needs a Resend client instance, but doesn't use the API
@@ -58,6 +62,14 @@ export async function POST(request) {
     // mailbox drops out of next week's list instead of being retried every
     // week and dragging the sending domain's reputation down.
     markNewsletterSendStatusByResendId.run({ status: 'bounced', resendEmailId: emailId });
+
+    // A broadcast from the Email tab is tracked separately from the
+    // newsletter, and its bounces are reported to Discord as they land —
+    // the rate is what says whether the list is going stale.
+    if (markAdminEmailBouncedByResendId.run({ resendEmailId: emailId }).changes === 1) {
+      const row = getAdminEmailByResendId.get(emailId);
+      if (row) await notifyBroadcastBounce({ email: row.toEmail, broadcastId: row.broadcastId, kind: 'bounce' });
+    }
   }
 
   // A spam complaint is an unsubscribe, whatever the message was — mailing
@@ -66,6 +78,14 @@ export async function POST(request) {
     markNewsletterSendStatusByResendId.run({ status: 'complained', resendEmailId: emailId });
     const send = getNewsletterSendByResendId.get(emailId);
     if (send) insertNewsletterUnsubscribe.run({ email: send.email, source: 'complaint' });
+
+    if (markAdminEmailComplainedByResendId.run({ resendEmailId: emailId }).changes === 1) {
+      const row = getAdminEmailByResendId.get(emailId);
+      if (row) {
+        insertNewsletterUnsubscribe.run({ email: row.toEmail, source: 'complaint' });
+        await notifyBroadcastBounce({ email: row.toEmail, broadcastId: row.broadcastId, kind: 'complaint' });
+      }
+    }
   }
 
   return NextResponse.json({ received: true });

@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { requireMarketplaceAdmin } from '../../../../../lib/marketplaceAdminAuth';
-import { listAdminEmails, isNewsletterUnsubscribed, listAllInterestsForAdmin } from '../../../../../lib/db';
+import {
+  listAdminEmails,
+  isNewsletterUnsubscribed,
+  listAllInterestsForAdmin,
+  listBroadcasts,
+} from '../../../../../lib/db';
 import { loadReleases } from '../../../../../lib/releases';
 import { isEmailConfigured, EMAIL_FROM } from '../../../../../lib/email';
 import {
@@ -8,9 +13,13 @@ import {
   MAX_RECIPIENTS,
   MAX_SUBJECT,
   parseRecipients,
+  broadcastRecipients,
+  isBroadcastRunning,
   queueEmail,
   sendAdminEmail,
+  sendBroadcast,
 } from '../../../../../lib/adminEmail';
+import { notifyBroadcastFinished } from '../../../../../lib/broadcastAlerts';
 import bot from '../../../../../lib/bot';
 
 const LOG_LIMIT = 50;
@@ -82,6 +91,9 @@ export async function GET(request) {
     limits: { recipients: MAX_RECIPIENTS, subject: MAX_SUBJECT, body: MAX_BODY },
     recipients: { valid, invalid, unsubscribed: valid.filter((email) => isNewsletterUnsubscribed.get(email)) },
     audiences: audiences(),
+    subscribers: broadcastRecipients().length,
+    broadcastRunning: isBroadcastRunning(),
+    broadcasts: listBroadcasts.all({ limit: 5 }),
     recent: recentLog(),
   });
 }
@@ -91,6 +103,26 @@ export async function POST(request) {
   if (error) return NextResponse.json({ error: error.message }, { status: error.status });
 
   const body = await request.json().catch(() => ({}));
+
+  // Send to everyone on the subscriber list. Deliberately its own path
+  // rather than a bigger recipient box: it carries unsubscribe links,
+  // honours the suppression list with no override, and runs in the
+  // background because it is long.
+  if (body?.broadcast) {
+    const result = await sendBroadcast({ subject: body?.subject, body: body?.body });
+    if (result.error) return NextResponse.json({ error: result.error }, { status: 400 });
+
+    // Not awaited: the request returns as soon as the run is under way, and
+    // the panel polls for progress.
+    result.run
+      .then((finished) => {
+        console.log('Broadcast finished:', JSON.stringify(finished));
+        return notifyBroadcastFinished(finished);
+      })
+      .catch((err) => console.error('Broadcast failed:', err.message));
+
+    return NextResponse.json({ started: true, recipients: result.recipients, broadcastId: result.broadcastId });
+  }
 
   // Park it for approval instead of sending now — the point is to tap Send
   // from a phone, in Discord, rather than coming back to the panel.

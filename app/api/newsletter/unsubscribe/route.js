@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getNewsletterSendById, insertNewsletterUnsubscribe } from '../../../../lib/db';
+import { getNewsletterSendById, getAdminEmailById, insertNewsletterUnsubscribe } from '../../../../lib/db';
 import { verifyToken, SITE_URL } from '../../../../lib/newsletter';
 
 // One-click unsubscribe. Every newsletter carries this link in its footer
@@ -13,6 +13,16 @@ export const dynamic = 'force-dynamic';
 
 function resolveEmail(request) {
   const params = request.nextUrl.searchParams;
+
+  // 'a' is a broadcast sent from the admin panel's Email tab, 's' a weekly
+  // newsletter send. Two id spaces, two token kinds, one landing page.
+  const adminId = Number(params.get('a'));
+  if (Number.isInteger(adminId) && adminId > 0) {
+    if (!verifyToken('ua', adminId, params.get('k'))) return null;
+    const row = getAdminEmailById.get(adminId);
+    return row ? row.toEmail : null;
+  }
+
   const sendId = Number(params.get('s'));
   if (!Number.isInteger(sendId) || sendId <= 0) return null;
   if (!verifyToken('u', sendId, params.get('k'))) return null;

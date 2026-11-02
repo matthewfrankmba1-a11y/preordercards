@@ -1882,12 +1882,20 @@ function EmailView() {
   const [audienceQuery, setAudienceQuery] = useState('');
   const [queued, setQueued] = useState('');
   const [usedTemplate, setUsedTemplate] = useState('');
+  const [broadcasting, setBroadcasting] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
 
   // Re-checked as the recipient box is edited, so an unsubscribed address is
   // flagged before the send rather than reported after it.
+  function load() {
+    fetch(`/api/admin/marketplace/email?check=${encodeURIComponent(to)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => data && setState(data))
+      .catch(() => setError('Could not load the email panel.'));
+  }
+
   useEffect(() => {
     let cancelled = false;
     const timer = setTimeout(() => {
@@ -1917,6 +1925,29 @@ function EmailView() {
     setResult(null);
     setQueued('');
     if (template.audienceHint && !to.trim()) setAudienceQuery(template.audienceHint);
+  }
+
+  // Mails everyone on the subscriber list. Two confirmations, because this
+  // is the one button here that can't be taken back at any scale: the first
+  // names the number, the second makes it deliberate.
+  async function handleBroadcast() {
+    const count = state.subscribers;
+    if (!window.confirm(`Send this to all ${count} subscribers? Emails can't be unsent.`)) return;
+    if (!window.confirm(`Last check — ${count} people will get "${subject.trim()}".`)) return;
+
+    setBroadcasting(true);
+    setError('');
+    setResult(null);
+    setQueued('');
+    const { ok, data } = await postJson('/api/admin/marketplace/email', { subject, body, broadcast: true });
+    setBroadcasting(false);
+    if (!ok) {
+      setError(data.error || 'That could not be sent.');
+      return;
+    }
+    setQueued('');
+    setResult({ sent: 0, failed: [], skippedUnsubscribed: [], broadcastStarted: data.recipients });
+    load();
   }
 
   // Parks the draft in Discord rather than sending it. No confirm step here:
@@ -2191,10 +2222,29 @@ function EmailView() {
           >
             {sending ? 'Working…' : 'Queue in Discord'}
           </button>
+          <button
+            type="button"
+            className="notify-btn"
+            disabled={
+              broadcasting || sending || !state.configured || !subject.trim() || !body.trim() ||
+              state.subscribers === 0 || state.broadcastRunning
+            }
+            title={state.broadcastRunning ? 'A broadcast is already running' : undefined}
+            onClick={handleBroadcast}
+          >
+            {broadcasting || state.broadcastRunning
+              ? 'Sending to subscribers…'
+              : `Send to all ${state.subscribers} subscribers`}
+          </button>
         </div>
         <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0.5rem 0 0' }}>
           Queueing posts it to Discord with a Send button instead of sending it now — for approving from your phone.
           One recipient at a time.
+        </p>
+        <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0.35rem 0 0' }}>
+          Sending to all subscribers ignores the recipient box and mails the whole list — every copy carries an
+          unsubscribe link, anyone who has opted out is left out, and Discord gets a notice when it finishes and
+          again for every bounce.
         </p>
       </form>
 
@@ -2208,17 +2258,42 @@ function EmailView() {
 
       {result && (
         <div className="admin-table-wrap" style={{ padding: '0.9rem 1rem', margin: '1.25rem 0', maxWidth: '720px' }}>
+          {result.broadcastStarted ? (
+            <p style={{ margin: 0, fontWeight: 600, color: '#1a7f37' }}>
+              Sending to {result.broadcastStarted} subscribers. It runs in the background — you can close this page,
+              and Discord gets the summary when it's done.
+            </p>
+          ) : (
           <p style={{ margin: 0, fontWeight: 600 }}>
             {result.sent} sent
             {result.failed.length > 0 ? `, ${result.failed.length} failed` : ''}
             {result.skippedUnsubscribed.length > 0 ? `, ${result.skippedUnsubscribed.length} skipped (unsubscribed)` : ''}
           </p>
+          )}
           {result.failed.map((row) => (
             <p key={row.email} style={{ fontSize: '0.8rem', color: '#b3261e', margin: '0.35rem 0 0' }}>
               {row.email} — {row.error}
             </p>
           ))}
         </div>
+      )}
+
+      {state.broadcasts.length > 0 && (
+        <>
+          <h3 style={{ margin: '1.75rem 0 0.5rem' }}>Broadcasts</h3>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, maxWidth: '720px' }}>
+            {state.broadcasts.map((b) => (
+              <li key={b.broadcastId} className="admin-table-wrap" style={{ padding: '0.7rem 0.9rem', marginBottom: '0.5rem' }}>
+                <strong style={{ fontSize: '0.9rem' }}>{b.subject}</strong>
+                <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>
+                  {formatTimestamp(b.startedAt)} · {b.sent} delivered
+                  {b.failed > 0 ? ` · ${b.failed} failed` : ''} · {b.bounced} bounced
+                  {b.complained > 0 ? ` · ${b.complained} marked spam` : ''}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
       <h3 style={{ margin: '1.75rem 0 0.5rem' }}>Sent from here</h3>

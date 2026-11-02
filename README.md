@@ -275,6 +275,37 @@ wrong people. A draft can name an `audienceHint`, which prefills the
 release search so the right registrants are one click away. Loading over
 existing text asks first.
 
+**Send to all subscribers** mails the whole newsletter list from the same
+composer — the subscriber count is on the button. It ignores the recipient
+box entirely and is its own path rather than a bigger cap, because a send
+to the whole list is bulk mail whatever the subject says, and owes people
+what bulk mail owes them:
+
+- a working unsubscribe link in the body *and* in the `List-Unsubscribe`
+  header, signed per recipient with its own token kind (`ua`) and keyed on
+  the `admin_emails` row, so no address rides in a URL and one person's
+  link can't be edited into someone else's;
+- addresses that have opted out left out, with no "send anyway" override —
+  that escape exists for a direct reply, not for a broadcast;
+- a row per recipient, so a bounce three weeks later still traces back to
+  the message that caused it.
+
+It runs in the background and is resumable: a recipient who already has a
+row for that broadcast is skipped, and a retry reopens their existing row
+rather than adding a second one, so the delivered and bounced counts stay
+honest across runs. Two confirmations before it starts, both naming the
+number of people.
+
+Discord gets a notice when the send finishes (delivered, failed, and
+"not attempted" if a run was cut short) and another for every bounce or
+spam complaint as Resend reports it, each carrying the running bounce
+count and rate for that broadcast — the rate is what says whether the
+list is going stale. Delivery and bounces are separate notices on purpose:
+bounces land minutes to hours after the send, so a bounce count in the
+completion notice would always read zero. The **Broadcasts** list in the
+tab shows the same numbers per send. A spam complaint also unsubscribes
+the address automatically.
+
 **Queue in Discord** parks a draft instead of sending it: the bot posts the
 recipient, subject and body to the alert channel with a **Send Email**
 button, the same shape as the confirmation button on an interest alert. It's
