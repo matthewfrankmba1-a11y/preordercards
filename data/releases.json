@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-10-30",
+  "lastUpdated": "2026-11-02",
   "sourceNote": "Compiled from public release-date trackers (Beckett, Waxstat, Sports Collectors Daily, Topps.com, paniniamerica.net). Topps and other manufacturers can change dates with little notice \u2014 always confirm on Topps.com before buying.",
   "releases": [
     {
@@ -436,7 +436,7 @@
       "manufacturer": "Topps",
       "sport": "Baseball",
       "format": "Hobby Box",
-      "releaseDate": "2026-11-13",
+      "releaseDate": "2026-11-02",
       "description": "Chrome-finish continuation of Update Series covering late-season call-ups, trades, and postseason storylines."
     },
     {
@@ -445,7 +445,7 @@
       "manufacturer": "Topps",
       "sport": "Baseball",
       "format": "Jumbo Box",
-      "releaseDate": "2026-11-13",
+      "releaseDate": "2026-11-02",
       "description": "Jumbo configuration of Topps Chrome Update Series Baseball with additional cards per box."
     },
     {
@@ -481,8 +481,8 @@
       "manufacturer": "Topps",
       "sport": "Baseball",
       "format": "Hobby Box",
-      "releaseDate": "2026-11-06",
-      "description": "Photography-forward baseball release known for chrome and rainbow foil parallels."
+      "description": "Photography-forward baseball release known for chrome and rainbow foil parallels.",
+      "dateTbd": true
     },
     {
       "id": "2026-topps-gilded-collection-baseball",
@@ -722,7 +722,7 @@
       "manufacturer": "Topps",
       "sport": "Baseball",
       "format": "Jumbo Box",
-      "releaseDate": "2026-09-26",
+      "releaseDate": "2026-11-18",
       "description": "Minor-league-focused prospect release spotlighting early professional action shots and autographs."
     },
     {
@@ -1291,6 +1291,96 @@
       "format": "Hobby Box",
       "releaseDate": "2026-11-13",
       "description": "Premium tennis release under the Topps Royalty brand."
+    },
+    {
+      "id": "2026-bowman-u-signature-football",
+      "title": "2026 Bowman U Signature Football",
+      "manufacturer": "Topps",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-02",
+      "description": "Autograph-focused college football release in the Bowman University line."
+    },
+    {
+      "id": "2025-26-topps-true-football-bundesliga",
+      "title": "2025/26 Topps True Football Bundesliga",
+      "manufacturer": "Topps",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-03",
+      "description": "Bundesliga release in Topps' True Football line."
+    },
+    {
+      "id": "2026-topps-stadium-club-football",
+      "title": "2026 Topps Stadium Club Football",
+      "manufacturer": "Topps",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-09",
+      "description": "Photography-driven football release in the Stadium Club line."
+    },
+    {
+      "id": "2026-27-topps-hoops-basketball",
+      "title": "2026-27 Topps Hoops Basketball",
+      "manufacturer": "Topps",
+      "sport": "Basketball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-10",
+      "description": "Topps Hoops basketball release for the 2026-27 season."
+    },
+    {
+      "id": "2026-topps-allen-ginter-x-baseball",
+      "title": "2026 Topps Allen & Ginter X Baseball",
+      "manufacturer": "Topps",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-11",
+      "description": "Online-exclusive X edition of Allen & Ginter, with its own parallels and inserts."
+    },
+    {
+      "id": "2026-27-topps-flagship-bundesliga",
+      "title": "2026/27 Topps Flagship Bundesliga",
+      "manufacturer": "Topps",
+      "sport": "Soccer",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-12",
+      "description": "Topps' flagship Bundesliga set for the 2026/27 season."
+    },
+    {
+      "id": "2026-topps-royalty-ufc",
+      "title": "2026 Topps Royalty UFC",
+      "manufacturer": "Topps",
+      "sport": "MMA",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-13",
+      "description": "Premium UFC release under the Topps Royalty brand."
+    },
+    {
+      "id": "2026-topps-midnight-football",
+      "title": "2026 Topps Midnight Football",
+      "manufacturer": "Topps",
+      "sport": "Football",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-13",
+      "description": "Midnight-treatment football release."
+    },
+    {
+      "id": "2026-topps-t205-baseball",
+      "title": "2026 Topps T205 Baseball",
+      "manufacturer": "Topps",
+      "sport": "Baseball",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-13",
+      "description": "Modern release built on the vintage T205 gold-border design."
+    },
+    {
+      "id": "2026-topps-triumphant-tennis",
+      "title": "2026 Topps Triumphant Tennis",
+      "manufacturer": "Topps",
+      "sport": "Tennis",
+      "format": "Hobby Box",
+      "releaseDate": "2026-11-17",
+      "description": "Tennis release in Topps' Triumphant line."
     }
   ]
 }

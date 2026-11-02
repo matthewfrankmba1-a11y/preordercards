@@ -1819,13 +1819,17 @@ const EMAIL_TEMPLATES = [
     body: `Here's what's dropping this week, plus a few things worth knowing.
 
 THIS WEEK
-Wed Nov 4 — Topps Heritage Football
-Wed Nov 4 — Topps Cosmic Chrome Baseball
+Mon Nov 2 — Topps Chrome Update Series Baseball (Hobby and Jumbo)
+Mon Nov 2 — Bowman U Signature Football
+Tue Nov 3 — Topps True Football Bundesliga 2025/26
 Wed Nov 4 — Topps Stadium Club Chrome UEFA Champions League 2025/26
+Wed Nov 4 — Topps Cosmic Chrome Baseball
+Wed Nov 4 — Topps Heritage Football
 Wed Nov 4 — Topps Mint Disney
 Thu Nov 5 — 2026-27 Topps Flagship Basketball
-Fri Nov 6 — Topps Stadium Club Baseball
 Fri Nov 6 — Topps Inception Football
+
+And right behind them: Stadium Club Football (Nov 9), Topps Hoops Basketball (Nov 10), Allen & Ginter X and Museum Collection Baseball (Nov 11), then Royalty UFC, Midnight Football, Royalty Tennis and T205 Baseball all on Nov 13.
 
 Register interest on any of them at https://preordercards.com and we'll work to secure your allocation. No payment up front, and pricing below market as always.
 
