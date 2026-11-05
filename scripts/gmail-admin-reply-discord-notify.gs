@@ -5,17 +5,27 @@
 // Setup:
 // 1. Go to script.google.com → New Project. Paste this whole file in,
 //    replacing any starter code.
-// 2. Triggers (clock icon on the left) → + Add Trigger →
+// 2. Project Settings (gear icon) → Script Properties → Add script property:
+//    DISCORD_WEBHOOK_URL = the webhook URL from the Discord channel's
+//    Settings → Integrations → Webhooks. It is a credential: it belongs
+//    here, not in this file, which is public.
+// 3. Triggers (clock icon on the left) → + Add Trigger →
 //    function: checkForNewAdminReplies, event source: Time-driven,
 //    type: Minutes timer, every 5 minutes → Save.
-// 3. Authorize when prompted (Advanced → Go to [project] (unsafe) — normal
+// 4. Authorize when prompted (Advanced → Go to [project] (unsafe) — normal
 //    for personal scripts, not a real security warning). This script needs
 //    Gmail read/modify access to search messages and mark them read.
-// 4. Send a test email to admin@preordercards.com and wait up to 5 minutes,
+// 5. Send a test email to admin@preordercards.com and wait up to 5 minutes,
 //    or run checkForNewAdminReplies manually from the editor to test sooner.
 
 function checkForNewAdminReplies() {
-  var webhookUrl = 'https://discord.com/api/webhooks/1530685899678027937/lRO04FsqilgQnEiQ0s_bzEg2A0i2LVGV7C54hcQN-WKJVxh7ljjZgXY37xYGdreiEvpq';
+  // Read from Script Properties, never written in the file: this script
+  // lives in a public repository, and a webhook URL is a credential —
+  // anyone holding it can post into the channel as this bot.
+  var webhookUrl = PropertiesService.getScriptProperties().getProperty('DISCORD_WEBHOOK_URL');
+  if (!webhookUrl) {
+    throw new Error('Set DISCORD_WEBHOOK_URL in Project Settings → Script Properties before running this.');
+  }
 
   var threads = GmailApp.search('to:admin@preordercards.com is:unread', 0, 20);
 

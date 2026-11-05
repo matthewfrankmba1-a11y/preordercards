@@ -5,17 +5,28 @@
 //
 // Setup (see README/chat instructions for full steps):
 // 1. Paste this whole file into the Apps Script editor, replacing any starter code.
-// 2. Triggers (clock icon) → + Add Trigger → function: onFormSubmitTrigger,
+// 2. Project Settings (gear icon) → Script Properties → add two properties:
+//    DISCORD_WEBHOOK_URL = the channel's webhook URL, and
+//    ADMIN_SECRET = the same value as ADMIN_SECRET in Render's env vars.
+//    Both are credentials and belong there, not in this file, which is public.
+// 3. Triggers (clock icon) → + Add Trigger → function: onFormSubmitTrigger,
 //    event source: From form, event type: On form submit → Save.
-// 3. Authorize when prompted (click Advanced → Go to [project] (unsafe) — normal
+// 4. Authorize when prompted (click Advanced → Go to [project] (unsafe) — normal
 //    for personal scripts, not a real security warning).
-// 4. Submit the form once to test.
+// 5. Submit the form once to test.
 
 function onFormSubmitTrigger(e) {
-  var webhookUrl = 'https://discord.com/api/webhooks/1529991361518899281/mZuO1KvYM0R4M6Zzb78YcV5XojXZnlceM0RSyh2SnPwQ4RWpIKfTkw0FAisr_3NiBtZv';
+  // Both secrets come from Script Properties, never from this file: it
+  // lives in a public repository. A webhook URL lets anyone post into the
+  // channel; ADMIN_SECRET opens admin endpoints on the site.
+  var props = PropertiesService.getScriptProperties();
+  var webhookUrl = props.getProperty('DISCORD_WEBHOOK_URL');
+  var adminSecret = props.getProperty('ADMIN_SECRET');
+  if (!webhookUrl || !adminSecret) {
+    throw new Error('Set DISCORD_WEBHOOK_URL and ADMIN_SECRET in Project Settings → Script Properties before running this.');
+  }
   var responsesUrl = 'https://docs.google.com/forms/d/1uHL6qjs1Id5ZaD0kWb06MwDgZuET-6MokQOFoLt2mok/edit#responses';
   var pingUrl = 'https://preordercards.com/api/slot-submission-ping';
-  var adminSecret = 'PASTE_ADMIN_SECRET_HERE'; // same value as ADMIN_SECRET in Render's env vars
 
   var itemResponses = e.response.getItemResponses();
   var fields = itemResponses.map(function (itemResponse) {

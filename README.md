@@ -793,10 +793,12 @@ Each post covers activity **since the last summary** (tracked in the
 - **Slot Submissions** — count of `slot_submissions` rows. The Google
   Apps Script (`scripts/slot-form-discord-notify.gs`) pings
   `POST /api/slot-submission-ping` (header `x-admin-secret`) right after
-  it posts to Discord, purely to log a count here — replace
-  `PASTE_ADMIN_SECRET_HERE` in the script with the real `ADMIN_SECRET`
-  value (Apps Script code is server-side/private, never exposed to form
-  respondents, same trust level as the webhook URL already in that file).
+  it posts to Discord, purely to log a count here. Its `ADMIN_SECRET` and
+  webhook URL come from **Script Properties** (Project Settings → Script
+  Properties), never from the file. Apps Script code isn't visible to form
+  respondents, but these files live in a public repository — which is how
+  two webhook URLs ended up being scraped out of them. Anything secret
+  goes in Script Properties.
 - **Inquiries** — count of new rows in `interests` (release preorder
   registrations).
 - **Marketplace Sales** — count of new rows in `listing_interests`
