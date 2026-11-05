@@ -319,22 +319,20 @@ claimed before the send, so two taps a second apart can't both mail it, and
 released again if Resend rejects it so the button can be retried. Either way
 the attempt is logged in `admin_emails` with its status.
 
-## admin@preordercards.com replies → Discord
+## admin@preordercards.com
 
 `admin@preordercards.com` forwards for free (via ImprovMX, DNS records at
 Namecheap) to a personal Gmail inbox — there's no separate mailbox or
-login, replies just land in that Gmail account like any other email.
+login, replies just land in that Gmail account like any other email. Mail
+sent from the site (confirmations, drop reminders, the newsletter, and
+anything written in the admin panel's Email tab) uses it as the From
+address, so replies come back there.
 
-`scripts/gmail-admin-reply-discord-notify.gs` is a standalone Google
-Apps Script (bound to that Gmail account, not to any Form/Sheet) that
-checks for new unread mail every 5 minutes (`to:admin@preordercards.com
-is:unread`) and posts a "📧 New reply" alert to its own dedicated Discord
-webhook — From, Subject, and a truncated body preview — then marks the
-message read so it isn't re-posted next run. If the Discord post fails,
-the message is left unread so it's retried on the next pass. See the
-setup steps in the script's header comment (script.google.com → New
-Project → paste the file → add a time-driven trigger → authorize Gmail
-access when prompted).
+A Google Apps Script used to post an alert to Discord for each new reply.
+It was retired in November 2026 along with the slot-form notifier: both
+had their webhook URLs written into the files, which is how two live
+credentials ended up in this public repository. Replies are read in Gmail
+instead.
 
 ## Success stories page
 
@@ -790,15 +788,6 @@ once-daily digest.
 Each post covers activity **since the last summary** (tracked in the
 `stats_summary_state` table, a single row) — not all-time totals:
 
-- **Slot Submissions** — count of `slot_submissions` rows. The Google
-  Apps Script (`scripts/slot-form-discord-notify.gs`) pings
-  `POST /api/slot-submission-ping` (header `x-admin-secret`) right after
-  it posts to Discord, purely to log a count here. Its `ADMIN_SECRET` and
-  webhook URL come from **Script Properties** (Project Settings → Script
-  Properties), never from the file. Apps Script code isn't visible to form
-  respondents, but these files live in a public repository — which is how
-  two webhook URLs ended up being scraped out of them. Anything secret
-  goes in Script Properties.
 - **Inquiries** — count of new rows in `interests` (release preorder
   registrations).
 - **Marketplace Sales** — count of new rows in `listing_interests`
